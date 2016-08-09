@@ -1,12 +1,13 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.internal.model.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.SimpleParameterizedType;
+import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.ClassOrInterface;
 import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Interface;
 import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Type;
 import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.trait.HasComparableOperators;
 import com.speedment.runtime.field.trait.HasReferenceValue;
@@ -55,17 +56,20 @@ public final class FieldPattern extends AbstractSiblingPattern {
             .public_()
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))
-            .add(Type.of(com.speedment.runtime.field.Field.class)
-                .add(Generic.of(Type.of("ENTITY")))
-            )
-            .add(siblingOf(HasReferenceValue.class, "Has%1$sValue")
-                .add(Generic.of(Type.of("ENTITY")))
-                .add(Generic.of(Type.of("D")))
-            )
-            .add(Type.of(HasComparableOperators.class)
-                .add(Generic.of(Type.of("ENTITY")))
-                .add(Generic.of(wrapperType()))
-            )
+            .add(SimpleParameterizedType.create(
+                com.speedment.runtime.field.Field.class,
+                SimpleType.create("ENTITY")
+            ))
+            .add(SimpleParameterizedType.create(
+                siblingOf(HasReferenceValue.class, "Has%1$sValue"),
+                SimpleType.create("ENTITY"),
+                SimpleType.create("D")
+            ))
+            .add(SimpleParameterizedType.create(
+                HasComparableOperators.class,
+                SimpleType.create("ENTITY"),
+                wrapperType()
+            ))
         ;
     }
 }

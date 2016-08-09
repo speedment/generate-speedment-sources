@@ -1,14 +1,14 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.internal.model.constant.DefaultJavadocTag;
-import com.speedment.common.codegen.internal.model.constant.DefaultType;
+import com.speedment.common.codegen.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.SimpleParameterizedType;
+import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.ClassOrInterface;
 import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Interface;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
-import com.speedment.common.codegen.model.Type;
 import com.speedment.runtime.field.trait.HasReferenceValue;
 import com.speedment.runtime.internal.field.comparator.ReferenceFieldComparator;
 import java.util.Comparator;
@@ -55,21 +55,25 @@ public final class FieldComparatorPattern extends AbstractSiblingPattern {
             .public_()
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))
-            .add(Type.of(Comparator.class).add(Generic.of(Type.of("ENTITY"))))
+            .add(SimpleParameterizedType.create(
+                Comparator.class, 
+                SimpleType.create("ENTITY")
+            ))
             
             /******************************************************************/
             /*                            Methods                             */
             /******************************************************************/
-            .add(Method.of("getField", siblingOf(HasReferenceValue.class, "Has%1$sValue")
-                    .add(Generic.of("ENTITY"))
-                    .add(Generic.of("D"))
-                )
+            .add(Method.of("getField", SimpleParameterizedType.create(
+                    siblingOf(HasReferenceValue.class, "Has%1$sValue"),
+                    SimpleType.create("ENTITY"),
+                    SimpleType.create("D")
+                ))
                 .set(Javadoc.of("Gets the field that is being compared.")
                     .add(DefaultJavadocTag.RETURN.setValue("the compared field"))
                 )
             )
             
-            .add(Method.of("isReversed", DefaultType.BOOLEAN_PRIMITIVE)
+            .add(Method.of("isReversed", boolean.class)
                 .set(Javadoc.of("Returns if this {@code Comparator} is reversed.")
                     .add(DefaultJavadocTag.RETURN.setValue("if this is reversed"))
                 )

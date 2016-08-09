@@ -2,7 +2,6 @@ package com.speedment.sources.pattern;
 
 import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
-import com.speedment.common.codegen.constant.DefaultType;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.ClassOrInterface;
@@ -18,23 +17,17 @@ import com.speedment.runtime.config.mapper.TypeMapper;
 import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.method.ReferenceGetter;
 import com.speedment.runtime.field.method.ReferenceSetter;
-import com.speedment.runtime.field.predicate.FieldPredicate;
-import com.speedment.runtime.field.predicate.Inclusion;
 import com.speedment.runtime.internal.field.ReferenceFieldImpl;
-import com.speedment.runtime.internal.field.comparator.ReferenceFieldComparator;
-import com.speedment.runtime.internal.field.comparator.ReferenceFieldComparatorImpl;
-import com.speedment.runtime.internal.field.predicate.reference.ReferenceEqualPredicate;
 import java.lang.reflect.Type;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 /**
  *
  * @author Emil Forslund
  */
-public final class FieldImplPattern extends AbstractSiblingPattern {
+public final class BooleanFieldImplPattern extends AbstractSiblingPattern {
 
-    public FieldImplPattern(Class<?> wrapper, Class<?> primitive) {
+    public BooleanFieldImplPattern(Class<?> wrapper, Class<?> primitive) {
         super(wrapper, primitive);
     }
 
@@ -77,12 +70,6 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
             TypeMapper.class,
             SimpleType.create("D"),
             wrapperType()
-        );
-        
-        final Type comparatorType = SimpleParameterizedType.create(
-            siblingOf(ReferenceFieldComparator.class, "%1$sFieldComparator"),
-            SimpleType.create("ENTITY"),
-            SimpleType.create("D")
         );
        
         return com.speedment.common.codegen.model.Class.of(getClassName())
@@ -159,87 +146,6 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add("return unique;")
             )
-            
-            /******************************************************************/
-            /*                           Comparators                          */
-            /******************************************************************/
-            .call(c -> file.add(Import.of(siblingOf(ReferenceFieldComparatorImpl.class, "%1$sFieldComparatorImpl"))))
-            
-            .add(Method.of("comparator", comparatorType).public_()
-                .add(DefaultAnnotationUsage.OVERRIDE)
-                .add("return new " + ucPrimitive() + "FieldComparatorImpl<>(this);")
-            )
-            
-            .add(Method.of("comparatorNullFieldsFirst", comparatorType).public_()
-                .add(DefaultAnnotationUsage.OVERRIDE)
-                .add("return comparator();")
-            )
-            
-            .add(Method.of("comparatorNullFieldsLast", comparatorType).public_()
-                .add(DefaultAnnotationUsage.OVERRIDE)
-                .add("return comparator();")
-            )
-            
-            /******************************************************************/
-            /*                           Operators                            */
-            /******************************************************************/
-            .add(newUnaryOperator(  file, "equal",          "Equal",          false))
-            .add(newUnaryOperator(  file, "greaterThan",    "GreaterThan",    false))
-            .add(newUnaryOperator(  file, "greaterOrEqual", "GreaterOrEqual", false))
-            .add(newBetweenOperator(file, "between",                          false))
-            .add(newInOperator(     file, "in",                               false))
-            .add(newUnaryOperator(  file, "notEqual",       "Equal",           true))
-            .add(newUnaryOperator(  file, "lessOrEqual",    "GreaterThan",     true))
-            .add(newUnaryOperator(  file, "lessThan",       "GreaterOrEqual",  true))
-            .add(newBetweenOperator(file, "notBetween",                        true))
-            .add(newInOperator(     file, "notIn",                             true))
         ;
-    }
-    
-    private Method newUnaryOperator(File file, String methodName, String predicateName, boolean negated) {
-        file.add(Import.of(cousinOf(ReferenceEqualPredicate.class, primitive() + "s", "%1$s" + predicateName + "Predicate")));
-        
-        final Type predicateType = SimpleParameterizedType.create(
-            negated ? Predicate.class : FieldPredicate.class,
-            SimpleType.create("ENTITY")
-        );
-        
-        return Method.of(methodName, predicateType)
-            .public_()
-            .add(DefaultAnnotationUsage.OVERRIDE)
-            .add(Field.of("value", wrapperType()))
-            .add("return new " + ucPrimitive() + predicateName + "Predicate<>(this, value)" + (negated ? ".negate()" : "") + ";");
-    }
-    
-    private Method newInOperator(File file, String methodName, boolean negated) {
-        file.add(Import.of(cousinOf(ReferenceEqualPredicate.class, primitive() + "s", "%1$sInPredicate")));
-        
-        final Type predicateType = SimpleParameterizedType.create(
-            negated ? Predicate.class : FieldPredicate.class,
-            SimpleType.create("ENTITY")
-        );
-        
-        return Method.of(methodName, predicateType)
-            .public_()
-            .add(DefaultAnnotationUsage.OVERRIDE)
-            .add(Field.of("set", DefaultType.set(wrapperType())))
-            .add("return new " + ucPrimitive() + "InPredicate<>(this, set)" + (negated ? ".negate()" : "") + ";");
-    }
-    
-    private Method newBetweenOperator(File file, String methodName, boolean negated) {
-        file.add(Import.of(cousinOf(ReferenceEqualPredicate.class, primitive() + "s", "%1$sBetweenPredicate")));
-        
-        final Type predicateType = SimpleParameterizedType.create(
-            negated ? Predicate.class : FieldPredicate.class,
-            SimpleType.create("ENTITY")
-        );
-        
-        return Method.of(methodName, predicateType)
-            .public_()
-            .add(DefaultAnnotationUsage.OVERRIDE)
-            .add(Field.of("start", wrapperType()))
-            .add(Field.of("end", wrapperType()))
-            .add(Field.of("inclusion", Inclusion.class))
-            .add("return new " + ucPrimitive() + "BetweenPredicate<>(this, start, end, inclusion)" + (negated ? ".negate()" : "") + ";");
     }
 }

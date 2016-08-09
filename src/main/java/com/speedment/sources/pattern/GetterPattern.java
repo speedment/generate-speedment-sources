@@ -1,6 +1,8 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.internal.model.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.SimpleParameterizedType;
+import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.AnnotationUsage;
 import com.speedment.common.codegen.model.ClassOrInterface;
 import com.speedment.common.codegen.model.Field;
@@ -9,7 +11,6 @@ import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Interface;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
-import com.speedment.common.codegen.model.Type;
 import com.speedment.runtime.field.method.Getter;
 import com.speedment.runtime.field.method.ReferenceGetter;
 
@@ -61,10 +62,12 @@ public final class GetterPattern extends AbstractSiblingPattern {
             /*                       Class Declaration                        */
             /******************************************************************/
             .add(apiAnnotation())
-            .add(AnnotationUsage.of(Type.of(FunctionalInterface.class)))
+            .add(AnnotationUsage.of(FunctionalInterface.class))
             .public_()
             .add(Generic.of("ENTITY"))
-            .add(Type.of(Getter.class).add(Generic.of("ENTITY")))
+            .add(SimpleParameterizedType.create(
+                Getter.class, SimpleType.create("ENTITY")
+            ))
             
             /******************************************************************/
             /*                            Methods                             */
@@ -77,7 +80,7 @@ public final class GetterPattern extends AbstractSiblingPattern {
                     .add(DefaultJavadocTag.PARAM.setValue("instance").setText("the instance to get from"))
                     .add(DefaultJavadocTag.RETURN.setValue("the value"))
                 )
-                .add(Field.of("instance", Type.of("ENTITY")))
+                .add(Field.of("instance", SimpleType.create("ENTITY")))
             );
     }
 }

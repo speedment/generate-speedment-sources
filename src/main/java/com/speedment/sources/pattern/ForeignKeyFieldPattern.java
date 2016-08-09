@@ -1,12 +1,13 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.internal.model.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.SimpleParameterizedType;
+import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.ClassOrInterface;
 import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Interface;
 import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Type;
 import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.ReferenceForeignKeyField;
 import com.speedment.runtime.field.trait.HasFinder;
@@ -59,14 +60,16 @@ public final class ForeignKeyFieldPattern extends AbstractSiblingPattern {
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))
             .add(Generic.of("FK_ENTITY"))
-            .add(siblingOf(ReferenceField.class, "%1$sField")
-                .add(Generic.of(Type.of("ENTITY")))
-                .add(Generic.of(Type.of("D")))
-            )
-            .add(Type.of(HasFinder.class)
-                .add(Generic.of(Type.of("ENTITY")))
-                .add(Generic.of(Type.of("FK_ENTITY")))
-            )
+            .add(SimpleParameterizedType.create(
+                siblingOf(ReferenceField.class, "%1$sField"),
+                SimpleType.create("ENTITY"),
+                SimpleType.create("D")
+            ))
+            .add(SimpleParameterizedType.create(
+                HasFinder.class,
+                SimpleType.create("ENTITY"),
+                SimpleType.create("FK_ENTITY")
+            ))
         ;
     }
 }

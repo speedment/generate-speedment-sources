@@ -1,7 +1,9 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.internal.model.constant.DefaultAnnotationUsage;
-import com.speedment.common.codegen.internal.model.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
+import com.speedment.common.codegen.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.SimpleParameterizedType;
+import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.ClassOrInterface;
 import com.speedment.common.codegen.model.Constructor;
 import com.speedment.common.codegen.model.Field;
@@ -9,7 +11,6 @@ import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Type;
 import com.speedment.common.tuple.Tuple2;
 import com.speedment.runtime.field.predicate.Inclusion;
 import com.speedment.runtime.field.predicate.PredicateType;
@@ -22,6 +23,7 @@ import java.util.Objects;
 import com.speedment.common.codegen.model.Method;
 import static com.speedment.common.codegen.internal.util.Formatting.block;
 import static com.speedment.common.codegen.internal.util.Formatting.indent;
+import java.lang.reflect.Type;
 
 /**
  *
@@ -50,14 +52,15 @@ public final class BetweenPredicatePattern extends AbstractCousinPattern {
 
     @Override
     public ClassOrInterface<?> make(File file) {
-        file.add(Import.of(Type.of(Objects.class)).static_().setStaticMember("requireNonNull"));
-        file.add(Import.of(Type.of(PredicateType.class)));
+        file.add(Import.of(Objects.class).static_().setStaticMember("requireNonNull"));
+        file.add(Import.of(PredicateType.class));
         
         final String enumConstant = PredicateType.class.getSimpleName() + "." + PredicateType.BETWEEN.name();
-        final Type hasValueType = siblingOf(HasReferenceValue.class, "Has%1$sValue")
-            .add(Generic.of(Type.of("ENTITY")))
-            .add(Generic.of(Type.of("D")))
-        ;
+        final Type hasValueType = SimpleParameterizedType.create(
+            siblingOf(HasReferenceValue.class, "Has%1$sValue"),
+            SimpleType.create("ENTITY"),
+            SimpleType.create("D")
+        );
         
         return com.speedment.common.codegen.model.Class.of(getClassName())
             
@@ -79,26 +82,28 @@ public final class BetweenPredicatePattern extends AbstractCousinPattern {
             .public_().final_()
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))
-            .setSupertype(Type.of(AbstractFieldPredicate.class)
-                .add(Generic.of(Type.of("ENTITY")))
-                .add(Generic.of(hasValueType))
-            )
+            .setSupertype(SimpleParameterizedType.create(
+                AbstractFieldPredicate.class,
+                SimpleType.create("ENTITY"),
+                hasValueType
+            ))
             
             /******************************************************************/
             /*                     Implemented Interfaces                     */
             /******************************************************************/
-            .add(Type.of(BetweenPredicate.class))
-            .add(Type.of(Tuple2.class)
-                .add(Generic.of(wrapperType()))
-                .add(Generic.of(wrapperType()))
-            )
+            .add(BetweenPredicate.class)
+            .add(SimpleParameterizedType.create(
+                Tuple2.class,
+                wrapperType(),
+                wrapperType()
+            ))
             
             /******************************************************************/
             /*                        Private Fields                          */
             /******************************************************************/
             .add(Field.of("start", primitiveType()).private_().final_())
             .add(Field.of("end", primitiveType()).private_().final_())
-            .add(Field.of("inclusion", Type.of(Inclusion.class)).private_().final_())
+            .add(Field.of("inclusion", Inclusion.class).private_().final_())
             
             /******************************************************************/
             /*                          Constructor                           */
@@ -107,7 +112,7 @@ public final class BetweenPredicatePattern extends AbstractCousinPattern {
                 .add(Field.of("field", hasValueType))
                 .add(Field.of("start", primitiveType()))
                 .add(Field.of("end", primitiveType()))
-                .add(Field.of("inclusion", Type.of(Inclusion.class)))
+                .add(Field.of("inclusion", Inclusion.class))
                 .add(
                     "super(" + enumConstant + ", field, entity -> " + block(
                         "final " + primitive() + " fieldValue = field.getAs" + ucPrimitive() + "(entity);",
@@ -148,7 +153,7 @@ public final class BetweenPredicatePattern extends AbstractCousinPattern {
                 .add("return end;")
             )
             
-            .add(Method.of("getInclusion", Type.of(Inclusion.class)).public_()
+            .add(Method.of("getInclusion", Inclusion.class).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add("return inclusion;")
             )

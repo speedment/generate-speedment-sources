@@ -1,17 +1,27 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.internal.model.constant.DefaultAnnotationUsage;
-import com.speedment.common.codegen.internal.model.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
+import com.speedment.common.codegen.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.DefaultType;
+import com.speedment.common.codegen.constant.SimpleParameterizedType;
+import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.ClassOrInterface;
 import com.speedment.common.codegen.model.Field;
 import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Generic;
+import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Method;
-import com.speedment.common.codegen.model.Type;
+import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.ReferenceForeignKeyField;
+import com.speedment.runtime.field.finder.FindFrom;
 import com.speedment.runtime.field.method.Finder;
 import com.speedment.runtime.internal.field.ReferenceForeignKeyFieldImpl;
+import com.speedment.runtime.internal.field.finder.FindFromReference;
+import com.speedment.runtime.manager.Manager;
+import com.speedment.sources.Pattern;
+import java.lang.reflect.Type;
 import java.util.List;
+import static java.util.Objects.requireNonNull;
 import java.util.function.Predicate;
 
 /**
@@ -20,11 +30,15 @@ import java.util.function.Predicate;
  */
 public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
 
-    private final FieldImplPattern delegator;
+    private final Pattern delegator;
     
     public ForeignKeyFieldImplPattern(Class<?> wrapper, Class<?> primitive) {
+        this(wrapper, primitive, new FieldImplPattern(wrapper, primitive));
+    }
+    
+    public ForeignKeyFieldImplPattern(Class<?> wrapper, Class<?> primitive, Pattern delegator) {
         super(wrapper, primitive);
-        delegator = new FieldImplPattern(wrapper, primitive);
+        this.delegator = requireNonNull(delegator);
     }
 
     @Override
@@ -39,9 +53,17 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
 
     @Override
     public ClassOrInterface<?> make(File file) {
-        final Type finderType = Type.of(Finder.class)
-            .add(Generic.of(Type.of("ENTITY")))
-            .add(Generic.of(Type.of("FK_ENTITY")));
+        final Type finderType = SimpleParameterizedType.create(
+            Finder.class,
+            SimpleType.create("ENTITY"),
+            SimpleType.create("FK_ENTITY")
+        );
+        
+        final Type referencedFieldType = SimpleParameterizedType.create(
+            siblingOf(ReferenceField.class, "%1$sField"),
+            SimpleType.create("FK_ENTITY"),
+            DefaultType.WILDCARD
+        );
         
         return ((com.speedment.common.codegen.model.Class) delegator.make(file))
             
@@ -54,27 +76,45 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
             )))
             
             // Add an extra generic type parameter
-            .add(Generic.of(Type.of("FK_ENTITY")))
+            .add(Generic.of(SimpleType.create("FK_ENTITY")))
             
             // Change which interfaces are implemented
-            .add(siblingOf(ReferenceForeignKeyField.class, "%1$sForeignKeyField")
-                .add(Generic.of(Type.of("ENTITY")))
-                .add(Generic.of(Type.of("D")))
-                .add(Generic.of(Type.of("FK_ENTITY")))
-            )
-            
-            // Insert a new private field just before the 'typeMapper'-field
-            .call(c -> c.getFields().add(
-                indexOf(c.getFields(), f -> "typeMapper".equals(f.getName())),
-                Field.of("finder", finderType).private_().final_()
+            .add(SimpleParameterizedType.create(
+                siblingOf(ReferenceForeignKeyField.class, "%1$sForeignKeyField"),
+                SimpleType.create("ENTITY"),
+                SimpleType.create("D"),
+                SimpleType.create("FK_ENTITY")
             ))
             
-            // Insert a new constructor parameter just before 'typeMapper' and
-            // a line that sets the member variable to its value
+            // Insert two new private fields just before the 'typeMapper'-field
+            .call(c -> {
+                c.getFields().add(
+                    indexOf(c.getFields(), f -> "typeMapper".equals(f.getName())),
+                    Field.of("referenced", referencedFieldType).private_().final_()
+                );
+                
+                c.getFields().add(
+                    indexOf(c.getFields(), f -> "typeMapper".equals(f.getName())),
+                    Field.of("finder", finderType).private_().final_()
+                );
+            })
+            
+            // Insert two new constructor parameters just before 'typeMapper' 
+            // and a line that sets the member variables to their new values
             .call(c -> c.getConstructors().forEach(constr -> {
                 constr.getFields().add(
                     indexOf(constr.getFields(), f -> "typeMapper".equals(f.getName())),
+                    Field.of("referenced", referencedFieldType)
+                );
+                
+                constr.getFields().add(
+                    indexOf(constr.getFields(), f -> "typeMapper".equals(f.getName())),
                     Field.of("finder", finderType)
+                );
+                
+                constr.getCode().add(
+                    indexOf(constr.getCode(), row -> row.startsWith("this.typeMapper")),
+                    "this.referenced = requireNonNull(referenced);"
                 );
                 
                 constr.getCode().add(
@@ -84,12 +124,32 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
             }))
             
             // Insert the finder()-method
-            .call(c -> c.getMethods().add(
-                indexOf(c.getMethods(), m -> "typeMapper".equals(m.getName())),
-                Method.of("finder", finderType).public_()
-                    .add(DefaultAnnotationUsage.OVERRIDE)
-                    .add("return finder;")
-            ))
+            .call(c -> {
+                final Type findFromType = siblingOf(FindFromReference.class, "FindFrom%1$s");
+                file.add(Import.of(findFromType));
+                
+                c.getMethods().add(
+                    indexOf(c.getMethods(), m -> "typeMapper".equals(m.getName())),
+                    Method.of("findFrom", SimpleParameterizedType.create(
+                        FindFrom.class,
+                        SimpleType.create("ENTITY"),
+                        SimpleType.create("FK_ENTITY")
+                    )).public_()
+                        .add(DefaultAnnotationUsage.OVERRIDE)
+                        .add(Field.of("foreignManager", SimpleParameterizedType.create(
+                            Manager.class,
+                            SimpleType.create("FK_ENTITY")
+                        )))
+                        .add("return new FindFrom" + ucPrimitive() + "<>(this, referenced, foreignManager);")
+                );
+                
+                c.getMethods().add(
+                    indexOf(c.getMethods(), m -> "typeMapper".equals(m.getName())),
+                    Method.of("finder", finderType).public_()
+                        .add(DefaultAnnotationUsage.OVERRIDE)
+                        .add("return finder;")
+                );
+            })
         ;
     }
 

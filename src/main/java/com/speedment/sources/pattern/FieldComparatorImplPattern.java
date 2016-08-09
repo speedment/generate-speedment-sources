@@ -1,8 +1,10 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.internal.model.constant.DefaultAnnotationUsage;
-import com.speedment.common.codegen.internal.model.constant.DefaultJavadocTag;
-import com.speedment.common.codegen.internal.model.constant.DefaultType;
+import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
+import com.speedment.common.codegen.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.DefaultType;
+import com.speedment.common.codegen.constant.SimpleParameterizedType;
+import com.speedment.common.codegen.constant.SimpleType;
 import static com.speedment.common.codegen.internal.util.Formatting.block;
 import com.speedment.common.codegen.model.ClassOrInterface;
 import com.speedment.common.codegen.model.Constructor;
@@ -12,11 +14,11 @@ import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
-import com.speedment.common.codegen.model.Type;
 import com.speedment.runtime.field.trait.HasReferenceValue;
 import com.speedment.runtime.internal.field.comparator.ReferenceFieldComparator;
 import com.speedment.runtime.internal.field.comparator.ReferenceFieldComparatorImpl;
 import com.speedment.runtime.util.NullUtil;
+import java.lang.reflect.Type;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -42,12 +44,14 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
 
     @Override
     public ClassOrInterface<?> make(File file) {
-        file.add(Import.of(Type.of(Objects.class)).static_().setStaticMember("requireNonNull"));
-        file.add(Import.of(Type.of(NullUtil.class)).static_().setStaticMember("requireNonNulls"));
+        file.add(Import.of(Objects.class).static_().setStaticMember("requireNonNull"));
+        file.add(Import.of(NullUtil.class).static_().setStaticMember("requireNonNulls"));
         
-        final Type fieldType = siblingOf(HasReferenceValue.class, "Has%1$sValue")
-            .add(Generic.of(Type.of("ENTITY")))
-            .add(Generic.of(Type.of("D")));
+        final Type fieldType = SimpleParameterizedType.create(
+            siblingOf(HasReferenceValue.class, "Has%1$sValue"),
+            SimpleType.create("ENTITY"),
+            SimpleType.create("D")
+        );
         
         return com.speedment.common.codegen.model.Class.of(getClassName())
             
@@ -65,18 +69,19 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
             /*                       Class Declaration                        */
             /******************************************************************/
             .public_().final_()
-            .add(Generic.of(Type.of("ENTITY")))
-            .add(Generic.of(Type.of("D")))
-            .add(siblingOf(ReferenceFieldComparator.class, "%1$sFieldComparator")
-                .add(Generic.of(Type.of("ENTITY")))
-                .add(Generic.of(Type.of("D")))
-            )
+            .add(Generic.of(SimpleType.create("ENTITY")))
+            .add(Generic.of(SimpleType.create("D")))
+            .add(SimpleParameterizedType.create(
+                siblingOf(ReferenceFieldComparator.class, "%1$sFieldComparator"),
+                SimpleType.create("ENTITY"),
+                SimpleType.create("D")
+            ))
             
             /******************************************************************/
             /*                        Private Fields                          */
             /******************************************************************/
             .add(Field.of("field", fieldType).private_().final_())
-            .add(Field.of("reversed", DefaultType.BOOLEAN_PRIMITIVE).private_())
+            .add(Field.of("reversed", boolean.class).private_())
             
             /******************************************************************/
             /*                          Constructor                           */
@@ -98,15 +103,15 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
                 .add("return field;")
             )
             
-            .add(Method.of("isReversed", DefaultType.BOOLEAN_PRIMITIVE)
+            .add(Method.of("isReversed", boolean.class)
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .public_()
                 .add("return reversed;")
             )
             
-            .add(Method.of("reversed", Type.of(Comparator.class)
-                    .add(Generic.of(Type.of("ENTITY")))
-                )
+            .add(Method.of("reversed", SimpleParameterizedType.create(
+                    Comparator.class, SimpleType.create("ENTITY")
+                ))
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .public_()
                 .add(
@@ -115,10 +120,10 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
                 )
             )
             
-            .add(Method.of("compare", DefaultType.INT_PRIMITIVE)
+            .add(Method.of("compare", int.class)
                 .add(DefaultAnnotationUsage.OVERRIDE)
-                .add(Field.of("first", Type.of("ENTITY")))
-                .add(Field.of("second", Type.of("ENTITY")))
+                .add(Field.of("first", SimpleType.create("ENTITY")))
+                .add(Field.of("second", SimpleType.create("ENTITY")))
                 .public_()
                 .add(
                     "requireNonNulls(first, second);",
@@ -131,15 +136,13 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
             /******************************************************************/
             /*                       Private Methods                          */
             /******************************************************************/
-            .add(Method.of("applyReversed", 
-                    DefaultType.INT_PRIMITIVE
-                )
+            .add(Method.of("applyReversed", int.class)
                 .private_()
                 .add(Field.of("compare", 
-                    isLong()   ? DefaultType.LONG_PRIMITIVE   : 
-                    isDouble() ? DefaultType.DOUBLE_PRIMITIVE : 
-                    isFloat()  ? DefaultType.FLOAT_PRIMITIVE  :
-                                 DefaultType.INT_PRIMITIVE
+                    isLong()   ? long.class   : 
+                    isDouble() ? double.class : 
+                    isFloat()  ? float.class  :
+                                 int.class
                 ))
                 .add(
                     "if (compare == 0) " + block(

@@ -1,13 +1,14 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.internal.model.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.SimpleParameterizedType;
+import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.ClassOrInterface;
 import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Interface;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
-import com.speedment.common.codegen.model.Type;
 import com.speedment.runtime.field.method.SetToReference;
 import com.speedment.runtime.field.trait.HasReferenceValue;
 import java.util.function.UnaryOperator;
@@ -55,14 +56,19 @@ public final class SetToPattern extends AbstractSiblingPattern {
             .public_()
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))
-            .add(Type.of(UnaryOperator.class).add(Generic.of("ENTITY")))
+            .add(SimpleParameterizedType.create(
+                UnaryOperator.class, 
+                SimpleType.create("ENTITY")
+            ))
             
             /******************************************************************/
             /*                            Methods                             */
             /******************************************************************/
-            .add(Method.of("getField", siblingOf(HasReferenceValue.class, "Has%1$sValue")
-                    .add(Generic.of("ENTITY")).add(Generic.of("D"))
-                )
+            .add(Method.of("getField", SimpleParameterizedType.create(
+                    siblingOf(HasReferenceValue.class, "Has%1$sValue"),
+                    SimpleType.create("ENTITY"),
+                    SimpleType.create("D")
+                ))
                 .set(Javadoc.of(formatJavadoc(
                         "Returns the field that this setter sets."
                     )).add(DefaultJavadocTag.RETURN.setValue("the field"))

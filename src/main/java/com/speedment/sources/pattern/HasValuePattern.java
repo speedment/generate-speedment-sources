@@ -1,7 +1,9 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.internal.model.constant.DefaultAnnotationUsage;
-import com.speedment.common.codegen.internal.model.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
+import com.speedment.common.codegen.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.SimpleParameterizedType;
+import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.ClassOrInterface;
 import com.speedment.common.codegen.model.Field;
 import com.speedment.common.codegen.model.File;
@@ -10,7 +12,6 @@ import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Interface;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
-import com.speedment.common.codegen.model.Type;
 import com.speedment.runtime.config.mapper.TypeMapper;
 import com.speedment.runtime.field.method.ReferenceGetter;
 import com.speedment.runtime.field.method.ReferenceSetter;
@@ -63,25 +64,33 @@ public final class HasValuePattern extends AbstractSiblingPattern {
             .public_()
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))
-            .add(Type.of(com.speedment.runtime.field.Field.class)
-                .add(Generic.of(Type.of("ENTITY")))
-            )
+            .add(SimpleParameterizedType.create(
+                com.speedment.runtime.field.Field.class,
+                SimpleType.create("ENTITY")
+            ))
             
             /******************************************************************/
             /*                            Methods                             */
             /******************************************************************/
-            .add(Method.of("setter", siblingOf(ReferenceSetter.class, "%1$sSetter").add(Generic.of("ENTITY")))
+            .add(Method.of("setter", SimpleParameterizedType.create(
+                    siblingOf(ReferenceSetter.class, "%1$sSetter"), 
+                    SimpleType.create("ENTITY")
+                ))
                 .add(DefaultAnnotationUsage.OVERRIDE)
             )
             
-            .add(Method.of("getter", siblingOf(ReferenceGetter.class, "%1$sGetter").add(Generic.of("ENTITY")))
+            .add(Method.of("getter", SimpleParameterizedType.create(
+                    siblingOf(ReferenceGetter.class, "%1$sGetter"),
+                    SimpleType.create("ENTITY")
+                ))
                 .add(DefaultAnnotationUsage.OVERRIDE)
             )
             
-            .add(Method.of("typeMapper", Type.of(TypeMapper.class)
-                    .add(Generic.of(Type.of("D")))
-                    .add(Generic.of(wrapperType()))
-                )
+            .add(Method.of("typeMapper", SimpleParameterizedType.create(
+                    TypeMapper.class,
+                    SimpleType.create("D"),
+                    wrapperType()
+                ))
                 .add(DefaultAnnotationUsage.OVERRIDE)
             )
             
@@ -93,11 +102,11 @@ public final class HasValuePattern extends AbstractSiblingPattern {
                     .add(DefaultJavadocTag.PARAM.setValue("entity").setText("the entity"))
                     .add(DefaultJavadocTag.RETURN.setValue("the value of the field"))
                 )
-                .add(Field.of("entity", Type.of("ENTITY")))
+                .add(Field.of("entity", SimpleType.create("ENTITY")))
                 .add("return getter().getAs" + ucPrimitive() + "(entity);")
             )
             
-            .add(Method.of("set", Type.of("ENTITY"))
+            .add(Method.of("set", SimpleType.create("ENTITY"))
                 .default_()
                 .set(Javadoc.of(formatJavadoc(
                         "Sets the value in the given Entity."
@@ -106,15 +115,16 @@ public final class HasValuePattern extends AbstractSiblingPattern {
                     .add(DefaultJavadocTag.PARAM.setValue("value").setText("to set"))
                     .add(DefaultJavadocTag.RETURN.setValue("the entity itself"))
                 )
-                .add(Field.of("entity", Type.of("ENTITY")))
+                .add(Field.of("entity", SimpleType.create("ENTITY")))
                 .add(Field.of("value", primitiveType()))
                 .add("return setter().setAs" + ucPrimitive() + "(entity, value);")
             )
             
-            .add(Method.of("setTo", siblingOf(SetToReference.class, "SetTo%1$s")
-                    .add(Generic.of(Type.of("ENTITY")))
-                    .add(Generic.of(Type.of("D")))
-                )
+            .add(Method.of("setTo", SimpleParameterizedType.create(
+                    siblingOf(SetToReference.class, "SetTo%1$s"),
+                    SimpleType.create("ENTITY"),
+                    SimpleType.create("D")
+                ))
                 .default_()
                 .set(Javadoc.of(formatJavadoc(
                         "Creates and returns a setter handler with a given value."

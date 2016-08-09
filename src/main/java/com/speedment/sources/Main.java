@@ -21,6 +21,9 @@ import com.speedment.common.codegen.controller.AutoImports;
 import com.speedment.common.codegen.internal.java.JavaGenerator;
 import com.speedment.common.codegen.internal.util.Formatting;
 import com.speedment.common.codegen.model.File;
+import com.speedment.sources.pattern.BooleanFieldImplPattern;
+import com.speedment.sources.pattern.BooleanFieldPattern;
+import com.speedment.sources.pattern.FindFromPattern;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -83,6 +86,7 @@ public final class Main {
         install(patterns, FieldComparatorPattern::new);
         install(patterns, FieldImplPattern::new);
         install(patterns, FieldPattern::new);
+        install(patterns, FindFromPattern::new);
         install(patterns, ForeignKeyFieldImplPattern::new);
         install(patterns, ForeignKeyFieldPattern::new);
         install(patterns, GetterPattern::new);
@@ -93,6 +97,16 @@ public final class Main {
         install(patterns, SetToPattern::new);
         install(patterns, SetToImplPattern::new);
         install(patterns, SetterPattern::new);
+        
+        // Boolean types
+        patterns.add(new GetterPattern(Boolean.class, boolean.class));
+        patterns.add(new SetterPattern(Boolean.class, boolean.class));
+        patterns.add(new SetToPattern(Boolean.class, boolean.class));
+        patterns.add(new SetToImplPattern(Boolean.class, boolean.class));
+        patterns.add(new HasValuePattern(Boolean.class, boolean.class));
+        patterns.add(new BooleanFieldPattern(Boolean.class, boolean.class));
+        patterns.add(new BooleanFieldImplPattern(Boolean.class, boolean.class));
+        patterns.add(new ForeignKeyFieldPattern(Boolean.class, boolean.class));
         
         final Generator gen = new JavaGenerator();
         final AtomicInteger counter = new AtomicInteger();

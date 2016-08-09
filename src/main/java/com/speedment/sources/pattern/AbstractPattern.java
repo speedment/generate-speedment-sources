@@ -1,11 +1,12 @@
 package com.speedment.sources.pattern;
 
+import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.sources.Pattern;
 import com.speedment.common.codegen.internal.model.value.TextValue;
 import com.speedment.common.codegen.internal.util.Formatting;
 import com.speedment.common.codegen.model.AnnotationUsage;
-import com.speedment.common.codegen.model.Type;
 import com.speedment.runtime.annotation.Api;
+import java.lang.reflect.Type;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -34,25 +35,25 @@ abstract class AbstractPattern implements Pattern {
     }
     
     protected final Type wrapperType() {
-        return Type.of(wrapper);
+        return wrapper;
     }
     
     protected final Type primitiveType() {
-        return Type.of(primitive);
+        return primitive;
     }
     
     protected final AnnotationUsage apiAnnotation() {
-        return AnnotationUsage.of(Type.of(Api.class)).put("version", new TextValue("3.0"));
+        return AnnotationUsage.of(Api.class).put("version", new TextValue("3.0"));
     }
     
     protected final Type siblingOf(Class<?> packageOf, String name) {
-        return Type.of(packageOf.getPackage().getName() + "." + String.format(name, ucPrimitive()));
+        return SimpleType.create(packageOf.getPackage().getName() + "." + String.format(name, ucPrimitive()));
     }
     
     protected final Type cousinOf(Class<?> cousinOf, String packageName, String className) {
         final String siblingPackage = cousinOf.getPackage().getName();
         final String parentPackage = siblingPackage.substring(0, siblingPackage.lastIndexOf("."));
-        return Type.of(parentPackage + "." + 
+        return SimpleType.create(parentPackage + "." + 
             String.format(packageName, ucPrimitive()) + "." + 
             String.format(className, ucPrimitive())
         );

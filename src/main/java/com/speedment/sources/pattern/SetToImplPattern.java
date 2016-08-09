@@ -1,7 +1,9 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.internal.model.constant.DefaultAnnotationUsage;
-import com.speedment.common.codegen.internal.model.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
+import com.speedment.common.codegen.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.SimpleParameterizedType;
+import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.ClassOrInterface;
 import com.speedment.common.codegen.model.Constructor;
 import com.speedment.common.codegen.model.Field;
@@ -10,10 +12,10 @@ import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
-import com.speedment.common.codegen.model.Type;
 import com.speedment.runtime.field.method.SetToReference;
 import com.speedment.runtime.field.trait.HasReferenceValue;
 import com.speedment.runtime.internal.field.setter.SetToReferenceImpl;
+import java.lang.reflect.Type;
 import java.util.Objects;
 
 /**
@@ -38,11 +40,13 @@ public final class SetToImplPattern extends AbstractSiblingPattern {
 
     @Override
     public ClassOrInterface<?> make(File file) {
-        file.add(Import.of(Type.of(Objects.class)).static_().setStaticMember("requireNonNull"));
+        file.add(Import.of(Objects.class).static_().setStaticMember("requireNonNull"));
         
-        final Type fieldType = siblingOf(HasReferenceValue.class, "Has%1$sValue")
-                .add(Generic.of(Type.of("ENTITY")))
-                .add(Generic.of(Type.of("D")));
+        final Type fieldType = SimpleParameterizedType.create(
+            siblingOf(HasReferenceValue.class, "Has%1$sValue"),
+            SimpleType.create("ENTITY"),
+            SimpleType.create("D")
+        );
         
         return com.speedment.common.codegen.model.Class.of(getClassName())
             
@@ -67,10 +71,11 @@ public final class SetToImplPattern extends AbstractSiblingPattern {
             .public_().final_()
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))
-            .add(siblingOf(SetToReference.class, "SetTo%1$s")
-                .add(Generic.of(Type.of("ENTITY")))
-                .add(Generic.of(Type.of("D")))
-            )
+            .add(SimpleParameterizedType.create(
+                siblingOf(SetToReference.class, "SetTo%1$s"),
+                SimpleType.create("ENTITY"),
+                SimpleType.create("D")
+            ))
             
             /******************************************************************/
             /*                      Private Member Fields                     */
@@ -101,9 +106,9 @@ public final class SetToImplPattern extends AbstractSiblingPattern {
                 .add("return newValue;")
             )
             
-            .add(Method.of("apply", Type.of("ENTITY")).public_()
+            .add(Method.of("apply", SimpleType.create("ENTITY")).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
-                .add(Field.of("entity", Type.of("ENTITY")))
+                .add(Field.of("entity", SimpleType.create("ENTITY")))
                 .add("return field.setter().setAs" + ucPrimitive() + "(entity, newValue);")
             )
         ;

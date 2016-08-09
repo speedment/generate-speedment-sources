@@ -1,8 +1,10 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.internal.model.constant.DefaultAnnotationUsage;
-import com.speedment.common.codegen.internal.model.constant.DefaultJavadocTag;
-import com.speedment.common.codegen.internal.model.constant.DefaultType;
+import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
+import com.speedment.common.codegen.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.DefaultType;
+import com.speedment.common.codegen.constant.SimpleParameterizedType;
+import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.ClassOrInterface;
 import com.speedment.common.codegen.model.Constructor;
 import com.speedment.common.codegen.model.Field;
@@ -10,7 +12,6 @@ import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Type;
 import com.speedment.runtime.field.predicate.PredicateType;
 import com.speedment.runtime.field.trait.HasReferenceValue;
 import com.speedment.runtime.internal.field.predicate.AbstractFieldPredicate;
@@ -18,6 +19,7 @@ import com.speedment.runtime.internal.field.predicate.AbstractFieldPredicate;
 import com.speedment.common.codegen.model.Method;
 import com.speedment.common.tuple.Tuple1;
 import com.speedment.runtime.internal.field.predicate.reference.ReferenceInPredicate;
+import java.lang.reflect.Type;
 import java.util.Objects;
 
 /**
@@ -47,14 +49,15 @@ public final class InPredicatePattern extends AbstractCousinPattern {
 
     @Override
     public ClassOrInterface<?> make(File file) {
-        file.add(Import.of(Type.of(Objects.class)).static_().setStaticMember("requireNonNull"));
-        file.add(Import.of(Type.of(PredicateType.class)));
+        file.add(Import.of(Objects.class).static_().setStaticMember("requireNonNull"));
+        file.add(Import.of(PredicateType.class));
         
         final String enumConstant = PredicateType.class.getSimpleName() + "." + PredicateType.IN.name();
-        final Type hasValueType = siblingOf(HasReferenceValue.class, "Has%1$sValue")
-            .add(Generic.of(Type.of("ENTITY")))
-            .add(Generic.of(Type.of("D")))
-        ;
+        final Type hasValueType = SimpleParameterizedType.create(
+            siblingOf(HasReferenceValue.class, "Has%1$sValue"),
+            SimpleType.create("ENTITY"),
+            SimpleType.create("D")
+        );
         
         return com.speedment.common.codegen.model.Class.of(getClassName())
             
@@ -76,13 +79,15 @@ public final class InPredicatePattern extends AbstractCousinPattern {
             .public_().final_()
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))
-            .setSupertype(Type.of(AbstractFieldPredicate.class)
-                .add(Generic.of(Type.of("ENTITY")))
-                .add(Generic.of(hasValueType))
-            )
-            .add(Type.of(Tuple1.class)
-                .add(Generic.of(DefaultType.set(wrapperType())))
-            )
+            .setSupertype(SimpleParameterizedType.create(
+                AbstractFieldPredicate.class,
+                SimpleType.create("ENTITY"),
+                hasValueType
+            ))
+            .add(SimpleParameterizedType.create(
+                Tuple1.class,
+                DefaultType.set(wrapperType())
+            ))
             
             /******************************************************************/
             /*                     Private Member Fields                      */

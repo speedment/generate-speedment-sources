@@ -1,6 +1,8 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.internal.model.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.DefaultJavadocTag;
+import com.speedment.common.codegen.constant.SimpleParameterizedType;
+import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.AnnotationUsage;
 import com.speedment.common.codegen.model.ClassOrInterface;
 import com.speedment.common.codegen.model.Field;
@@ -9,7 +11,6 @@ import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Interface;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
-import com.speedment.common.codegen.model.Type;
 import com.speedment.runtime.field.method.ReferenceSetter;
 import com.speedment.runtime.field.method.Setter;
 
@@ -62,15 +63,18 @@ public final class SetterPattern extends AbstractSiblingPattern {
             /*                       Class Declaration                        */
             /******************************************************************/
             .add(apiAnnotation())
-            .add(AnnotationUsage.of(Type.of(FunctionalInterface.class)))
+            .add(AnnotationUsage.of(FunctionalInterface.class))
             .public_()
             .add(Generic.of("ENTITY"))
-            .add(Type.of(Setter.class).add(Generic.of("ENTITY")))
+            .add(SimpleParameterizedType.create(
+                Setter.class, 
+                SimpleType.create("ENTITY")
+            ))
             
             /******************************************************************/
             /*                            Methods                             */
             /******************************************************************/
-            .add(Method.of("setAs" + ucPrimitive(), Type.of("ENTITY"))
+            .add(Method.of("setAs" + ucPrimitive(), SimpleType.create("ENTITY"))
                 .set(Javadoc.of(
                         "Sets the member represented by this setter in the specified " +
                         "instance to the specified value, returning a reference to " +
@@ -80,7 +84,7 @@ public final class SetterPattern extends AbstractSiblingPattern {
                     .add(DefaultJavadocTag.PARAM.setValue("value").setText("the new value"))
                     .add(DefaultJavadocTag.RETURN.setValue("a reference to that instance"))
                 )
-                .add(Field.of("instance", Type.of("ENTITY")))
+                .add(Field.of("instance", SimpleType.create("ENTITY")))
                 .add(Field.of("value", primitiveType()))
             );
     }
