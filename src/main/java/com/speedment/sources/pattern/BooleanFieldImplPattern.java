@@ -88,6 +88,7 @@ public final class BooleanFieldImplPattern extends AbstractSiblingPattern {
             /*                       Class Declaration                        */
             /******************************************************************/
             .public_().final_()
+            .add(DefaultAnnotationUsage.GENERATED)            
             .add(fieldType)
             .add(Generic.of(SimpleType.create("ENTITY")))
             .add(Generic.of(SimpleType.create("D")))

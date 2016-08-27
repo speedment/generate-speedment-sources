@@ -1,5 +1,6 @@
 package com.speedment.sources.pattern;
 
+import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
@@ -53,6 +54,7 @@ public final class SetToPattern extends AbstractSiblingPattern {
             /*                       Class Declaration                        */
             /******************************************************************/
             .add(apiAnnotation())
+            .add(DefaultAnnotationUsage.GENERATED)            
             .public_()
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))

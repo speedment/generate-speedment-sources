@@ -23,6 +23,7 @@ import java.util.Objects;
 import com.speedment.common.codegen.model.Method;
 import static com.speedment.common.codegen.internal.util.Formatting.block;
 import static com.speedment.common.codegen.internal.util.Formatting.indent;
+import com.speedment.common.codegen.model.AnnotationUsage;
 import java.lang.reflect.Type;
 
 /**
@@ -80,6 +81,7 @@ public final class BetweenPredicatePattern extends AbstractCousinPattern {
             /*                       Class Declaration                        */
             /******************************************************************/
             .public_().final_()
+            .add(DefaultAnnotationUsage.GENERATED)
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))
             .setSupertype(SimpleParameterizedType.create(

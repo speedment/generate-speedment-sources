@@ -69,6 +69,7 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
             /*                       Class Declaration                        */
             /******************************************************************/
             .public_().final_()
+            .add(DefaultAnnotationUsage.GENERATED)
             .add(Generic.of(SimpleType.create("ENTITY")))
             .add(Generic.of(SimpleType.create("D")))
             .add(SimpleParameterizedType.create(

@@ -61,6 +61,7 @@ public final class HasValuePattern extends AbstractSiblingPattern {
             /*                       Class Declaration                        */
             /******************************************************************/
             .add(apiAnnotation())
+            .add(DefaultAnnotationUsage.GENERATED)
             .public_()
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))

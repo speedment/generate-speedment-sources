@@ -73,6 +73,7 @@ abstract class AbstractSimpleComparatorPattern extends AbstractCousinPattern {
             
             // Class declaration
             .public_().final_()
+            .add(DefaultAnnotationUsage.GENERATED)
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))
             
