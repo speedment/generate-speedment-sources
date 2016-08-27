@@ -81,7 +81,7 @@ public final class FindFromPattern extends AbstractSiblingPattern {
             /*                       Class Declaration                        */
             /******************************************************************/
             .public_().final_()
-            .add(DefaultAnnotationUsage.GENERATED)
+            .add(generatedAnnotation())
             .add(Generic.of(SimpleType.create("ENTITY")))
             .add(Generic.of(SimpleType.create("FK_ENTITY")))
             .setSupertype(superType)

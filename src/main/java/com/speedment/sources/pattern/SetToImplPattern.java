@@ -69,7 +69,7 @@ public final class SetToImplPattern extends AbstractSiblingPattern {
             /*                       Class Declaration                        */
             /******************************************************************/
             .public_().final_()
-            .add(DefaultAnnotationUsage.GENERATED)
+            .add(generatedAnnotation())
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))
             .add(SimpleParameterizedType.create(

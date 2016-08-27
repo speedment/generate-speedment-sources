@@ -63,7 +63,7 @@ public final class GetterPattern extends AbstractSiblingPattern {
             /*                       Class Declaration                        */
             /******************************************************************/
             .add(apiAnnotation())
-            .add(DefaultAnnotationUsage.GENERATED)
+            .add(generatedAnnotation())
             .add(AnnotationUsage.of(FunctionalInterface.class))
             .public_()
             .add(Generic.of("ENTITY"))

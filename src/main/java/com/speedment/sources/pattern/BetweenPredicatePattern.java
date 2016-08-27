@@ -81,7 +81,7 @@ public final class BetweenPredicatePattern extends AbstractCousinPattern {
             /*                       Class Declaration                        */
             /******************************************************************/
             .public_().final_()
-            .add(DefaultAnnotationUsage.GENERATED)
+            .add(generatedAnnotation())
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))
             .setSupertype(SimpleParameterizedType.create(

@@ -54,7 +54,7 @@ public final class SetToPattern extends AbstractSiblingPattern {
             /*                       Class Declaration                        */
             /******************************************************************/
             .add(apiAnnotation())
-            .add(DefaultAnnotationUsage.GENERATED)            
+            .add(generatedAnnotation())
             .public_()
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))
