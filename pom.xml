@@ -74,12 +74,23 @@
                     <groupId>com.speedment.common</groupId>
                     <artifactId>json</artifactId>
                 </exclusion>
+                
+                <exclusion>
+                    <groupId>com.speedment.common</groupId>
+                    <artifactId>tuple</artifactId>
+                </exclusion>
 
                 <exclusion>
                     <groupId>com.speedment.common</groupId>
                     <artifactId>codegen</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.speedment.common</groupId>
+            <artifactId>tuple</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         
         <dependency>
