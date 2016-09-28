@@ -53,7 +53,6 @@ public final class FieldPattern extends AbstractSiblingPattern {
             /******************************************************************/
             /*                       Class Declaration                        */
             /******************************************************************/
-            .add(apiAnnotation())
             .public_()
             .add(generatedAnnotation())
             .add(Generic.of("ENTITY"))

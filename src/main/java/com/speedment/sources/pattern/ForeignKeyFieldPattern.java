@@ -1,6 +1,5 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
@@ -56,7 +55,6 @@ public final class ForeignKeyFieldPattern extends AbstractSiblingPattern {
             /******************************************************************/
             /*                       Class Declaration                        */
             /******************************************************************/
-            .add(apiAnnotation())
             .add(generatedAnnotation())
             .public_()
             .add(Generic.of("ENTITY"))

@@ -65,7 +65,6 @@ public final class SetterPattern extends AbstractSiblingPattern {
             /******************************************************************/
             /*                       Class Declaration                        */
             /******************************************************************/
-            .add(apiAnnotation())
             .add(generatedAnnotation())
             .add(AnnotationUsage.of(FunctionalInterface.class))
             .public_()

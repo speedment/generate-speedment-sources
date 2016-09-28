@@ -6,7 +6,6 @@ import com.speedment.sources.Pattern;
 import com.speedment.common.codegen.internal.model.value.TextValue;
 import com.speedment.common.codegen.internal.util.Formatting;
 import com.speedment.common.codegen.model.AnnotationUsage;
-import com.speedment.runtime.annotation.Api;
 import java.lang.reflect.Type;
 import static java.util.Objects.requireNonNull;
 
@@ -41,10 +40,6 @@ abstract class AbstractPattern implements Pattern {
     
     protected final Type primitiveType() {
         return primitive;
-    }
-    
-    protected final AnnotationUsage apiAnnotation() {
-        return AnnotationUsage.of(Api.class).put("version", new TextValue("3.0"));
     }
     
     protected final AnnotationUsage generatedAnnotation() {
