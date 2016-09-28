@@ -26,7 +26,7 @@ public interface Pattern {
     String getFullClassName();
     
     /**
-     * Generate a CodeGen model for the component. A file is specified so that
+     * Generate a CodeGen model for the component. A file is included so that
      * any extra types can be imported correctly.
      * 
      * @param file  a reference to the file being created
