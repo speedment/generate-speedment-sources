@@ -17,7 +17,6 @@ import com.speedment.runtime.field.method.ReferenceGetter;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
-//import com.speedment.runtime.util.ToBooleanFunction;
 
 /**
  *
@@ -68,6 +67,7 @@ public final class GetterPattern extends AbstractSiblingPattern {
             /*                       Class Declaration                        */
             /******************************************************************/
             .add(apiAnnotation())
+            .add(generatedAnnotation())
             .add(AnnotationUsage.of(FunctionalInterface.class))
             .public_()
             .add(Generic.of("ENTITY"))

@@ -18,7 +18,6 @@ import com.speedment.runtime.internal.field.predicate.AbstractFieldPredicate;
 import com.speedment.runtime.internal.field.predicate.BetweenPredicate;
 import com.speedment.runtime.internal.field.predicate.reference.ReferenceBetweenPredicate;
 import java.util.Objects;
-
 import com.speedment.common.codegen.model.Method;
 import static com.speedment.common.codegen.internal.util.Formatting.block;
 import static com.speedment.common.codegen.internal.util.Formatting.indent;
@@ -80,6 +79,7 @@ public final class BetweenPredicatePattern extends AbstractCousinPattern {
             /*                       Class Declaration                        */
             /******************************************************************/
             .public_().final_()
+            .add(generatedAnnotation())
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))
             .setSupertype(SimpleParameterizedType.create(
