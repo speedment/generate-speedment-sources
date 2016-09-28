@@ -13,10 +13,12 @@ import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Method;
 import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.ReferenceForeignKeyField;
-import com.speedment.runtime.field.finder.FindFrom;
+import com.speedment.runtime.field.method.BackwardFinder;
+import com.speedment.runtime.field.method.FindFrom;
 import com.speedment.runtime.field.method.Finder;
-import com.speedment.runtime.internal.field.ReferenceForeignKeyFieldImpl;
+import com.speedment.runtime.internal.field.ReferenceFieldImpl;
 import com.speedment.runtime.internal.field.finder.FindFromReference;
+import com.speedment.runtime.internal.field.streamer.BackwardFinderImpl;
 import com.speedment.runtime.manager.Manager;
 import com.speedment.sources.Pattern;
 import java.lang.reflect.Type;
@@ -43,7 +45,7 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
 
     @Override
     protected Class<?> getSiblingClass() {
-        return ReferenceForeignKeyFieldImpl.class;
+        return ReferenceFieldImpl.class;
     }
 
     @Override
@@ -130,7 +132,7 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
                 
                 c.getMethods().add(
                     indexOf(c.getMethods(), m -> "typeMapper".equals(m.getName())),
-                    Method.of("findFrom", SimpleParameterizedType.create(
+                    Method.of("finder", SimpleParameterizedType.create(
                         FindFrom.class,
                         SimpleType.create("ENTITY"),
                         SimpleType.create("FK_ENTITY")
@@ -144,10 +146,25 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
                 );
                 
                 c.getMethods().add(
-                    indexOf(c.getMethods(), m -> "typeMapper".equals(m.getName())),
-                    Method.of("finder", finderType).public_()
+                    indexOf(c.getMethods(), m -> "finder".equals(m.getName())),
+                    Method.of("getReferencedField", referencedFieldType).public_()
                         .add(DefaultAnnotationUsage.OVERRIDE)
-                        .add("return finder;")
+                        .add("return referenced;")
+                );
+                
+                c.getMethods().add(
+                    indexOf(c.getMethods(), m -> "finder".equals(m.getName())),
+                    Method.of("backwardFinder", 
+                        SimpleParameterizedType.create(
+                            BackwardFinder.class, 
+                            SimpleType.create("FK_ENTITY"), 
+                            SimpleType.create("ENTITY")
+                        ))
+                        .public_()
+                        .add(DefaultAnnotationUsage.OVERRIDE)
+                        .add(Field.of("manager", SimpleParameterizedType.create(Manager.class, SimpleType.create("ENTITY"))))
+                        .call(() -> file.add(Import.of(BackwardFinderImpl.class)))
+                        .add("return new " + BackwardFinderImpl.class.getSimpleName() + "<>(this, manager);")
                 );
             })
         ;

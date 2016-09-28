@@ -11,7 +11,6 @@ import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.tuple.Tuple2;
 import com.speedment.runtime.field.predicate.Inclusion;
 import com.speedment.runtime.field.predicate.PredicateType;
 import com.speedment.runtime.field.trait.HasReferenceValue;
@@ -23,6 +22,7 @@ import java.util.Objects;
 import com.speedment.common.codegen.model.Method;
 import static com.speedment.common.codegen.internal.util.Formatting.block;
 import static com.speedment.common.codegen.internal.util.Formatting.indent;
+import com.speedment.common.tuple.Tuple2;
 import java.lang.reflect.Type;
 
 /**
@@ -85,6 +85,7 @@ public final class BetweenPredicatePattern extends AbstractCousinPattern {
             .setSupertype(SimpleParameterizedType.create(
                 AbstractFieldPredicate.class,
                 SimpleType.create("ENTITY"),
+                wrapperType(),
                 hasValueType
             ))
             

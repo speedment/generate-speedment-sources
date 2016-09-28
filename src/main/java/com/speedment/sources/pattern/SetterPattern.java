@@ -1,5 +1,6 @@
 package com.speedment.sources.pattern;
 
+import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
@@ -8,11 +9,13 @@ import com.speedment.common.codegen.model.ClassOrInterface;
 import com.speedment.common.codegen.model.Field;
 import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Generic;
+import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Interface;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
 import com.speedment.runtime.field.method.ReferenceSetter;
 import com.speedment.runtime.field.method.Setter;
+import java.util.Objects;
 
 /**
  *
@@ -36,7 +39,7 @@ public final class SetterPattern extends AbstractSiblingPattern {
 
     @Override
     public ClassOrInterface<?> make(File file) {
-        return Interface.of(getClassName())
+        final Interface intf = Interface.of(getClassName())
             
             /******************************************************************/
             /*                         Documentation                          */
@@ -86,7 +89,21 @@ public final class SetterPattern extends AbstractSiblingPattern {
                 )
                 .add(Field.of("instance", SimpleType.create("ENTITY")))
                 .add(Field.of("value", primitiveType()))
+            )
+        
+            .call(() -> file.add(Import.of(Objects.class).static_().setStaticMember("requireNonNull")))
+            .add(Method.of("set", SimpleType.create("ENTITY")).default_()
+                .add(OVERRIDE)
+                .add(Field.of("instance", SimpleType.create("ENTITY")))
+                .add(Field.of("value", Object.class))
+                .add(
+                    "requireNonNull(value, \"Attempting to set primitive " + primitive() + " field to null.\");",
+                    "@SuppressWarnings(\"unchecked\")",
+                    "final " + wrapper() + " casted = (" + wrapper() + ") value;",
+                    "return setAs" + ucPrimitive() + "(instance, casted);"
+                )
             );
+        
+        return intf;
     }
-    
 }

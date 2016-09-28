@@ -46,9 +46,10 @@ public final class FindFromPattern extends AbstractSiblingPattern {
         file.add(Import.of(SpeedmentException.class));
         
         final Type fieldType = SimpleParameterizedType.create(
-            siblingOf(ReferenceField.class, "%1$sField"),
+            siblingOf(ReferenceField.class, "%1$sForeignKeyField"),
             SimpleType.create("ENTITY"),
-            DefaultType.WILDCARD
+            DefaultType.WILDCARD,
+            SimpleType.create("FK_ENTITY")
         );
         
         final Type fkFieldType = SimpleParameterizedType.create(
@@ -61,6 +62,7 @@ public final class FindFromPattern extends AbstractSiblingPattern {
             siblingOf(FindFromReference.class, "AbstractFindFrom"),
             SimpleType.create("ENTITY"),
             SimpleType.create("FK_ENTITY"),
+            wrapperType(),
             fieldType,
             fkFieldType
         );
@@ -104,8 +106,10 @@ public final class FindFromPattern extends AbstractSiblingPattern {
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add(Field.of("entity", SimpleType.create("ENTITY")))
                 .add(
-                    "final " + primitive() + " value = getSourceField().getter().getAs" + ucPrimitive() + "(entity);",
-                    "return getTargetManager().findAny(getTargetField(), value)",
+                    "final " + primitive() + " value = getSourceField().getter().applyAs" + ucPrimitive() + "(entity);",
+                    "return getTargetManager().stream()",
+                    indent(".filter(getTargetField().equal(value))"),
+                    indent(".findAny()"),
                     indent(".orElseThrow(() -> new SpeedmentException("),
                     indent("\"Error! Could not find any \" + ", 2),
                     indent("getTargetManager().getEntityClass().getSimpleName() + ", 2),

@@ -80,6 +80,7 @@ abstract class AbstractSimpleComparatorPattern extends AbstractCousinPattern {
             .setSupertype(SimpleParameterizedType.create(
                 AbstractFieldPredicate.class,
                 SimpleType.create("ENTITY"),
+                wrapperType(),
                 hasValueType
             ))
             

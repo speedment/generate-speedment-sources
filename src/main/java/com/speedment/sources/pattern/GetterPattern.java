@@ -1,5 +1,6 @@
 package com.speedment.sources.pattern;
 
+import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
@@ -13,6 +14,10 @@ import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
 import com.speedment.runtime.field.method.Getter;
 import com.speedment.runtime.field.method.ReferenceGetter;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
+//import com.speedment.runtime.util.ToBooleanFunction;
 
 /**
  *
@@ -36,7 +41,8 @@ public final class GetterPattern extends AbstractSiblingPattern {
 
     @Override
     public ClassOrInterface<?> make(File file) {
-        return Interface.of(getClassName())
+        final Method getter;
+        final Interface intf = Interface.of(getClassName())
             
             /******************************************************************/
             /*                         Documentation                          */
@@ -72,7 +78,7 @@ public final class GetterPattern extends AbstractSiblingPattern {
             /******************************************************************/
             /*                            Methods                             */
             /******************************************************************/
-            .add(Method.of("getAs" + ucPrimitive(), primitiveType())
+            .add(getter = Method.of("applyAs" + ucPrimitive(), primitiveType())
                 .set(Javadoc.of(
                         "Returns the member represented by this getter in the specified " +
                         "instance."
@@ -81,6 +87,27 @@ public final class GetterPattern extends AbstractSiblingPattern {
                     .add(DefaultJavadocTag.RETURN.setValue("the value"))
                 )
                 .add(Field.of("instance", SimpleType.create("ENTITY")))
+            )
+            .add(Method.of("apply", wrapperType()).default_()
+                .add(OVERRIDE)
+                .add(Field.of("instance", SimpleType.create("ENTITY")))
+                .add("return applyAs" + ucPrimitive() + "(instance);")
             );
+        
+        if (primitiveType() == int.class) {
+            intf.add(SimpleParameterizedType.create(ToIntFunction.class, SimpleType.create("ENTITY")));
+            getter.add(OVERRIDE);
+        } else if (primitiveType() == boolean.class) {
+            intf.add(SimpleParameterizedType.create("com.speedment.runtime.util.ToBooleanFunction", SimpleType.create("ENTITY")));
+            getter.add(OVERRIDE);
+        } else if (primitiveType() == long.class) {
+            intf.add(SimpleParameterizedType.create(ToLongFunction.class, SimpleType.create("ENTITY")));
+            getter.add(OVERRIDE);
+        } else if (primitiveType() == double.class) {
+            intf.add(SimpleParameterizedType.create(ToDoubleFunction.class, SimpleType.create("ENTITY")));
+            getter.add(OVERRIDE);
+        }
+        
+        return intf;
     }
 }

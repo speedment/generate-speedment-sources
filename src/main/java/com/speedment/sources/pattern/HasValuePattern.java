@@ -103,7 +103,7 @@ public final class HasValuePattern extends AbstractSiblingPattern {
                     .add(DefaultJavadocTag.RETURN.setValue("the value of the field"))
                 )
                 .add(Field.of("entity", SimpleType.create("ENTITY")))
-                .add("return getter().getAs" + ucPrimitive() + "(entity);")
+                .add("return getter().applyAs" + ucPrimitive() + "(entity);")
             )
             
             .add(Method.of("set", SimpleType.create("ENTITY"))
