@@ -80,11 +80,6 @@
                     <groupId>com.speedment.common</groupId>
                     <artifactId>json</artifactId>
                 </exclusion>
-                
-                <exclusion>
-                    <groupId>com.speedment.common</groupId>
-                    <artifactId>tuple</artifactId>
-                </exclusion>
 
                 <exclusion>
                     <groupId>com.speedment.common</groupId>
