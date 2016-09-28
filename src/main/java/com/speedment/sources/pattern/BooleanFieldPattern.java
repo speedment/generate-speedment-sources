@@ -1,5 +1,6 @@
 package com.speedment.sources.pattern;
 
+import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
 import com.speedment.common.codegen.model.ClassOrInterface;
 import com.speedment.common.codegen.model.File;
 import com.speedment.runtime.field.ReferenceField;
@@ -31,7 +32,6 @@ public final class BooleanFieldPattern extends AbstractSiblingPattern {
     @Override
     public ClassOrInterface<?> make(File file) {
         return delegator.make(file)
-            
             // Remove the 'HasComparableOperators'-interface
             .call(intrf -> {
                 intrf.getInterfaces().removeIf(t -> 
