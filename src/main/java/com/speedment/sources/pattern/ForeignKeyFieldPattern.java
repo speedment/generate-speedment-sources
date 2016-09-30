@@ -8,9 +8,9 @@ import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Interface;
 import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.runtime.field.ReferenceField;
-import com.speedment.runtime.field.ReferenceForeignKeyField;
-import com.speedment.runtime.field.trait.HasFinder;
+import com.speedment.runtime.core.field.ReferenceField;
+import com.speedment.runtime.core.field.ReferenceForeignKeyField;
+import com.speedment.runtime.core.field.trait.HasFinder;
 
 /**
  *

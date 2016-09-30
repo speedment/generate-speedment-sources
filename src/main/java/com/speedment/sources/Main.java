@@ -21,6 +21,7 @@ import com.speedment.common.codegen.controller.AutoImports;
 import com.speedment.common.codegen.internal.java.JavaGenerator;
 import com.speedment.common.codegen.internal.util.Formatting;
 import com.speedment.common.codegen.model.File;
+import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.sources.pattern.BooleanFieldImplPattern;
 import com.speedment.sources.pattern.BooleanFieldPattern;
 import com.speedment.sources.pattern.FindFromPattern;
@@ -30,10 +31,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
+import java.util.function.UnaryOperator;
+import static java.util.stream.Collectors.joining;
 
 /**
  * The main entry point of the program.
@@ -66,7 +70,8 @@ public final class Main {
         }
         
         final Path srcPath = basePath
-            .resolve("runtime")
+            .resolve("runtime-parent")
+            .resolve("runtime-core")
             .resolve("src")
             .resolve("main")
             .resolve("java");
@@ -74,6 +79,21 @@ public final class Main {
         if (!Files.exists(srcPath)) {
             System.err.println("Could not find java sources folder '" + srcPath.toString() + "'.");
             System.exit(-3);
+        }
+        
+        final Path licenseHeaderPath = basePath.resolve("license_header.txt");
+        if (!Files.exists(licenseHeaderPath)) {
+            System.err.println("Could not find the license_header.txt-file in the root folder '" + basePath + "'.");
+            System.exit(-4);
+        }
+        
+        final String licenseHeader;
+        try {
+            licenseHeader = Files.lines(licenseHeaderPath)
+                .map(replace("currentYear", Integer.toString(Calendar.getInstance().get(Calendar.YEAR))))
+                .collect(joining(Formatting.nl()));
+        } catch (final IOException ex) {
+            throw new RuntimeException("Error loading license header '" + licenseHeaderPath + "'.", ex);
         }
         
         System.out.println("Building Code Patterns...");
@@ -117,6 +137,8 @@ public final class Main {
             final String fileName    = pattern.getClassName() + ".java";
             final File file          = File.of(packageName + ".java");
             
+            file.set(Javadoc.of(licenseHeader));
+            
             Path currentPath = srcPath;
             final String[] folders = packageName.split("\\.");
             
@@ -147,6 +169,10 @@ public final class Main {
         });
         
         System.out.println("All " + counter.get() + " files was created successfully.");
+    }
+    
+    private static UnaryOperator<String> replace(String key, String value) {
+        return line -> line.replace("${" + key + "}", value);
     }
     
     private static void install(Set<Pattern> patterns, BiFunction<Class<?>, Class<?>, ? extends Pattern> patternFactory) {

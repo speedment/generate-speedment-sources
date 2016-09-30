@@ -11,15 +11,15 @@ import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Method;
-import com.speedment.runtime.field.ReferenceField;
-import com.speedment.runtime.field.ReferenceForeignKeyField;
-import com.speedment.runtime.field.method.BackwardFinder;
-import com.speedment.runtime.field.method.FindFrom;
-import com.speedment.runtime.field.method.Finder;
-import com.speedment.runtime.internal.field.ReferenceFieldImpl;
-import com.speedment.runtime.internal.field.finder.FindFromReference;
-import com.speedment.runtime.internal.field.streamer.BackwardFinderImpl;
-import com.speedment.runtime.manager.Manager;
+import com.speedment.runtime.core.field.ReferenceField;
+import com.speedment.runtime.core.field.ReferenceForeignKeyField;
+import com.speedment.runtime.core.field.method.BackwardFinder;
+import com.speedment.runtime.core.field.method.FindFrom;
+import com.speedment.runtime.core.field.method.Finder;
+import com.speedment.runtime.core.internal.field.ReferenceFieldImpl;
+import com.speedment.runtime.core.internal.field.finder.FindFromReference;
+import com.speedment.runtime.core.internal.field.streamer.BackwardFinderImpl;
+import com.speedment.runtime.core.manager.Manager;
 import com.speedment.sources.Pattern;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -55,12 +55,6 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
 
     @Override
     public ClassOrInterface<?> make(File file) {
-        final Type finderType = SimpleParameterizedType.create(
-            Finder.class,
-            SimpleType.create("ENTITY"),
-            SimpleType.create("FK_ENTITY")
-        );
-        
         final Type referencedFieldType = SimpleParameterizedType.create(
             siblingOf(ReferenceField.class, "%1$sField"),
             SimpleType.create("FK_ENTITY"),
@@ -94,11 +88,6 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
                     indexOf(c.getFields(), f -> "typeMapper".equals(f.getName())),
                     Field.of("referenced", referencedFieldType).private_().final_()
                 );
-                
-                c.getFields().add(
-                    indexOf(c.getFields(), f -> "typeMapper".equals(f.getName())),
-                    Field.of("finder", finderType).private_().final_()
-                );
             })
             
             // Insert two new constructor parameters just before 'typeMapper' 
@@ -109,19 +98,9 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
                     Field.of("referenced", referencedFieldType)
                 );
                 
-                constr.getFields().add(
-                    indexOf(constr.getFields(), f -> "typeMapper".equals(f.getName())),
-                    Field.of("finder", finderType)
-                );
-                
                 constr.getCode().add(
                     indexOf(constr.getCode(), row -> row.startsWith("this.typeMapper")),
                     "this.referenced = requireNonNull(referenced);"
-                );
-                
-                constr.getCode().add(
-                    indexOf(constr.getCode(), row -> row.startsWith("this.typeMapper")),
-                    "this.finder     = requireNonNull(finder);"
                 );
             }))
             

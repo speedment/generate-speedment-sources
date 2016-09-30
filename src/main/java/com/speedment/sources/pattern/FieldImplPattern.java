@@ -13,20 +13,20 @@ import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
-import com.speedment.runtime.config.identifier.FieldIdentifier;
-import com.speedment.runtime.config.mapper.TypeMapper;
-import com.speedment.runtime.field.ReferenceField;
-import com.speedment.runtime.field.method.ReferenceGetter;
-import com.speedment.runtime.field.method.ReferenceSetter;
-import com.speedment.runtime.field.predicate.FieldPredicate;
-import com.speedment.runtime.field.predicate.Inclusion;
-import com.speedment.runtime.internal.field.ReferenceFieldImpl;
-import com.speedment.runtime.internal.field.comparator.ReferenceFieldComparator;
-import com.speedment.runtime.internal.field.comparator.ReferenceFieldComparatorImpl;
-import com.speedment.runtime.internal.field.predicate.reference.ReferenceEqualPredicate;
+import com.speedment.runtime.typemapper.TypeMapper;
+import com.speedment.runtime.core.field.ReferenceField;
+import com.speedment.runtime.core.field.method.ReferenceGetter;
+import com.speedment.runtime.core.field.method.ReferenceSetter;
+import com.speedment.runtime.core.field.predicate.FieldPredicate;
+import com.speedment.runtime.core.field.predicate.Inclusion;
+import com.speedment.runtime.core.internal.field.ReferenceFieldImpl;
+import com.speedment.runtime.core.internal.field.comparator.ReferenceFieldComparator;
+import com.speedment.runtime.core.internal.field.comparator.ReferenceFieldComparatorImpl;
+import com.speedment.runtime.core.internal.field.predicate.reference.ReferenceEqualPredicate;
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.function.Predicate;
+import com.speedment.runtime.config.identifier.ColumnIdentifier;
 
 /**
  *
@@ -58,8 +58,7 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
             SimpleType.create("D")
         );
         
-        final Type identifierType = SimpleParameterizedType.create(
-            FieldIdentifier.class,
+        final Type identifierType = SimpleParameterizedType.create(ColumnIdentifier.class,
             SimpleType.create("ENTITY")
         );
         

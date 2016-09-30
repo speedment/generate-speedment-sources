@@ -1,6 +1,6 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.runtime.field.predicate.PredicateType;
+import com.speedment.runtime.core.field.predicate.PredicateType;
 
 /**
  *

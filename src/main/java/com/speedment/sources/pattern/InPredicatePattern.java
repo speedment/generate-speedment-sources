@@ -12,13 +12,13 @@ import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.runtime.field.predicate.PredicateType;
-import com.speedment.runtime.field.trait.HasReferenceValue;
-import com.speedment.runtime.internal.field.predicate.AbstractFieldPredicate;
+import com.speedment.runtime.core.field.predicate.PredicateType;
+import com.speedment.runtime.core.field.trait.HasReferenceValue;
+import com.speedment.runtime.core.internal.field.predicate.AbstractFieldPredicate;
 
 import com.speedment.common.codegen.model.Method;
 import com.speedment.common.tuple.Tuple1;
-import com.speedment.runtime.internal.field.predicate.reference.ReferenceInPredicate;
+import com.speedment.runtime.core.internal.field.predicate.reference.ReferenceInPredicate;
 import java.lang.reflect.Type;
 import java.util.Objects;
 

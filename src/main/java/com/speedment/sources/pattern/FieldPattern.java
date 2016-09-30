@@ -1,6 +1,5 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
@@ -9,9 +8,9 @@ import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Interface;
 import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.runtime.field.ReferenceField;
-import com.speedment.runtime.field.trait.HasComparableOperators;
-import com.speedment.runtime.field.trait.HasReferenceValue;
+import com.speedment.runtime.core.field.ReferenceField;
+import com.speedment.runtime.core.field.trait.HasComparableOperators;
+import com.speedment.runtime.core.field.trait.HasReferenceValue;
 
 /**
  *
@@ -58,7 +57,7 @@ public final class FieldPattern extends AbstractSiblingPattern {
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))
             .add(SimpleParameterizedType.create(
-                com.speedment.runtime.field.Field.class,
+                com.speedment.runtime.core.field.Field.class,
                 SimpleType.create("ENTITY")
             ))
             .add(SimpleParameterizedType.create(

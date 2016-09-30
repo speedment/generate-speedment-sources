@@ -12,8 +12,9 @@ import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Interface;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
-import com.speedment.runtime.field.method.Getter;
-import com.speedment.runtime.field.method.ReferenceGetter;
+import com.speedment.common.function.ToBooleanFunction;
+import com.speedment.runtime.core.field.method.Getter;
+import com.speedment.runtime.core.field.method.ReferenceGetter;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
@@ -97,7 +98,7 @@ public final class GetterPattern extends AbstractSiblingPattern {
             intf.add(SimpleParameterizedType.create(ToIntFunction.class, SimpleType.create("ENTITY")));
             getter.add(OVERRIDE);
         } else if (primitiveType() == boolean.class) {
-            intf.add(SimpleParameterizedType.create("com.speedment.runtime.util.ToBooleanFunction", SimpleType.create("ENTITY")));
+            intf.add(SimpleParameterizedType.create(ToBooleanFunction.class, SimpleType.create("ENTITY")));
             getter.add(OVERRIDE);
         } else if (primitiveType() == long.class) {
             intf.add(SimpleParameterizedType.create(ToLongFunction.class, SimpleType.create("ENTITY")));

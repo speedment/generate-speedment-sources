@@ -14,10 +14,10 @@ import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
-import com.speedment.runtime.exception.SpeedmentException;
-import com.speedment.runtime.field.ReferenceField;
-import com.speedment.runtime.internal.field.finder.FindFromReference;
-import com.speedment.runtime.manager.Manager;
+import com.speedment.runtime.core.exception.SpeedmentException;
+import com.speedment.runtime.core.field.ReferenceField;
+import com.speedment.runtime.core.internal.field.finder.FindFromReference;
+import com.speedment.runtime.core.manager.Manager;
 import java.lang.reflect.Type;
 
 /**
@@ -114,7 +114,7 @@ public final class FindFromPattern extends AbstractSiblingPattern {
                     indent(".orElseThrow(() -> new SpeedmentException("),
                     indent("\"Error! Could not find any \" + ", 2),
                     indent("getTargetManager().getEntityClass().getSimpleName() + ", 2),
-                    indent("\" with '\" + getTargetField().identifier().columnName() + ", 2),
+                    indent("\" with '\" + getTargetField().identifier().getColumnName() + ", 2),
                     indent("\"' = '\" + value + \"'.\"", 2),
                     indent("));")
                 )
