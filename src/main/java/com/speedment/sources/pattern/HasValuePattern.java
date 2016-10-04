@@ -17,7 +17,7 @@ import com.speedment.runtime.core.field.method.ReferenceGetter;
 import com.speedment.runtime.core.field.method.ReferenceSetter;
 import com.speedment.runtime.core.field.method.SetToReference;
 import com.speedment.runtime.core.field.trait.HasReferenceValue;
-import com.speedment.runtime.core.internal.field.setter.SetToReferenceImpl;
+import com.speedment.runtime.core.internal.field.method.SetToReferenceImpl;
 
 /**
  *

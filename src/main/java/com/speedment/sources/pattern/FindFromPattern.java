@@ -16,7 +16,7 @@ import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
 import com.speedment.runtime.core.exception.SpeedmentException;
 import com.speedment.runtime.core.field.ReferenceField;
-import com.speedment.runtime.core.internal.field.finder.FindFromReference;
+import com.speedment.runtime.core.internal.field.method.FindFromReference;
 import com.speedment.runtime.core.manager.Manager;
 import java.lang.reflect.Type;
 

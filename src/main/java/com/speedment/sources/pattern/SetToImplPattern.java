@@ -14,7 +14,7 @@ import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
 import com.speedment.runtime.core.field.method.SetToReference;
 import com.speedment.runtime.core.field.trait.HasReferenceValue;
-import com.speedment.runtime.core.internal.field.setter.SetToReferenceImpl;
+import com.speedment.runtime.core.internal.field.method.SetToReferenceImpl;
 import java.lang.reflect.Type;
 import java.util.Objects;
 
