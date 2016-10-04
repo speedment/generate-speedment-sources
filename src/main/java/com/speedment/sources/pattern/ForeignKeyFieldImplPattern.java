@@ -11,6 +11,7 @@ import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Method;
+import com.speedment.runtime.config.identifier.TableIdentifier;
 import com.speedment.runtime.core.field.ComparableForeignKeyField;
 import com.speedment.runtime.core.field.ReferenceField;
 import com.speedment.runtime.core.field.method.BackwardFinder;
@@ -24,6 +25,8 @@ import java.lang.reflect.Type;
 import java.util.List;
 import static java.util.Objects.requireNonNull;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  *
@@ -116,11 +119,9 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
                         SimpleType.create("FK_ENTITY")
                     )).public_()
                         .add(DefaultAnnotationUsage.OVERRIDE)
-                        .add(Field.of("foreignManager", SimpleParameterizedType.create(
-                            Manager.class,
-                            SimpleType.create("FK_ENTITY")
-                        )))
-                        .add("return new FindFrom" + ucPrimitive() + "<>(this, referenced, foreignManager);")
+                        .add(Field.of("identifier", SimpleParameterizedType.create(TableIdentifier.class, SimpleType.create("FK_ENTITY"))))
+                        .add(Field.of("streamSupplier", DefaultType.supplier(DefaultType.stream(SimpleType.create("FK_ENTITY")))))
+                        .add("return new FindFrom" + ucPrimitive() + "<>(this, referenced, identifier, streamSupplier);")
                 );
                 
                 c.getMethods().add(
@@ -140,9 +141,10 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
                         ))
                         .public_()
                         .add(DefaultAnnotationUsage.OVERRIDE)
-                        .add(Field.of("manager", SimpleParameterizedType.create(Manager.class, SimpleType.create("ENTITY"))))
+                        .add(Field.of("identifier", SimpleParameterizedType.create(TableIdentifier.class, SimpleType.create("ENTITY"))))
+                        .add(Field.of("streamSupplier", DefaultType.supplier(DefaultType.stream(SimpleType.create("ENTITY")))))
                         .call(() -> file.add(Import.of(BackwardFinderImpl.class)))
-                        .add("return new " + BackwardFinderImpl.class.getSimpleName() + "<>(this, manager);")
+                        .add("return new " + BackwardFinderImpl.class.getSimpleName() + "<>(this, identifier, streamSupplier);")
                 );
             })
         ;

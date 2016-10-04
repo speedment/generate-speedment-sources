@@ -14,11 +14,13 @@ import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
+import com.speedment.runtime.config.identifier.TableIdentifier;
 import com.speedment.runtime.core.exception.SpeedmentException;
 import com.speedment.runtime.core.field.ReferenceField;
 import com.speedment.runtime.core.internal.field.method.FindFromReference;
-import com.speedment.runtime.core.manager.Manager;
 import java.lang.reflect.Type;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  *
@@ -94,10 +96,16 @@ public final class FindFromPattern extends AbstractSiblingPattern {
             .add(Constructor.of().public_()
                 .add(Field.of("source", fieldType))
                 .add(Field.of("target", fkFieldType))
-                .add(Field.of("manager", SimpleParameterizedType.create(
-                    Manager.class, SimpleType.create("FK_ENTITY")
+                .add(Field.of("identifier", SimpleParameterizedType.create(
+                    TableIdentifier.class, SimpleType.create("FK_ENTITY")
                 )))
-                .add("super(source, target, manager);")
+                .add(Field.of("streamSupplier", SimpleParameterizedType.create(
+                    Supplier.class, SimpleParameterizedType.create(
+                        Stream.class,
+                        SimpleType.create("FK_ENTITY")
+                    )
+                )))
+                .add("super(source, target, identifier, streamSupplier);")
             )
             
             /******************************************************************/
@@ -108,13 +116,13 @@ public final class FindFromPattern extends AbstractSiblingPattern {
                 .add(Field.of("entity", SimpleType.create("ENTITY")))
                 .add(
                     "final " + primitive() + " value = getSourceField().getter().applyAs" + ucPrimitive() + "(entity);",
-                    "return getTargetManager().stream()",
+                    "return stream()",
                     indent(".filter(getTargetField().equal(value))"),
                     indent(".findAny()"),
                     indent(".orElseThrow(() -> new SpeedmentException("),
-                    indent("\"Error! Could not find any \" + ", 2),
-                    indent("getTargetManager().getEntityClass().getSimpleName() + ", 2),
-                    indent("\" with '\" + getTargetField().identifier().getColumnName() + ", 2),
+                    indent("\"Error! Could not find any entities in table '\" + ", 2),
+                    indent("getTableIdentifier() + ", 2),
+                    indent("\"' with '\" + getTargetField().identifier().getColumnName() + ", 2),
                     indent("\"' = '\" + value + \"'.\"", 2),
                     indent("));")
                 )
