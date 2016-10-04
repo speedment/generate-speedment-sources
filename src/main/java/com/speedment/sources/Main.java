@@ -71,7 +71,7 @@ public final class Main {
         
         final Path srcPath = basePath
             .resolve("runtime-parent")
-            .resolve("runtime-core")
+            .resolve("runtime-field")
             .resolve("src")
             .resolve("main")
             .resolve("java");

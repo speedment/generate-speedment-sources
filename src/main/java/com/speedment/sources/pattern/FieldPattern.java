@@ -13,12 +13,12 @@ import com.speedment.common.codegen.model.Interface;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
 import com.speedment.runtime.config.identifier.ColumnIdentifier;
-import com.speedment.runtime.core.field.ReferenceField;
-import com.speedment.runtime.core.field.method.ReferenceGetter;
-import com.speedment.runtime.core.field.method.ReferenceSetter;
-import com.speedment.runtime.core.field.trait.HasComparableOperators;
-import com.speedment.runtime.core.field.trait.HasReferenceValue;
-import com.speedment.runtime.core.internal.field.ReferenceFieldImpl;
+import com.speedment.runtime.field.ReferenceField;
+import com.speedment.runtime.field.method.ReferenceGetter;
+import com.speedment.runtime.field.method.ReferenceSetter;
+import com.speedment.runtime.field.trait.HasComparableOperators;
+import com.speedment.runtime.field.trait.HasReferenceValue;
+import com.speedment.runtime.field.internal.ReferenceFieldImpl;
 import com.speedment.runtime.typemapper.TypeMapper;
 
 /**
@@ -65,8 +65,7 @@ public final class FieldPattern extends AbstractSiblingPattern {
             .add(generatedAnnotation())
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))
-            .add(SimpleParameterizedType.create(
-                com.speedment.runtime.core.field.Field.class,
+            .add(SimpleParameterizedType.create(com.speedment.runtime.field.Field.class,
                 SimpleType.create("ENTITY")
             ))
             .add(SimpleParameterizedType.create(

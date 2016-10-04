@@ -15,9 +15,9 @@ import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
 import com.speedment.runtime.config.identifier.TableIdentifier;
-import com.speedment.runtime.core.exception.SpeedmentException;
-import com.speedment.runtime.core.field.ReferenceField;
-import com.speedment.runtime.core.internal.field.method.FindFromReference;
+import com.speedment.runtime.field.ReferenceField;
+import com.speedment.runtime.field.exception.SpeedmentFieldException;
+import com.speedment.runtime.field.internal.method.FindFromReference;
 import java.lang.reflect.Type;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -45,7 +45,7 @@ public final class FindFromPattern extends AbstractSiblingPattern {
     @Override
     public ClassOrInterface<?> make(File file) {
 
-        file.add(Import.of(SpeedmentException.class));
+        file.add(Import.of(SpeedmentFieldException.class));
         
         final Type fieldType = SimpleParameterizedType.create(
             siblingOf(ReferenceField.class, "%1$sForeignKeyField"),
@@ -119,7 +119,7 @@ public final class FindFromPattern extends AbstractSiblingPattern {
                     "return stream()",
                     indent(".filter(getTargetField().equal(value))"),
                     indent(".findAny()"),
-                    indent(".orElseThrow(() -> new SpeedmentException("),
+                    indent(".orElseThrow(() -> new SpeedmentFieldException("),
                     indent("\"Error! Could not find any entities in table '\" + ", 2),
                     indent("getTableIdentifier() + ", 2),
                     indent("\"' with '\" + getTargetField().identifier().getColumnName() + ", 2),

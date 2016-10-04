@@ -13,12 +13,12 @@ import com.speedment.common.codegen.model.Interface;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
 import com.speedment.runtime.config.identifier.ColumnIdentifier;
-import com.speedment.runtime.core.field.ComparableForeignKeyField;
-import com.speedment.runtime.core.field.ReferenceField;
-import com.speedment.runtime.core.field.method.ReferenceGetter;
-import com.speedment.runtime.core.field.method.ReferenceSetter;
-import com.speedment.runtime.core.field.trait.HasFinder;
-import com.speedment.runtime.core.internal.field.ComparableForeignKeyFieldImpl;
+import com.speedment.runtime.field.ComparableForeignKeyField;
+import com.speedment.runtime.field.ReferenceField;
+import com.speedment.runtime.field.method.ReferenceGetter;
+import com.speedment.runtime.field.method.ReferenceSetter;
+import com.speedment.runtime.field.trait.HasFinder;
+import com.speedment.runtime.field.internal.ComparableForeignKeyFieldImpl;
 import com.speedment.runtime.typemapper.TypeMapper;
 
 /**

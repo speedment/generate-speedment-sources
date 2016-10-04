@@ -2,8 +2,8 @@ package com.speedment.sources.pattern;
 
 import com.speedment.common.codegen.model.ClassOrInterface;
 import com.speedment.common.codegen.model.File;
-import com.speedment.runtime.core.field.ReferenceField;
-import com.speedment.runtime.core.field.trait.HasComparableOperators;
+import com.speedment.runtime.field.ReferenceField;
+import com.speedment.runtime.field.trait.HasComparableOperators;
 
 /**
  *

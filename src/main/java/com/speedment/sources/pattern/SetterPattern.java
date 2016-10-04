@@ -13,8 +13,8 @@ import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Interface;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
-import com.speedment.runtime.core.field.method.ReferenceSetter;
-import com.speedment.runtime.core.field.method.Setter;
+import com.speedment.runtime.field.method.ReferenceSetter;
+import com.speedment.runtime.field.method.Setter;
 import java.util.Objects;
 
 /**

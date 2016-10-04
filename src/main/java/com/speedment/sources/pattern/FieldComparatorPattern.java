@@ -9,8 +9,8 @@ import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Interface;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
-import com.speedment.runtime.core.field.trait.HasReferenceValue;
-import com.speedment.runtime.core.internal.field.comparator.ReferenceFieldComparator;
+import com.speedment.runtime.field.trait.HasReferenceValue;
+import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparator;
 import java.util.Comparator;
 
 /**
