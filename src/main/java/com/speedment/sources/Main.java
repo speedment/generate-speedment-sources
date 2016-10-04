@@ -126,7 +126,6 @@ public final class Main {
         patterns.add(new HasValuePattern(Boolean.class, boolean.class));
         patterns.add(new BooleanFieldPattern(Boolean.class, boolean.class));
         patterns.add(new BooleanFieldImplPattern(Boolean.class, boolean.class));
-        patterns.add(new ForeignKeyFieldPattern(Boolean.class, boolean.class));
         
         final Generator gen = new JavaGenerator();
         final AtomicInteger counter = new AtomicInteger();

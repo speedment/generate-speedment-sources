@@ -11,11 +11,10 @@ import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Method;
+import com.speedment.runtime.core.field.ComparableForeignKeyField;
 import com.speedment.runtime.core.field.ReferenceField;
-import com.speedment.runtime.core.field.ReferenceForeignKeyField;
 import com.speedment.runtime.core.field.method.BackwardFinder;
 import com.speedment.runtime.core.field.method.FindFrom;
-import com.speedment.runtime.core.field.method.Finder;
 import com.speedment.runtime.core.internal.field.ReferenceFieldImpl;
 import com.speedment.runtime.core.internal.field.finder.FindFromReference;
 import com.speedment.runtime.core.internal.field.streamer.BackwardFinderImpl;
@@ -58,7 +57,7 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
         final Type referencedFieldType = SimpleParameterizedType.create(
             siblingOf(ReferenceField.class, "%1$sField"),
             SimpleType.create("FK_ENTITY"),
-            DefaultType.WILDCARD
+            SimpleType.create("D")
         );
         
         return ((com.speedment.common.codegen.model.Class) delegator.make(file))
@@ -76,7 +75,7 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
             
             // Change which interfaces are implemented
             .add(SimpleParameterizedType.create(
-                siblingOf(ReferenceForeignKeyField.class, "%1$sForeignKeyField"),
+                siblingOf(ComparableForeignKeyField.class, "%1$sForeignKeyField"),
                 SimpleType.create("ENTITY"),
                 SimpleType.create("D"),
                 SimpleType.create("FK_ENTITY")

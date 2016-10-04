@@ -60,7 +60,7 @@ abstract class AbstractPattern implements Pattern {
     }
     
     protected final String formatJavadoc(String text) {
-        return String.format(text, wrapper(), primitive())
+        return String.format(text, wrapper(), primitive(), ucPrimitive())
             .replace(Formatting.tab(), "\t");
     }
 }
