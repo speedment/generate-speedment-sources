@@ -3,9 +3,10 @@ package com.speedment.sources.pattern;
 import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
 import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.sources.Pattern;
-import com.speedment.common.codegen.internal.model.value.TextValue;
 import com.speedment.common.codegen.internal.util.Formatting;
 import com.speedment.common.codegen.model.AnnotationUsage;
+import com.speedment.common.codegen.model.Value;
+import com.speedment.common.codegen.model.value.TextValue;
 import java.lang.reflect.Type;
 import static java.util.Objects.requireNonNull;
 
@@ -43,7 +44,7 @@ abstract class AbstractPattern implements Pattern {
     }
     
     protected final AnnotationUsage generatedAnnotation() {
-        return DefaultAnnotationUsage.GENERATED.put("value", new TextValue("Speedment"));
+        return DefaultAnnotationUsage.GENERATED.put("value", Value.ofText("Speedment"));
     }
     
     protected final Type siblingOf(Class<?> packageOf, String name) {
