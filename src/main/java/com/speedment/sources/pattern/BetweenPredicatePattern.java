@@ -19,8 +19,8 @@ import com.speedment.runtime.field.internal.predicate.BetweenPredicate;
 import com.speedment.runtime.field.internal.predicate.reference.ReferenceBetweenPredicate;
 import java.util.Objects;
 import com.speedment.common.codegen.model.Method;
-import static com.speedment.common.codegen.internal.util.Formatting.block;
-import static com.speedment.common.codegen.internal.util.Formatting.indent;
+import static com.speedment.common.codegen.util.Formatting.block;
+import static com.speedment.common.codegen.util.Formatting.indent;
 import com.speedment.common.tuple.Tuple2;
 import java.lang.reflect.Type;
 

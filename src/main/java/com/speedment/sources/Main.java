@@ -19,7 +19,7 @@ import com.speedment.sources.pattern.SetterPattern;
 import com.speedment.common.codegen.Generator;
 import com.speedment.common.codegen.controller.AutoImports;
 import com.speedment.common.codegen.internal.java.JavaGenerator;
-import com.speedment.common.codegen.internal.util.Formatting;
+import com.speedment.common.codegen.util.Formatting;
 import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.sources.pattern.BooleanFieldImplPattern;

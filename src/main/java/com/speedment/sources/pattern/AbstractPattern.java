@@ -3,10 +3,9 @@ package com.speedment.sources.pattern;
 import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
 import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.sources.Pattern;
-import com.speedment.common.codegen.internal.util.Formatting;
+import com.speedment.common.codegen.util.Formatting;
 import com.speedment.common.codegen.model.AnnotationUsage;
 import com.speedment.common.codegen.model.Value;
-import com.speedment.common.codegen.model.value.TextValue;
 import java.lang.reflect.Type;
 import static java.util.Objects.requireNonNull;
 

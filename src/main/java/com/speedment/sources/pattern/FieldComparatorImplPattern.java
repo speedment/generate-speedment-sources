@@ -4,7 +4,7 @@ import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
-import static com.speedment.common.codegen.internal.util.Formatting.block;
+import static com.speedment.common.codegen.util.Formatting.block;
 import com.speedment.common.codegen.model.ClassOrInterface;
 import com.speedment.common.codegen.model.Constructor;
 import com.speedment.common.codegen.model.Field;
