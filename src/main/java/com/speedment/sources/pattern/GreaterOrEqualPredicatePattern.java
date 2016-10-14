@@ -19,7 +19,7 @@ public final class GreaterOrEqualPredicatePattern extends AbstractSimpleComparat
 
     @Override
     protected String getOperator() {
-        return "==";
+        return ">=";
     }
 
     @Override
