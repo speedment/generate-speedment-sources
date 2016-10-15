@@ -40,22 +40,70 @@ abstract class AbstractPattern implements Pattern {
     }
     
     protected final String value(String s) {
-        if (primitive == byte.class) {
-            return "(byte) " + s;
-        } else if (primitive == short.class) {
-            return "(short) " + s;
-        } else if (primitive == int.class) {
-            return s;
-        } else if (primitive == long.class) {
-            return s + "L";
-        } else if (primitive == float.class) {
-            return s + "f";
-        } else if (primitive == double.class) {
-            return s + "d";
-        } else if (primitive == char.class) {
+        if (primitive == char.class) {
             return "'" + s + "'";
-        } else {
+        } else if (primitive == boolean.class) {
             return s;
+        } else {
+            if (primitive == byte.class) {
+                return "(byte) " + s;
+            } else if (primitive == short.class) {
+                return "(short) " + s;
+            } else if (primitive == int.class) {
+                return s;
+            } else if (primitive == long.class) {
+                return s + "L";
+            } else if (primitive == float.class) {
+                return s + "f";
+            } else if (primitive == double.class) {
+                return s + "d";
+            } else {
+                return s;
+            }
+        }
+    }
+    
+    protected final String veryLow() {
+        if (primitive == char.class) {
+            return "'0'";
+        } else if (primitive == boolean.class) {
+            return "false";
+        } else if (primitive == byte.class) {
+            return "Byte.MIN_VALUE";
+        } else if (primitive == short.class) {
+            return "Short.MIN_VALUE";
+        } else if (primitive == int.class) {
+            return "Integer.MIN_VALUE";
+        } else if (primitive == long.class) {
+            return "Long.MIN_VALUE";
+        } else if (primitive == float.class) {
+            return "-Float.MAX_VALUE";
+        } else if (primitive == double.class) {
+            return "-Double.MAX_VALUE";
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+    
+    protected final String veryHigh() {
+        if (primitive == char.class) {
+            return "'Z'";
+        } else if (primitive == boolean.class) {
+            return "true";
+        } else if (primitive == byte.class) {
+            return "Byte.MAX_VALUE";
+        } else if (primitive == short.class) {
+            return "Short.MAX_VALUE";
+        } else if (primitive == int.class) {
+            return "Integer.MAX_VALUE";
+        } else if (primitive == long.class) {
+            return "Long.MAX_VALUE";
+        } else if (primitive == float.class) {
+            return "Float.MAX_VALUE";
+        } else if (primitive == double.class) {
+            return "Double.MAX_VALUE";
+        } else {
+            throw new UnsupportedOperationException();
         }
     }
     

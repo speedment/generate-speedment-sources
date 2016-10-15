@@ -14,8 +14,13 @@ import com.speedment.common.codegen.model.Method;
 import com.speedment.common.codegen.model.Value;
 import static com.speedment.common.codegen.util.Formatting.ucfirst;
 import com.speedment.runtime.field.ReferenceField;
+import com.speedment.runtime.field.predicate.Inclusion;
 import com.speedment.runtime.typemapper.TypeMapper;
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import static java.util.stream.Collectors.joining;
 import java.util.stream.Stream;
 import org.junit.Before;
@@ -53,26 +58,29 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
     @Override
     public ClassOrInterface<?> make(File file) {
         
-        final Type basicEntity = siblingOf(ReferenceField.class, "BasicEntity");
-        
-        return Class.of(getClassName())
-            
-            /******************************************************************/
-            /*                         Documentation                          */
-            /******************************************************************/
+        final Class clazz = Class.of(getClassName())
+            .public_().final_()
+            .add(generatedAnnotation())
             .set(Javadoc.of(formatJavadoc(
                 "JUnit tests for the primitive {@code %2$s} field class."
                 ))
                 .add(DefaultJavadocTag.AUTHOR.setValue("Emil Forslund"))
                 .add(DefaultJavadocTag.SINCE.setValue("3.0.3"))
                 .add(DefaultJavadocTag.SEE.setValue(ucPrimitive() + "Field"))
-            )
+            );
+        
+        if (primitiveType() != char.class) {
             
-            /******************************************************************/
-            /*                       Class Declaration                        */
-            /******************************************************************/
-            .public_().final_()
-            .add(generatedAnnotation())
+            final Type basicEntity = siblingOf(ReferenceField.class, "BasicEntity");
+            
+            file.add(Import.of(Inclusion.class));
+            file.add(Import.of(Predicate.class));
+            file.add(Import.of(Stream.class));
+            file.add(Import.of(Collectors.class));
+            file.add(Import.of(Collections.class));
+            file.add(Import.of(Arrays.class).static_().setStaticMember("asList"));
+            
+            clazz
             
             /******************************************************************/
             /*                            Variables                           */
@@ -95,7 +103,7 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
             .add(Field.of("j", basicEntity).private_())
             .add(Field.of("k", basicEntity).private_())
             .add(Field.of("l", basicEntity).private_())
-            
+
             /******************************************************************/
             /*                             Methods                            */
             /******************************************************************/
@@ -120,11 +128,11 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                     "g = new BasicEntity().setVar" + ucPrimitive() + "(" + value("3") + ");",
                     "h = new BasicEntity().setVar" + ucPrimitive() + "(" + value("-5") + ");",
                     "i = new BasicEntity().setVar" + ucPrimitive() + "(" + value("1") + ");",
-                    "j = new BasicEntity().setVar" + ucPrimitive() + "(" + wrapper() + ".MIN_VALUE);",
-                    "k = new BasicEntity().setVar" + ucPrimitive() + "(" + wrapper() + ".MAX_VALUE);",
+                    "j = new BasicEntity().setVar" + ucPrimitive() + "(" + veryLow() + ");",
+                    "k = new BasicEntity().setVar" + ucPrimitive() + "(" + veryHigh() + ");",
                     "l = new BasicEntity().setVar" + ucPrimitive() + "(" + value("0") + ");",
                     "",
-                    "entities = Arrays.asList(a, b, c, d, e, f, g, h, i, j, k, l);"
+                    "entities = asList(a, b, c, d, e, f, g, h, i, j, k, l);"
                 )
             )
             
@@ -158,18 +166,6 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 array("a", "b", "c", "d", "e", "f", "g", "h", "i", "k", "l"),
                 array("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"),
                 array("k"),
-                array("k")
-            ))
-            
-            .add(testComparisonMethod("greaterThan", 
-                array("a", "c", "d", "e", "f", "g", "i", "k", "l"), 
-                array("c", "d", "e", "f", "g", "i", "k"), 
-                array("e", "f", "g", "k"),
-                array("g", "k"),
-                array("k"),
-                array("a", "b", "c", "d", "e", "f", "g", "i", "k", "l"),
-                array("a", "b", "c", "d", "e", "f", "g", "h", "i", "k", "l"),
-                array(),
                 array("k")
             ))
             
@@ -257,8 +253,8 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
             .add(testInMethod("notIn", false,
                 array("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"),
                 array(     "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"     ),
-                array(     "b",      "d", "e", "f", "g", "h",      "j", "k"     ),
-                array(     "b",      "d", "e", "f", "g", "h",      "j", "k"     ),
+                array(     "b",           "e", "f", "g", "h",      "j", "k"     ),
+                array(     "b",           "e", "f", "g", "h",      "j", "k"     ),
                 array("a",                               "h",      "j", "k", "l"),
                 array("a", "b", "c", "d", "e", "f", "g", "h", "i",           "l"),
                 array("a", "b",                          "h",      "j", "k", "l"),
@@ -269,17 +265,17 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
             .add(testInMethod("notIn", true,
                 array("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"),
                 array(     "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"     ),
-                array(     "b",      "d", "e", "f", "g", "h",      "j", "k"     ),
-                array(     "b",      "d", "e", "f", "g", "h",      "j", "k"     ),
+                array(     "b",           "e", "f", "g", "h",      "j", "k"     ),
+                array(     "b",           "e", "f", "g", "h",      "j", "k"     ),
                 array("a",                               "h",      "j", "k", "l"),
                 array("a", "b", "c", "d", "e", "f", "g", "h", "i",           "l"),
                 array("a", "b",                          "h",      "j", "k", "l"),
                 array("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"),
                 array("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l")
-            ))
-            
-                // array("a", "b", "c", "d", "e", "f", "g", "h" , "i", "j", "k", "l")
-        ;
+            ));
+        }
+    
+        return clazz;
     }
     
     private Method testBetweenMethod(String name, String[] e0, String[] e1, String[] e2, String[] e3, String[] e4, String[] e5) {
@@ -303,20 +299,20 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 "final List<BasicEntity> e5 = asList(" + Stream.of(e5).collect(joining(", ")) + ");",
                 "",
                 "// Create a number of actual results",
-                "final List<BasicEntity> a0 = entities.stream().filter(t0).collect(toList());",
-                "final List<BasicEntity> a1 = entities.stream().filter(t1).collect(toList());",
-                "final List<BasicEntity> a2 = entities.stream().filter(t2).collect(toList());",
-                "final List<BasicEntity> a3 = entities.stream().filter(t3).collect(toList());",
-                "final List<BasicEntity> a4 = entities.stream().filter(t4).collect(toList());",
-                "final List<BasicEntity> a5 = entities.stream().filter(t5).collect(toList());",
+                "final List<BasicEntity> a0 = entities.stream().filter(t0).collect(Collectors.toList());",
+                "final List<BasicEntity> a1 = entities.stream().filter(t1).collect(Collectors.toList());",
+                "final List<BasicEntity> a2 = entities.stream().filter(t2).collect(Collectors.toList());",
+                "final List<BasicEntity> a3 = entities.stream().filter(t3).collect(Collectors.toList());",
+                "final List<BasicEntity> a4 = entities.stream().filter(t4).collect(Collectors.toList());",
+                "final List<BasicEntity> a5 = entities.stream().filter(t5).collect(Collectors.toList());",
                 "",
                 "// Test the results",
-                "assertListEqual(\"Test 0: " + name + "(0, 2):\",                                a0, e0, FORMATTER);",
-                "assertListEqual(\"Test 1: " + name + "(-2, 2):\",                               a1, e1, FORMATTER);",
-                "assertListEqual(\"Test 2: " + name + "(0, 2, START_EXCLUSIVE_END_EXCLUSIVE):\", a2, e2, FORMATTER);",
-                "assertListEqual(\"Test 3: " + name + "(0, 2, START_INCLUSIVE_END_EXCLUSIVE):\", a3, e3, FORMATTER);",
-                "assertListEqual(\"Test 4: " + name + "(0, 2, START_EXCLUSIVE_END_INCLUSIVE):\", a4, e4, FORMATTER);",
-                "assertListEqual(\"Test 5: " + name + "(0, 2, START_INCLUSIVE_END_INCLUSIVE):\", a5, e5, FORMATTER);"
+                "TestUtil.assertListEqual(\"Test 0: " + name + "(0, 2):\",                                a0, e0, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 1: " + name + "(-2, 2):\",                               a1, e1, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 2: " + name + "(0, 2, START_EXCLUSIVE_END_EXCLUSIVE):\", a2, e2, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 3: " + name + "(0, 2, START_INCLUSIVE_END_EXCLUSIVE):\", a3, e3, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 4: " + name + "(0, 2, START_EXCLUSIVE_END_INCLUSIVE):\", a4, e4, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 5: " + name + "(0, 2, START_INCLUSIVE_END_INCLUSIVE):\", a5, e5, FORMATTER);"
             )
         ;
     }
@@ -332,8 +328,8 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 "final Predicate<BasicEntity> t3 = field." + name + "(" + value("2") + ");",
                 "final Predicate<BasicEntity> t4 = field." + name + "(" + value("3") + ");",
                 "final Predicate<BasicEntity> t5 = field." + name + "(" + value("-5") + ");",
-                "final Predicate<BasicEntity> t6 = field." + name + "(" + wrapper() + ".MIN_VALUE);",
-                "final Predicate<BasicEntity> t7 = field." + name + "(" + wrapper() + ".MAX_VALUE);",
+                "final Predicate<BasicEntity> t6 = field." + name + "(" + veryLow() + ");",
+                "final Predicate<BasicEntity> t7 = field." + name + "(" + veryHigh() + ");",
                 "final Predicate<BasicEntity> t8 = field." + name + "(" + value("100") + ");",
                 "",
                 "// Create a number of expected results",
@@ -348,26 +344,26 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 "final List<BasicEntity> e8 = asList(" + Stream.of(e8).collect(joining(", ")) + ");",
                 "",
                 "// Create a number of actual results",
-                "final List<BasicEntity> a0 = entities.stream().filter(t0).collect(toList());",
-                "final List<BasicEntity> a1 = entities.stream().filter(t1).collect(toList());",
-                "final List<BasicEntity> a2 = entities.stream().filter(t2).collect(toList());",
-                "final List<BasicEntity> a3 = entities.stream().filter(t3).collect(toList());",
-                "final List<BasicEntity> a4 = entities.stream().filter(t4).collect(toList());",
-                "final List<BasicEntity> a5 = entities.stream().filter(t5).collect(toList());",
-                "final List<BasicEntity> a6 = entities.stream().filter(t5).collect(toList());",
-                "final List<BasicEntity> a7 = entities.stream().filter(t5).collect(toList());",
-                "final List<BasicEntity> a8 = entities.stream().filter(t5).collect(toList());",
+                "final List<BasicEntity> a0 = entities.stream().filter(t0).collect(Collectors.toList());",
+                "final List<BasicEntity> a1 = entities.stream().filter(t1).collect(Collectors.toList());",
+                "final List<BasicEntity> a2 = entities.stream().filter(t2).collect(Collectors.toList());",
+                "final List<BasicEntity> a3 = entities.stream().filter(t3).collect(Collectors.toList());",
+                "final List<BasicEntity> a4 = entities.stream().filter(t4).collect(Collectors.toList());",
+                "final List<BasicEntity> a5 = entities.stream().filter(t5).collect(Collectors.toList());",
+                "final List<BasicEntity> a6 = entities.stream().filter(t6).collect(Collectors.toList());",
+                "final List<BasicEntity> a7 = entities.stream().filter(t7).collect(Collectors.toList());",
+                "final List<BasicEntity> a8 = entities.stream().filter(t8).collect(Collectors.toList());",
                 "",
                 "// Test the results",
-                "assertListEqual(\"Test 0: " + name + "(-1):\",        a0, e0, FORMATTER);",
-                "assertListEqual(\"Test 1: " + name + "(0):\",         a1, e1, FORMATTER);",
-                "assertListEqual(\"Test 2: " + name + "(1):\",         a2, e2, FORMATTER);",
-                "assertListEqual(\"Test 3: " + name + "(2):\",         a3, e3, FORMATTER);",
-                "assertListEqual(\"Test 4: " + name + "(3):\",         a4, e4, FORMATTER);",
-                "assertListEqual(\"Test 5: " + name + "(-5):\",        a5, e5, FORMATTER);",
-                "assertListEqual(\"Test 6: " + name + "(MIN_VALUE):\", a6, e6, FORMATTER);",
-                "assertListEqual(\"Test 7: " + name + "(MAX_VALUE):\", a7, e7, FORMATTER);",
-                "assertListEqual(\"Test 8: " + name + "(100):\",       a8, e8, FORMATTER);"
+                "TestUtil.assertListEqual(\"Test 0: " + name + "(-1):\",        a0, e0, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 1: " + name + "(0):\",         a1, e1, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 2: " + name + "(1):\",         a2, e2, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 3: " + name + "(2):\",         a3, e3, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 4: " + name + "(3):\",         a4, e4, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 5: " + name + "(-5):\",        a5, e5, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 6: " + name + "(MIN_VALUE):\", a6, e6, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 7: " + name + "(MAX_VALUE):\", a7, e7, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 8: " + name + "(100):\",       a8, e8, FORMATTER);"
             )
         ;
     }
@@ -383,7 +379,7 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 "final Predicate<BasicEntity> t2 = field." + name + "(" + asSet(set, "0", "1") + ");",
                 "final Predicate<BasicEntity> t3 = field." + name + "(" + asSet(set, "0", "1", "1") + ");",
                 "final Predicate<BasicEntity> t4 = field." + name + "(" + asSet(set, "-1", "1", "2", "3") + ");",
-                "final Predicate<BasicEntity> t5 = field." + name + "(" + asSet(set, wrapper() + ".MIN_VALUE", wrapper() + ".MAX_VALUE") + ");",
+                "final Predicate<BasicEntity> t5 = field." + name + "(" + asSet(set, veryLow(), veryHigh()) + ");",
                 "final Predicate<BasicEntity> t6 = field." + name + "(" + asSet(set, "1", "2", "3", "4", "5") + ");",
                 "final Predicate<BasicEntity> t7 = field." + name + "(" + asSet(set, "100", "101", "102", "103", "104") + ");",
                 "final Predicate<BasicEntity> t8 = field." + name + "(" + asSet(set, "-100") + ");",
@@ -400,26 +396,26 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 "final List<BasicEntity> e8 = asList(" + Stream.of(e8).collect(joining(", ")) + ");",
                 "",
                 "// Create a number of actual results",
-                "final List<BasicEntity> a0 = entities.stream().filter(t0).collect(toList());",
-                "final List<BasicEntity> a1 = entities.stream().filter(t1).collect(toList());",
-                "final List<BasicEntity> a2 = entities.stream().filter(t2).collect(toList());",
-                "final List<BasicEntity> a3 = entities.stream().filter(t3).collect(toList());",
-                "final List<BasicEntity> a4 = entities.stream().filter(t4).collect(toList());",
-                "final List<BasicEntity> a5 = entities.stream().filter(t5).collect(toList());",
-                "final List<BasicEntity> a6 = entities.stream().filter(t5).collect(toList());",
-                "final List<BasicEntity> a7 = entities.stream().filter(t5).collect(toList());",
-                "final List<BasicEntity> a8 = entities.stream().filter(t5).collect(toList());",
+                "final List<BasicEntity> a0 = entities.stream().filter(t0).collect(Collectors.toList());",
+                "final List<BasicEntity> a1 = entities.stream().filter(t1).collect(Collectors.toList());",
+                "final List<BasicEntity> a2 = entities.stream().filter(t2).collect(Collectors.toList());",
+                "final List<BasicEntity> a3 = entities.stream().filter(t3).collect(Collectors.toList());",
+                "final List<BasicEntity> a4 = entities.stream().filter(t4).collect(Collectors.toList());",
+                "final List<BasicEntity> a5 = entities.stream().filter(t5).collect(Collectors.toList());",
+                "final List<BasicEntity> a6 = entities.stream().filter(t6).collect(Collectors.toList());",
+                "final List<BasicEntity> a7 = entities.stream().filter(t7).collect(Collectors.toList());",
+                "final List<BasicEntity> a8 = entities.stream().filter(t8).collect(Collectors.toList());",
                 "",
                 "// Test the results",
-                "assertListEqual(\"Test 0: " + setName + "():\",                        a0, e0, FORMATTER);",
-                "assertListEqual(\"Test 1: " + setName + "(0):\",                       a1, e1, FORMATTER);",
-                "assertListEqual(\"Test 2: " + setName + "(0, 1):\",                    a2, e2, FORMATTER);",
-                "assertListEqual(\"Test 3: " + setName + "(0, 1, 1):\",                 a3, e3, FORMATTER);",
-                "assertListEqual(\"Test 4: " + setName + "(-1, 1, 2, 3):\",             a4, e4, FORMATTER);",
-                "assertListEqual(\"Test 5: " + setName + "(MIN_VALUE, MAX_VALUE):\",    a5, e5, FORMATTER);",
-                "assertListEqual(\"Test 6: " + setName + "(1, 2, 3, 4, 5):\",           a6, e6, FORMATTER);",
-                "assertListEqual(\"Test 7: " + setName + "(100, 101, 102, 103, 104):\", a7, e7, FORMATTER);",
-                "assertListEqual(\"Test 8: " + setName + "(-100):\",                    a8, e8, FORMATTER);"
+                "TestUtil.assertListEqual(\"Test 0: " + setName + "():\",                        a0, e0, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 1: " + setName + "(0):\",                       a1, e1, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 2: " + setName + "(0, 1):\",                    a2, e2, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 3: " + setName + "(0, 1, 1):\",                 a3, e3, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 4: " + setName + "(-1, 1, 2, 3):\",             a4, e4, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 5: " + setName + "(MIN_VALUE, MAX_VALUE):\",    a5, e5, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 6: " + setName + "(1, 2, 3, 4, 5):\",           a6, e6, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 7: " + setName + "(100, 101, 102, 103, 104):\", a7, e7, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 8: " + setName + "(-100):\",                    a8, e8, FORMATTER);"
             )
         ;
     }
@@ -428,15 +424,28 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
         if (set) {
             switch (values.length) {
                 case 0:
-                    return "emptySet()";
+                    return "Collections.emptySet()";
                 case 1:
-                    return "singleton(" + value(values[0]) + ")";
+                    return "Collections.singleton(" + value(values[0]) + ")";
                 default:
-                    return "Stream.of(" + Stream.of(values).map(this::value).collect(joining(", ")) + ").collect(toSet())";
+                    return "Stream.of(" + valueList(values) + ").collect(Collectors.toSet())";
             }
         } else {
-            return Stream.of(values).map(this::value).collect(joining(", "));
+            return valueList(values);
         }
+    }
+    
+    private String valueList(String... values) {
+        return Stream.of(values)
+            .map(s -> {
+                try {
+                    final Number num = Double.parseDouble(s);
+                    return value(s);
+                } catch (final NumberFormatException ex) {
+                    return s;
+                }
+            })
+            .collect(joining(", "));
     }
     
     private String[] array(String... s) {
