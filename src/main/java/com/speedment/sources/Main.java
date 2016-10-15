@@ -1,11 +1,21 @@
 package com.speedment.sources;
 
+import com.speedment.common.codegen.Generator;
+import com.speedment.common.codegen.controller.AutoImports;
+import com.speedment.common.codegen.internal.java.JavaGenerator;
+import com.speedment.common.codegen.model.File;
+import com.speedment.common.codegen.model.Javadoc;
+import com.speedment.common.codegen.util.Formatting;
 import com.speedment.sources.pattern.BetweenPredicatePattern;
+import com.speedment.sources.pattern.BooleanFieldImplPattern;
+import com.speedment.sources.pattern.BooleanFieldPattern;
 import com.speedment.sources.pattern.EqualPredicatePattern;
 import com.speedment.sources.pattern.FieldComparatorImplPattern;
 import com.speedment.sources.pattern.FieldComparatorPattern;
 import com.speedment.sources.pattern.FieldImplPattern;
 import com.speedment.sources.pattern.FieldPattern;
+import com.speedment.sources.pattern.FieldTestPattern;
+import com.speedment.sources.pattern.FindFromPattern;
 import com.speedment.sources.pattern.ForeignKeyFieldImplPattern;
 import com.speedment.sources.pattern.ForeignKeyFieldPattern;
 import com.speedment.sources.pattern.GetterPattern;
@@ -16,15 +26,6 @@ import com.speedment.sources.pattern.InPredicatePattern;
 import com.speedment.sources.pattern.SetToImplPattern;
 import com.speedment.sources.pattern.SetToPattern;
 import com.speedment.sources.pattern.SetterPattern;
-import com.speedment.common.codegen.Generator;
-import com.speedment.common.codegen.controller.AutoImports;
-import com.speedment.common.codegen.internal.java.JavaGenerator;
-import com.speedment.common.codegen.util.Formatting;
-import com.speedment.common.codegen.model.File;
-import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.sources.pattern.BooleanFieldImplPattern;
-import com.speedment.sources.pattern.BooleanFieldPattern;
-import com.speedment.sources.pattern.FindFromPattern;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -72,12 +73,18 @@ public final class Main {
         final Path srcPath = basePath
             .resolve("runtime-parent")
             .resolve("runtime-field")
-            .resolve("src")
+            .resolve("src");
+        
+        final Path mainJava = srcPath
             .resolve("main")
             .resolve("java");
         
-        if (!Files.exists(srcPath)) {
-            System.err.println("Could not find java sources folder '" + srcPath.toString() + "'.");
+        final Path testJava = srcPath
+            .resolve("test")
+            .resolve("java");
+        
+        if (!Files.exists(mainJava)) {
+            System.err.println("Could not find java sources folder '" + mainJava.toString() + "'.");
             System.exit(-3);
         }
         
@@ -106,6 +113,7 @@ public final class Main {
         install(patterns, FieldComparatorPattern::new);
         install(patterns, FieldImplPattern::new);
         install(patterns, FieldPattern::new);
+        install(patterns, FieldTestPattern::new);
         install(patterns, FindFromPattern::new);
         install(patterns, ForeignKeyFieldImplPattern::new);
         install(patterns, ForeignKeyFieldPattern::new);
@@ -137,8 +145,8 @@ public final class Main {
             final File file          = File.of(packageName + ".java");
             
             file.set(Javadoc.of(licenseHeader));
+            Path currentPath = pattern.isTestClass() ? testJava : mainJava;
             
-            Path currentPath = srcPath;
             final String[] folders = packageName.split("\\.");
             
             for (int i = 0; i < folders.length - 1; i++) {

@@ -26,6 +26,14 @@ public interface Pattern {
     String getFullClassName();
     
     /**
+     * Returns {@code true} if this class should be placed in the projects test
+     * folder.
+     * 
+     * @return {@code true} if this is a test class
+     */
+    boolean isTestClass();
+    
+    /**
      * Generate a CodeGen model for the component. A file is included so that
      * any extra types can be imported correctly.
      * 

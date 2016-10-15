@@ -14,11 +14,11 @@ import com.speedment.common.codegen.model.Method;
 import static com.speedment.common.codegen.util.Formatting.indent;
 import com.speedment.runtime.config.identifier.ColumnIdentifier;
 import com.speedment.runtime.field.ReferenceField;
+import com.speedment.runtime.field.internal.ReferenceFieldImpl;
 import com.speedment.runtime.field.method.ReferenceGetter;
 import com.speedment.runtime.field.method.ReferenceSetter;
 import com.speedment.runtime.field.trait.HasComparableOperators;
 import com.speedment.runtime.field.trait.HasReferenceValue;
-import com.speedment.runtime.field.internal.ReferenceFieldImpl;
 import com.speedment.runtime.typemapper.TypeMapper;
 
 /**

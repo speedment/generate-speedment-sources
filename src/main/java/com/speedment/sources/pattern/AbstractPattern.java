@@ -2,10 +2,10 @@ package com.speedment.sources.pattern;
 
 import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
 import com.speedment.common.codegen.constant.SimpleType;
-import com.speedment.sources.Pattern;
 import com.speedment.common.codegen.model.AnnotationUsage;
 import com.speedment.common.codegen.model.Value;
 import com.speedment.common.codegen.util.Formatting;
+import com.speedment.sources.Pattern;
 import java.lang.reflect.Type;
 import static java.util.Objects.requireNonNull;
 
@@ -21,6 +21,11 @@ abstract class AbstractPattern implements Pattern {
         this.wrapper   = requireNonNull(wrapper);
         this.primitive = requireNonNull(primitive);
     }
+
+    @Override
+    public boolean isTestClass() {
+        return false;
+    }
     
     protected final String wrapper() {
         return wrapper.getSimpleName();
@@ -34,6 +39,26 @@ abstract class AbstractPattern implements Pattern {
         return Formatting.ucfirst(primitive());
     }
     
+    protected final String value(String s) {
+        if (primitive == byte.class) {
+            return "(byte) " + s;
+        } else if (primitive == short.class) {
+            return "(short) " + s;
+        } else if (primitive == int.class) {
+            return s;
+        } else if (primitive == long.class) {
+            return s + "L";
+        } else if (primitive == float.class) {
+            return s + "f";
+        } else if (primitive == double.class) {
+            return s + "d";
+        } else if (primitive == char.class) {
+            return "'" + s + "'";
+        } else {
+            return s;
+        }
+    }
+    
     protected final Type wrapperType() {
         return wrapper;
     }
@@ -41,6 +66,8 @@ abstract class AbstractPattern implements Pattern {
     protected final Type primitiveType() {
         return primitive;
     }
+    
+    
     
     protected final AnnotationUsage generatedAnnotation() {
         return DefaultAnnotationUsage.GENERATED.put("value", Value.ofText("Speedment"));
