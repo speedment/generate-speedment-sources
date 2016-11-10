@@ -13,10 +13,10 @@ import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
 import static com.speedment.common.codegen.util.Formatting.block;
-import com.speedment.runtime.field.trait.HasReferenceValue;
+import com.speedment.common.invariant.NullUtil;
+import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparator;
 import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparatorImpl;
-import com.speedment.common.invariant.NullUtil;
 import java.lang.reflect.Type;
 import java.util.Comparator;
 import java.util.Objects;
@@ -47,7 +47,7 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
         file.add(Import.of(NullUtil.class).static_().setStaticMember("requireNonNulls"));
         
         final Type fieldType = SimpleParameterizedType.create(
-            siblingOf(HasReferenceValue.class, "Has%1$sValue"),
+            siblingOf(ReferenceField.class, "%1$sField"),
             SimpleType.create("ENTITY"),
             SimpleType.create("D")
         );
