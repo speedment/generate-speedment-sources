@@ -13,20 +13,21 @@ import com.speedment.common.codegen.model.Generic;
 import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
-import com.speedment.runtime.typemapper.TypeMapper;
+import com.speedment.runtime.config.identifier.ColumnIdentifier;
 import com.speedment.runtime.field.ReferenceField;
+import com.speedment.runtime.field.internal.ReferenceFieldImpl;
+import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparator;
+import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparatorImpl;
+import com.speedment.runtime.field.internal.method.GetReferenceImpl;
+import com.speedment.runtime.field.internal.predicate.reference.ReferenceEqualPredicate;
 import com.speedment.runtime.field.method.ReferenceGetter;
 import com.speedment.runtime.field.method.ReferenceSetter;
 import com.speedment.runtime.field.predicate.FieldPredicate;
 import com.speedment.runtime.field.predicate.Inclusion;
-import com.speedment.runtime.field.internal.ReferenceFieldImpl;
-import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparator;
-import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparatorImpl;
-import com.speedment.runtime.field.internal.predicate.reference.ReferenceEqualPredicate;
+import com.speedment.runtime.typemapper.TypeMapper;
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.function.Predicate;
-import com.speedment.runtime.config.identifier.ColumnIdentifier;
 
 /**
  *
@@ -51,6 +52,7 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
     @Override
     public ClassOrInterface<?> make(File file) {
         file.add(Import.of(Objects.class).static_().setStaticMember("requireNonNull"));
+        file.add(Import.of(siblingOf(GetReferenceImpl.class, "Get%1$sImpl")));
         
         final Type fieldType = SimpleParameterizedType.create(
             siblingOf(ReferenceField.class, "%1$sField"),
@@ -65,6 +67,12 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
         final Type getterType = SimpleParameterizedType.create(
             siblingOf(ReferenceGetter.class, "%1$sGetter"),
             SimpleType.create("ENTITY")
+        );
+        
+        final Type getType = SimpleParameterizedType.create(
+            siblingOf(ReferenceGetter.class, "Get%1$s"),
+            SimpleType.create("ENTITY"),
+            SimpleType.create("D")
         );
         
         final Type setterType = SimpleParameterizedType.create(
@@ -109,7 +117,7 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
             /*                        Private Fields                          */
             /******************************************************************/
             .add(Field.of("identifier", identifierType).private_().final_())
-            .add(Field.of("getter", getterType).private_().final_())
+            .add(Field.of("getter", getType).private_().final_())
             .add(Field.of("setter", setterType).private_().final_())
             .add(Field.of("typeMapper", typeMapperType).private_().final_())
             .add(Field.of("unique", boolean.class).private_().final_())
@@ -125,7 +133,7 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
                 .add(Field.of("unique", boolean.class))
                 .add(
                     "this.identifier = requireNonNull(identifier);",
-                    "this.getter     = requireNonNull(getter);",
+                    "this.getter     = new Get" + ucPrimitive() + "Impl<>(this, getter);",
                     "this.setter     = requireNonNull(setter);",
                     "this.typeMapper = requireNonNull(typeMapper);",
                     "this.unique     = unique;"
@@ -145,7 +153,7 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
                 .add("return setter;")
             )
             
-            .add(Method.of("getter", getterType).public_()
+            .add(Method.of("getter", getType).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add("return getter;")
             )

@@ -12,12 +12,12 @@ import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Interface;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
-import com.speedment.runtime.typemapper.TypeMapper;
+import com.speedment.runtime.field.internal.method.SetToReferenceImpl;
 import com.speedment.runtime.field.method.ReferenceGetter;
 import com.speedment.runtime.field.method.ReferenceSetter;
 import com.speedment.runtime.field.method.SetToReference;
 import com.speedment.runtime.field.trait.HasReferenceValue;
-import com.speedment.runtime.field.internal.method.SetToReferenceImpl;
+import com.speedment.runtime.typemapper.TypeMapper;
 
 /**
  *
@@ -79,8 +79,9 @@ public final class HasValuePattern extends AbstractSiblingPattern {
             )
             
             .add(Method.of("getter", SimpleParameterizedType.create(
-                    siblingOf(ReferenceGetter.class, "%1$sGetter"),
-                    SimpleType.create("ENTITY")
+                    siblingOf(ReferenceGetter.class, "Get%1$s"),
+                    SimpleType.create("ENTITY"),
+                    SimpleType.create("D")
                 ))
                 .add(DefaultAnnotationUsage.OVERRIDE)
             )
