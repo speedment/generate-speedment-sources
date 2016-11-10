@@ -1,5 +1,6 @@
 package com.speedment.sources.pattern;
 
+import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
@@ -73,12 +74,7 @@ public final class FieldComparatorPattern extends AbstractSiblingPattern {
                 .set(Javadoc.of("Gets the field that is being compared.")
                     .add(DefaultJavadocTag.RETURN.setValue("the compared field"))
                 )
-            )
-            
-            .add(Method.of("isReversed", boolean.class)
-                .set(Javadoc.of("Returns if this {@code Comparator} is reversed.")
-                    .add(DefaultJavadocTag.RETURN.setValue("if this is reversed"))
-                )
+                .add(OVERRIDE)
             )
         ;
     }
