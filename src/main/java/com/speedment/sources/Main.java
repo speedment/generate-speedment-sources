@@ -18,6 +18,8 @@ import com.speedment.sources.pattern.FieldTestPattern;
 import com.speedment.sources.pattern.FindFromPattern;
 import com.speedment.sources.pattern.ForeignKeyFieldImplPattern;
 import com.speedment.sources.pattern.ForeignKeyFieldPattern;
+import com.speedment.sources.pattern.GetImplPattern;
+import com.speedment.sources.pattern.GetPattern;
 import com.speedment.sources.pattern.GetterPattern;
 import com.speedment.sources.pattern.GreaterOrEqualPredicatePattern;
 import com.speedment.sources.pattern.GreaterThanPredicatePattern;
@@ -111,6 +113,8 @@ public final class Main {
         install(patterns, EqualPredicatePattern::new);
         install(patterns, FieldComparatorImplPattern::new);
         install(patterns, FieldComparatorPattern::new);
+        install(patterns, GetPattern::new);
+        install(patterns, GetImplPattern::new);
         install(patterns, FieldImplPattern::new);
         install(patterns, FieldPattern::new);
         install(patterns, FieldTestPattern::new);
@@ -128,6 +132,8 @@ public final class Main {
         
         // Boolean types
         patterns.add(new GetterPattern(Boolean.class, boolean.class));
+        patterns.add(new GetPattern(Boolean.class, boolean.class));
+        patterns.add(new GetImplPattern(Boolean.class, boolean.class));
         patterns.add(new SetterPattern(Boolean.class, boolean.class));
         patterns.add(new SetToPattern(Boolean.class, boolean.class));
         patterns.add(new SetToImplPattern(Boolean.class, boolean.class));

@@ -1,6 +1,10 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.constant.DefaultJavadocTag;
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.AUTHOR;
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.PARAM;
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.RETURN;
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.SEE;
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.SINCE;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.ClassOrInterface;
@@ -43,6 +47,10 @@ public final class FieldPattern extends AbstractSiblingPattern {
 
     @Override
     public ClassOrInterface<?> make(File file) {
+        file.add(Import.of(siblingOf(ReferenceFieldImpl.class, 
+            ucPrimitive() + "FieldImpl"
+        )));
+        
         return Interface.of(getClassName())
             
             /******************************************************************/
@@ -51,11 +59,11 @@ public final class FieldPattern extends AbstractSiblingPattern {
             .set(Javadoc.of(formatJavadoc(
                 "A field that represents a primitive {@code %2$s} value."
                 ))
-                .add(DefaultJavadocTag.PARAM.setValue("<ENTITY>").setText("entity type"))
-                .add(DefaultJavadocTag.PARAM.setValue("<D>").setText("database type"))
-                .add(DefaultJavadocTag.AUTHOR.setValue("Emil Forslund"))
-                .add(DefaultJavadocTag.SINCE.setValue("3.0.0"))
-                .add(DefaultJavadocTag.SEE.setValue(ReferenceField.class.getSimpleName()))
+                .add(PARAM.setValue("<ENTITY>").setText("entity type"))
+                .add(PARAM.setValue("<D>").setText("database type"))
+                .add(AUTHOR.setValue("Emil Forslund"))
+                .add(SINCE.setValue("3.0.0"))
+                .add(SEE.setValue(ReferenceField.class.getSimpleName()))
             )
             
             /******************************************************************/
@@ -65,7 +73,8 @@ public final class FieldPattern extends AbstractSiblingPattern {
             .add(generatedAnnotation())
             .add(Generic.of("ENTITY"))
             .add(Generic.of("D"))
-            .add(SimpleParameterizedType.create(com.speedment.runtime.field.Field.class,
+            .add(SimpleParameterizedType.create(
+                com.speedment.runtime.field.Field.class,
                 SimpleType.create("ENTITY")
             ))
             .add(SimpleParameterizedType.create(
@@ -93,21 +102,37 @@ public final class FieldPattern extends AbstractSiblingPattern {
                         "Creates a new {@link %3$sField} using the default " + 
                         "implementation."
                     ))
-                    .add(DefaultJavadocTag.PARAM.setValue("<ENTITY>").setText("entity type"))
-                    .add(DefaultJavadocTag.PARAM.setValue("<D>").setText("database type"))
-                    .add(DefaultJavadocTag.PARAM.setValue("identifier").setText("column that this field represents"))
-                    .add(DefaultJavadocTag.PARAM.setValue("getter").setText("method reference to the getter in the entity"))
-                    .add(DefaultJavadocTag.PARAM.setValue("setter").setText("method reference to the setter in the entity"))
-                    .add(DefaultJavadocTag.PARAM.setValue("typeMapper").setText("type mapper that is applied"))
-                    .add(DefaultJavadocTag.PARAM.setValue("unique").setText("if represented column only contains unique values"))
-                    .add(DefaultJavadocTag.RETURN.setValue("the created field"))
+                    .add(PARAM.setValue("<ENTITY>")
+                        .setText("entity type"))
+                    .add(PARAM.setValue("<D>")
+                        .setText("database type"))
+                    .add(PARAM.setValue("identifier")
+                        .setText("column that this field represents"))
+                    .add(PARAM.setValue("getter")
+                        .setText("method reference to getter in entity"))
+                    .add(PARAM.setValue("setter")
+                        .setText("method reference to setter in entity"))
+                    .add(PARAM.setValue("typeMapper")
+                        .setText("type mapper that is applied"))
+                    .add(PARAM.setValue("unique")
+                        .setText("if column only contains unique values"))
+                    .add(RETURN.setValue("the created field"))
                 )
-                .add(Field.of("identifier", SimpleParameterizedType.create(ColumnIdentifier.class, SimpleType.create("ENTITY"))))
-                .add(Field.of("getter", SimpleParameterizedType.create(siblingOf(ReferenceGetter.class, ucPrimitive() + "Getter"), SimpleType.create("ENTITY"))))
-                .add(Field.of("setter", SimpleParameterizedType.create(siblingOf(ReferenceSetter.class, ucPrimitive() + "Setter"), SimpleType.create("ENTITY"))))
-                .add(Field.of("typeMapper", SimpleParameterizedType.create(TypeMapper.class, SimpleType.create("D"), wrapperType())))
+                .add(Field.of("identifier", SimpleParameterizedType.create(
+                    ColumnIdentifier.class, SimpleType.create("ENTITY")
+                )))
+                .add(Field.of("getter", SimpleParameterizedType.create(
+                    siblingOf(ReferenceGetter.class, ucPrimitive() + "Getter"), 
+                    SimpleType.create("ENTITY")
+                )))
+                .add(Field.of("setter", SimpleParameterizedType.create(
+                    siblingOf(ReferenceSetter.class, ucPrimitive() + "Setter"), 
+                    SimpleType.create("ENTITY")
+                )))
+                .add(Field.of("typeMapper", SimpleParameterizedType.create(
+                    TypeMapper.class, SimpleType.create("D"), wrapperType()
+                )))
                 .add(Field.of("unique", boolean.class))
-                .call(() -> file.add(Import.of(siblingOf(ReferenceFieldImpl.class, ucPrimitive() + "FieldImpl"))))
                 .add("return new " + ucPrimitive() + "FieldImpl<>(")
                 .add(indent("identifier, getter, setter, typeMapper, unique"))
                 .add(");")

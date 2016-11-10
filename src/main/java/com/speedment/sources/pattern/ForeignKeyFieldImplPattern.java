@@ -14,19 +14,16 @@ import com.speedment.common.codegen.model.Method;
 import com.speedment.runtime.config.identifier.TableIdentifier;
 import com.speedment.runtime.field.ComparableForeignKeyField;
 import com.speedment.runtime.field.ReferenceField;
+import com.speedment.runtime.field.internal.ReferenceFieldImpl;
+import com.speedment.runtime.field.internal.method.BackwardFinderImpl;
+import com.speedment.runtime.field.internal.method.FindFromReference;
 import com.speedment.runtime.field.method.BackwardFinder;
 import com.speedment.runtime.field.method.FindFrom;
-import com.speedment.runtime.field.internal.ReferenceFieldImpl;
-import com.speedment.runtime.field.internal.method.FindFromReference;
-import com.speedment.runtime.field.internal.method.BackwardFinderImpl;
-import com.speedment.runtime.core.manager.Manager;
 import com.speedment.sources.Pattern;
 import java.lang.reflect.Type;
 import java.util.List;
 import static java.util.Objects.requireNonNull;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 /**
  *

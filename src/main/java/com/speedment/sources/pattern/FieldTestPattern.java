@@ -1,5 +1,6 @@
 package com.speedment.sources.pattern;
 
+import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.DefaultType;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
@@ -12,6 +13,10 @@ import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
 import com.speedment.common.codegen.model.Value;
+import com.speedment.common.codegen.model.trait.HasFields;
+import com.speedment.common.codegen.model.trait.HasMethods;
+import com.speedment.common.codegen.util.Formatting;
+import static com.speedment.common.codegen.util.Formatting.indent;
 import static com.speedment.common.codegen.util.Formatting.ucfirst;
 import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.predicate.Inclusion;
@@ -56,7 +61,26 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public ClassOrInterface<?> make(File file) {
+        file.add(Import.of(StringBuilder.class));
+        file.getClasses().stream()
+            .filter(HasFields.class::isInstance)
+            .filter(HasMethods.class::isInstance)
+            .map(c -> (HasFields<?> & HasMethods<?>) c)
+            .forEach(clazz -> 
+                clazz.add(Method.of("toString", void.class)
+                    .add(OVERRIDE)
+                    .public_()
+                    .add("return new StringBuilder()")
+                    .add(clazz.getFields().stream()
+                        .map(f -> ".append(\"" + f.getName() + "\")")
+                        .map(Formatting::indent)
+                        .toArray(String[]::new)
+                    )
+                    .add(indent(".toString();"))
+                )
+            );
         
         final Class clazz = Class.of(getClassName())
             .public_().final_()
