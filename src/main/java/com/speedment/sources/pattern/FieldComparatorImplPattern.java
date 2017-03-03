@@ -17,6 +17,7 @@ import static com.speedment.common.codegen.util.Formatting.indent;
 import com.speedment.common.invariant.NullUtil;
 import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.comparator.FieldComparator;
+import com.speedment.runtime.field.comparator.NullOrder;
 import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparator;
 import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparatorImpl;
 import java.lang.reflect.Type;
@@ -103,6 +104,13 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .public_()
                 .add("return field;")
+            )
+            
+            .add(Method.of("getNullOrder", NullOrder.class)
+                .add(DefaultAnnotationUsage.OVERRIDE)
+                .public_()
+                .add("return " + NullOrder.class.getSimpleName() + 
+                    "." + NullOrder.NONE.name() + ";")
             )
             
             .add(Method.of("isReversed", boolean.class)
