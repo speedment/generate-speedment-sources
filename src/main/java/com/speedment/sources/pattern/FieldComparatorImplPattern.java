@@ -15,10 +15,10 @@ import com.speedment.common.codegen.model.Method;
 import static com.speedment.common.codegen.util.Formatting.block;
 import com.speedment.common.invariant.NullUtil;
 import com.speedment.runtime.field.ReferenceField;
+import com.speedment.runtime.field.comparator.FieldComparator;
 import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparator;
 import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparatorImpl;
 import java.lang.reflect.Type;
-import java.util.Comparator;
 import java.util.Objects;
 
 /**
@@ -110,7 +110,9 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
             )
             
             .add(Method.of("reversed", SimpleParameterizedType.create(
-                    Comparator.class, SimpleType.create("ENTITY")
+                    FieldComparator.class, 
+                    SimpleType.create("ENTITY"),
+                    wrapperType()
                 ))
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .public_()
