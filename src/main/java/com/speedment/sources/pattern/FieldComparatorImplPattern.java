@@ -13,6 +13,7 @@ import com.speedment.common.codegen.model.Import;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
 import static com.speedment.common.codegen.util.Formatting.block;
+import static com.speedment.common.codegen.util.Formatting.indent;
 import com.speedment.common.invariant.NullUtil;
 import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.comparator.FieldComparator;
@@ -43,6 +44,7 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
 
     @Override
     public ClassOrInterface<?> make(File file) {
+        file.add(Import.of(Objects.class));
         file.add(Import.of(Objects.class).static_().setStaticMember("requireNonNull"));
         file.add(Import.of(NullUtil.class).static_().setStaticMember("requireNonNulls"));
         
@@ -132,6 +134,45 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
                     "final " + primitive() + " a = field.getAs" + ucPrimitive() + "(first);",
                     "final " + primitive() + " b = field.getAs" + ucPrimitive() + "(second);",
                     "return applyReversed(a - b);"
+                )
+            )
+            
+            .add(Method.of("hashCode", int.class)
+                .add(DefaultAnnotationUsage.OVERRIDE)
+                .public_()
+                .add(
+                    "return (4049 + Objects.hashCode(this.field.identifier())) * 3109",
+                    indent("+ Boolean.hashCode(reversed);")
+                )
+            )
+            
+            .add(Method.of("equals", boolean.class)
+                .add(DefaultAnnotationUsage.OVERRIDE)
+                .public_()
+                .add(Field.of("obj", Object.class))
+                .add(
+                    "if      (this == obj) return true;",
+                    "else if (obj == null) return false;",
+                    "else if (!(obj instanceof FieldComparator)) return false;",
+                    "",
+                    "@SuppressWarnings(\"unchecked\")",
+                    "final FieldComparator<ENTITY, " + wrapper() + "> casted =",
+                    "    (FieldComparator<ENTITY, " + wrapper() + ">) obj;",
+                    "",
+                    "return reversed == casted.isReversed()",
+                    "    && Objects.equals(",
+                    "        field.identifier(),",
+                    "        casted.getField().identifier()",
+                    "    );"
+                )
+            )
+            
+            .add(Method.of("toString", String.class)
+                .add(DefaultAnnotationUsage.OVERRIDE)
+                .public_()
+                .add(
+                    "return \"(order by \" + field.identifier() + \" \" +",
+                    indent("(reversed ? \"descending\" : \"ascending\") + \")\";")
                 )
             )
             
