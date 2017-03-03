@@ -22,66 +22,75 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <main.class>com.speedment.sources.Main</main.class>
         
-        <speedment.version>3.0.2-SNAPSHOT</speedment.version>
-        <codegen.version>2.4.2</codegen.version>
-        <invariant.version>1.0.0</invariant.version>
-        <function.version>1.0.0</function.version>
-        <tuple.version>1.0.1</tuple.version>
+        <speedment.version>3.0.4-SNAPSHOT</speedment.version>
+        <common.version>1.0.4-SNAPSHOT</common.version>
     </properties>
     
     <dependencies>
         <dependency>
             <groupId>com.speedment.runtime</groupId>
             <artifactId>runtime-config</artifactId>
-            <version>${speedment.version}</version>
         </dependency>
         
         <dependency>
             <groupId>com.speedment.runtime</groupId>
             <artifactId>runtime-typemapper</artifactId>
-            <version>${speedment.version}</version>
         </dependency>
         
         <dependency>
             <groupId>com.speedment.runtime</groupId>
             <artifactId>runtime-field</artifactId>
-            <version>${speedment.version}</version>
         </dependency>
         
         <dependency>
             <groupId>com.speedment.runtime</groupId>
             <artifactId>runtime-core</artifactId>
-            <version>${speedment.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.speedment.common</groupId>
             <artifactId>codegen</artifactId>
-            <version>${codegen.version}</version>
         </dependency>
         
         <dependency>
             <groupId>com.speedment.common</groupId>
             <artifactId>tuple</artifactId>
-            <version>${tuple.version}</version>
         </dependency>
         
         <dependency>
             <groupId>com.speedment.common</groupId>
             <artifactId>function</artifactId>
-            <version>${function.version}</version>
         </dependency>
         
         <dependency>
             <groupId>com.speedment.common</groupId>
             <artifactId>invariant</artifactId>
-            <version>${invariant.version}</version>
         </dependency>
         
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.speedment.common</groupId>
+                <artifactId>common-all</artifactId>
+                <version>${common.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.speedment.runtime</groupId>
+                <artifactId>runtime-all</artifactId>
+                <version>${speedment.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
