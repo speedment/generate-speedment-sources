@@ -126,10 +126,7 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
                 ))
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .public_()
-                .add(
-                    "reversed = !reversed;",
-                    "return this;"
-                )
+                .add("return new "+getClassName()+"<>(field, !reversed);")
             )
             
             .add(Method.of("compare", int.class)
@@ -159,9 +156,8 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
                 .public_()
                 .add(Field.of("obj", Object.class))
                 .add(
-                    "if      (this == obj) return true;",
-                    "else if (obj == null) return false;",
-                    "else if (!(obj instanceof FieldComparator)) return false;",
+                    "if (this == obj) return true;",
+                    "if (!(obj instanceof FieldComparator)) return false;",
                     "",
                     "@SuppressWarnings(\"unchecked\")",
                     "final FieldComparator<ENTITY, " + wrapper() + "> casted =",
