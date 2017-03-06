@@ -84,16 +84,22 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
             /*                        Private Fields                          */
             /******************************************************************/
             .add(Field.of("field", fieldType).private_().final_())
-            .add(Field.of("reversed", boolean.class).private_())
+            .add(Field.of("reversed", boolean.class).private_().final_())
             
             /******************************************************************/
             /*                          Constructor                           */
             /******************************************************************/
             .add(Constructor.of().public_()
                 .add(Field.of("field", fieldType))
+                .add("this(field, false);")
+            )
+            
+            .add(Constructor.of().public_()
+                .add(Field.of("field", fieldType))
+                .add(Field.of("reversed", boolean.class))
                 .add(
                     "this.field    = requireNonNull(field);",
-                    "this.reversed = false;"
+                    "this.reversed = reversed;"
                 )
             )
             
@@ -126,7 +132,7 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
                 ))
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .public_()
-                .add("return new "+getClassName()+"<>(field, !reversed);")
+                .add("return new " + getClassName() + "<>(field, !reversed);")
             )
             
             .add(Method.of("compare", int.class)
