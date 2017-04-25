@@ -107,13 +107,14 @@ public final class BetweenPredicatePattern extends AbstractCousinPattern {
             .add(Field.of("inclusion", Inclusion.class).private_().final_())
             
             /******************************************************************/
-            /*                          Constructor                           */
+            /*                          Constructors                          */
             /******************************************************************/
-            .add(Constructor.of().public_()
+            .add(Constructor.of()
                 .add(Field.of("field", hasValueType))
                 .add(Field.of("start", primitiveType()))
                 .add(Field.of("end", primitiveType()))
                 .add(Field.of("inclusion", Inclusion.class))
+                .add(Field.of("negated", boolean.class))
                 .add(
                     "super(" + enumConstant + ", field, entity -> " + block(
                         "final " + primitive() + " fieldValue = field.getAs" + ucPrimitive() + "(entity);",
@@ -133,11 +134,20 @@ public final class BetweenPredicatePattern extends AbstractCousinPattern {
                             "",
                             "default : throw new " + IllegalStateException.class.getSimpleName() + "(\"Inclusion unknown: \" + inclusion);"
                         )
-                    ) + ");",
+                    ) + ", negated);",
                     "",
                     "this.start     = start;",
                     "this.end       = end;",
                     "this.inclusion = requireNonNull(inclusion);"
+                )
+            )
+            .add(Constructor.of().public_()
+                .add(Field.of("field", hasValueType))
+                .add(Field.of("start", primitiveType()))
+                .add(Field.of("end", primitiveType()))
+                .add(Field.of("inclusion", Inclusion.class))
+                .add(
+                    "this(field, start, end, inclusion, false);"
                 )
             )
             
@@ -158,6 +168,15 @@ public final class BetweenPredicatePattern extends AbstractCousinPattern {
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add("return inclusion;")
             )
-        ;
+            
+            .add(Method.of("negate", SimpleParameterizedType.create(
+                SimpleType.create(getClassName()),
+                SimpleType.create("ENTITY"),
+                SimpleType.create("D")
+            )).public_()
+                .add(DefaultAnnotationUsage.OVERRIDE)
+                .add("return new " + getClassName() + "<>(getField(), start, end, inclusion, !isNegated());")
+            );
+        
     }
 }

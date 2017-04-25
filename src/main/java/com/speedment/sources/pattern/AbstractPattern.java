@@ -1,10 +1,10 @@
 package com.speedment.sources.pattern;
 
+import com.speedment.common.annotation.GeneratedCode;
 import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.AnnotationUsage;
 import com.speedment.common.codegen.model.Value;
 import com.speedment.common.codegen.util.Formatting;
-import com.speedment.runtime.core.annotation.GeneratedCode;
 import com.speedment.sources.Pattern;
 import java.lang.reflect.Type;
 import static java.util.Objects.requireNonNull;

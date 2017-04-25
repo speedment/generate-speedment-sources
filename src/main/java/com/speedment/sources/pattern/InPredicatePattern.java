@@ -104,8 +104,14 @@ public final class InPredicatePattern extends AbstractCousinPattern {
             .add(Constructor.of().public_()
                 .add(Field.of("field", hasValueType))
                 .add(Field.of("set", DefaultType.set(wrapperType())))
+                .add("this(field, set, false);")
+            )
+            .add(Constructor.of()
+                .add(Field.of("field", hasValueType))
+                .add(Field.of("set", DefaultType.set(wrapperType())))
+                .add(Field.of("negated", boolean.class))
                 .add(
-                    "super(" + enumConstant + ", field, entity -> set.contains(field.getAs" + ucPrimitive() + "(entity)));",
+                    "super(" + enumConstant + ", field, entity -> set.contains(field.getAs" + ucPrimitive() + "(entity)), negated);",
                     "this.set = requireNonNull(set);"
                 )
             )
@@ -117,6 +123,16 @@ public final class InPredicatePattern extends AbstractCousinPattern {
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add("return set;")
             )
+            
+            .add(Method.of("negate", SimpleParameterizedType.create(
+                SimpleType.create(getClassName()),
+                SimpleType.create("ENTITY"),
+                SimpleType.create("D")
+            )).public_()
+                .add(DefaultAnnotationUsage.OVERRIDE)
+                .add("return new " + getClassName() + "<>(getField(), set, !isNegated());")
+            )
+            
         ;
     }
 }

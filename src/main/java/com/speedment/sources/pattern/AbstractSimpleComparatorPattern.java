@@ -98,7 +98,14 @@ abstract class AbstractSimpleComparatorPattern extends AbstractCousinPattern {
             .add(Constructor.of().public_()
                 .add(Field.of("field", hasValueType))
                 .add(Field.of("value", primitiveType()))
-                .add("super(" + enumConstant + ", field, entity -> field.getAs" + ucPrimitive() + "(entity) " + getOperator() + " value);",
+                .add("this(field, value, false);")
+            )
+            
+            .add(Constructor.of()
+                .add(Field.of("field", hasValueType))
+                .add(Field.of("value", primitiveType()))
+                .add(Field.of("negated", boolean.class))
+                .add("super(" + enumConstant + ", field, entity -> field.getAs" + ucPrimitive() + "(entity) " + getOperator() + " value, negated);",
                     "this.value = value;"
                 )
             )
@@ -106,7 +113,15 @@ abstract class AbstractSimpleComparatorPattern extends AbstractCousinPattern {
             // Methods
             .add(Method.of("get0", wrapperType()).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
-                .add("return value;")
+                .add("return value;"))
+                
+            .add(Method.of("negate", SimpleParameterizedType.create(
+                SimpleType.create(getClassName()),
+                SimpleType.create("ENTITY"),
+                SimpleType.create("D")
+            )).public_()
+                .add(DefaultAnnotationUsage.OVERRIDE)
+                .add("return new " + getClassName() + "<>(getField(), value, !isNegated());")
             )
         ;
     }
