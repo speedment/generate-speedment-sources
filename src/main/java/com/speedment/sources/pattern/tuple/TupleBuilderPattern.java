@@ -72,7 +72,7 @@ public class TupleBuilderPattern implements Pattern {
         );
         clazz.add(
             Method.of("builder", buildType(0))
-                .static_()
+                .public_().static_()
                 .add("return new " + getClassName() + "().new " + buildType(0) + "();")
         );
 

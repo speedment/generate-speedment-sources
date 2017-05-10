@@ -59,7 +59,7 @@ public final class TupleUtil {
     }
 
     public static String tupleName(int degree) {
-        return BASE_PACKAGE + ".nonnullable." + tupleSimpleName(degree);
+        return BASE_PACKAGE + "." + tupleSimpleName(degree);
     }
 
     public static String tupleOfNullablesName(int degree) {
