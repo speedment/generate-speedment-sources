@@ -31,6 +31,7 @@ import static com.speedment.sources.pattern.tuple.TupleUtil.tupleName;
 import static com.speedment.sources.pattern.tuple.TupleUtil.tupleOfNullablesGenericType;
 import static com.speedment.sources.pattern.tuple.TupleUtil.tupleOfNullablesImplementationName;
 import static com.speedment.sources.pattern.tuple.TupleUtil.tupleOfNullablesImplementationSimpleName;
+import static com.speedment.sources.pattern.tuple.TupleUtil.tupleOfNullablesSimpleName;
 import static com.speedment.sources.pattern.tuple.TupleUtil.tupleSimpleName;
 import java.lang.reflect.Type;
 import java.util.Optional;
@@ -82,7 +83,7 @@ public class TupleImplPattern implements Pattern {
         file.add(Import.of(SimpleType.create(tupleName(degree))));
 
         final Javadoc javadoc = Javadoc.of(
-            "An implementation class of a {@link " + tupleSimpleName(degree) + " }")
+            "An implementation class of a {@link " + (nullable ? tupleOfNullablesSimpleName(degree) : tupleSimpleName(degree)) + " }")
             .add(AUTHOR.setValue("Per Minborg"));
 
         IntStream.range(0, degree).forEachOrdered(parameter -> {
@@ -118,7 +119,7 @@ public class TupleImplPattern implements Pattern {
         } else {
             constructor.public_();
         }
-        final Javadoc javaDocConstructor = Javadoc.of("Constructs a {@link Tuple } of type {@link " + tupleSimpleName(degree) + " }.");
+        final Javadoc javaDocConstructor = Javadoc.of("Constructs a {@link " + (nullable ? "TupleOfNullables" : "Tuple") + " } of type {@link " + (nullable ? tupleOfNullablesSimpleName(degree) : tupleSimpleName(degree)) + " }.");
         IntStream.range(0, degree).forEachOrdered(parameter -> {
             javaDocConstructor.add(PARAM.setValue(elementName(parameter)).setText("element " + parameter));
             final Type parameterType = SimpleType.create(genericTypeName(parameter));
