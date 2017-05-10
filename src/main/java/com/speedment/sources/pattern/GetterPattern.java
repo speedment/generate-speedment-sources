@@ -1,5 +1,6 @@
 package com.speedment.sources.pattern;
 
+import static com.speedment.common.codegen.constant.DefaultType.function;
 import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
@@ -92,6 +93,11 @@ public final class GetterPattern extends AbstractSiblingPattern {
                 .add(OVERRIDE)
                 .add(Field.of("instance", SimpleType.create("ENTITY")))
                 .add("return applyAs" + ucPrimitive() + "(instance);")
+            )
+            .add(Method.of("asFunction", function(SimpleType.create("ENTITY"), wrapperType()))
+                .default_()
+                .add(OVERRIDE)
+                .add("return this::apply;")
             );
         
         if (primitiveType() == int.class) {
