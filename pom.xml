@@ -22,8 +22,8 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <main.class>com.speedment.sources.Main</main.class>
         
-        <speedment.version>3.0.7-SNAPSHOT</speedment.version>
-        <common.version>3.0.7-SNAPSHOT</common.version>
+        <speedment.version>3.0.8</speedment.version>
+        <common.version>3.0.8</common.version>
     </properties>
     
     <dependencies>
@@ -71,7 +71,7 @@
             <groupId>com.speedment.common</groupId>
             <artifactId>annotation</artifactId>
         </dependency>
-                
+                        
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

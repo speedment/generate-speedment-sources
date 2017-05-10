@@ -28,6 +28,14 @@ import com.speedment.sources.pattern.InPredicatePattern;
 import com.speedment.sources.pattern.SetToImplPattern;
 import com.speedment.sources.pattern.SetToPattern;
 import com.speedment.sources.pattern.SetterPattern;
+import com.speedment.sources.pattern.tuple.TupleBuilderPattern;
+import com.speedment.sources.pattern.tuple.TupleImplPattern;
+import com.speedment.sources.pattern.tuple.TupleMapperImplPattern;
+import com.speedment.sources.pattern.tuple.TuplePattern;
+import static com.speedment.sources.pattern.tuple.TupleUtil.MAX_DEGREE;
+import com.speedment.sources.pattern.tuple.TuplesOfNullablesPattern;
+import com.speedment.sources.pattern.tuple.TuplesPattern;
+import com.speedment.sources.pattern.tuple.test.TupleImplTestPattern;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -41,10 +49,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 import static java.util.stream.Collectors.joining;
+import java.util.stream.IntStream;
 
 /**
  * The main entry point of the program.
- * 
+ *
  * @author Emil Forslund
  */
 public final class Main {
@@ -56,46 +65,64 @@ public final class Main {
      * specified as a command-line parameter in the following way:
      * <em>Example:</em>
      * {@code java -jar generate-speedment-sources.jar C:/Users/Emil/Documents/GitHub/speedment}
-     * 
-     * @param param 
+     *
+     * @param param
      */
     public final static void main(String... param) {
-        
+
         if (param.length < 1) {
             System.err.println("Expected command line parameter 'Speedment base directory'.");
             System.exit(-1);
         }
-        
+
         final Path basePath = Paths.get(param[0]);
         if (!Files.exists(basePath)) {
             System.err.println("Could not find specified base directory '" + param[0] + "'.");
             System.exit(-2);
         }
-        
+
         final Path srcPath = basePath
             .resolve("runtime-parent")
             .resolve("runtime-field")
             .resolve("src");
-        
+
         final Path mainJava = srcPath
             .resolve("main")
             .resolve("java");
-        
+
         final Path testJava = srcPath
             .resolve("test")
             .resolve("java");
-        
+
+        final Path srcPathTuple = basePath
+            .resolve("common-parent")
+            .resolve("tuple")
+            .resolve("src");
+
+        final Path tupleMainJava = srcPathTuple
+            .resolve("main")
+            .resolve("java");
+
+        final Path tupleTestJava = srcPathTuple
+            .resolve("test")
+            .resolve("java");
+
         if (!Files.exists(mainJava)) {
             System.err.println("Could not find java sources folder '" + mainJava.toString() + "'.");
             System.exit(-3);
         }
-        
+
+        if (!Files.exists(tupleMainJava)) {
+            System.err.println("Could not find java sources folder '" + tupleMainJava.toString() + "'.");
+            System.exit(-3);
+        }
+
         final Path licenseHeaderPath = basePath.resolve("license_header.txt");
         if (!Files.exists(licenseHeaderPath)) {
             System.err.println("Could not find the license_header.txt-file in the root folder '" + basePath + "'.");
             System.exit(-4);
         }
-        
+
         final String licenseHeader;
         try {
             licenseHeader = Files.lines(licenseHeaderPath)
@@ -104,9 +131,9 @@ public final class Main {
         } catch (final IOException ex) {
             throw new RuntimeException("Error loading license header '" + licenseHeaderPath + "'.", ex);
         }
-        
+
         System.out.println("Building Code Patterns...");
-        
+
         Formatting.tab("    ");
         final Set<Pattern> patterns = new HashSet<>();
         install(patterns, BetweenPredicatePattern::new);
@@ -129,7 +156,7 @@ public final class Main {
         install(patterns, SetToPattern::new);
         install(patterns, SetToImplPattern::new);
         install(patterns, SetterPattern::new);
-        
+
         // Boolean types
         patterns.add(new GetterPattern(Boolean.class, boolean.class));
         patterns.add(new GetPattern(Boolean.class, boolean.class));
@@ -140,28 +167,76 @@ public final class Main {
         patterns.add(new HasValuePattern(Boolean.class, boolean.class));
         patterns.add(new BooleanFieldPattern(Boolean.class, boolean.class));
         patterns.add(new BooleanFieldImplPattern(Boolean.class, boolean.class));
-        
-        final Generator gen = new JavaGenerator();
+
+        final Set<Pattern> tuplePatterns = new HashSet<>();
+        tuplePatterns.add(new TuplesPattern());
+        tuplePatterns.add(new TuplesOfNullablesPattern());
+        tuplePatterns.add(new TupleBuilderPattern());
+
+        IntStream.range(0, MAX_DEGREE)
+            .mapToObj(i -> new TupleImplPattern(i, false))
+            .forEachOrdered(tuplePatterns::add);
+
+        IntStream.range(0, MAX_DEGREE)
+            .mapToObj(i -> new TupleImplPattern(i, true))
+            .forEachOrdered(tuplePatterns::add);
+
+        IntStream.range(0, MAX_DEGREE)
+            .mapToObj(i -> new TuplePattern(i, false))
+            .forEachOrdered(tuplePatterns::add);
+
+        IntStream.range(0, MAX_DEGREE)
+            .mapToObj(i -> new TuplePattern(i, true))
+            .forEachOrdered(tuplePatterns::add);
+
+        IntStream.range(0, MAX_DEGREE)
+            .mapToObj(i -> new TupleMapperImplPattern(i, false))
+            .forEachOrdered(tuplePatterns::add);
+
+        IntStream.range(0, MAX_DEGREE)
+            .mapToObj(i -> new TupleMapperImplPattern(i, true))
+            .forEachOrdered(tuplePatterns::add);
+
+        IntStream.range(0, MAX_DEGREE)
+            .mapToObj(i -> new TupleImplTestPattern(i, false))
+            .forEachOrdered(tuplePatterns::add);
+
         final AtomicInteger counter = new AtomicInteger();
 
         System.out.println("Generating Sources...");
+
+        generate(patterns, mainJava, testJava, licenseHeader, counter);
+
+        generate(tuplePatterns, tupleMainJava, tupleTestJava, licenseHeader, counter);
+
+        System.out.println("All " + counter.get() + " files was created successfully.");
+    }
+
+    private static void generate(
+        final Set<Pattern> patterns,
+        final Path mainJava,
+        final Path testJava,
+        final String licenseHeader,
+        final AtomicInteger counter
+    ) {
+        final Generator gen = new JavaGenerator();
         patterns.forEach(pattern -> {
             final String packageName = pattern.getFullClassName();
-            final String fileName    = pattern.getClassName() + ".java";
-            final File file          = File.of(packageName + ".java");
-            
+            final String fileName = pattern.getClassName() + ".java";
+            final File file = File.of(packageName + ".java");
+
             file.set(Javadoc.of(licenseHeader));
             Path currentPath = pattern.isTestClass() ? testJava : mainJava;
-            
+
             final String[] folders = packageName.split("\\.");
-            
+
             for (int i = 0; i < folders.length - 1; i++) {
                 final String folder = folders[i];
                 currentPath = currentPath.resolve(folder);
             }
-            
+
             currentPath = currentPath.resolve(fileName);
-            
+
             file.add(pattern.make(file));
             file.call(new AutoImports(gen.getDependencyMgr()));
 
@@ -174,20 +249,18 @@ public final class Main {
                     StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING
                 );
-                
+
                 counter.incrementAndGet();
             } catch (final IOException ex) {
                 throw new RuntimeException(ex);
             }
         });
-        
-        System.out.println("All " + counter.get() + " files was created successfully.");
     }
-    
+
     private static UnaryOperator<String> replace(String key, String value) {
         return line -> line.replace("${" + key + "}", value);
     }
-    
+
     private static void install(Set<Pattern> patterns, BiFunction<Class<?>, Class<?>, ? extends Pattern> patternFactory) {
         patterns.add(patternFactory.apply(Byte.class, byte.class));
         patterns.add(patternFactory.apply(Short.class, short.class));

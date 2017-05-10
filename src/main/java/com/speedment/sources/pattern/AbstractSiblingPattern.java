@@ -4,7 +4,7 @@ package com.speedment.sources.pattern;
  *
  * @author Emil Forslund
  */
-abstract class AbstractSiblingPattern extends AbstractPattern {
+public abstract class AbstractSiblingPattern extends AbstractPattern {
     
     protected AbstractSiblingPattern(Class<?> wrapper, Class<?> primitive) {
         super(wrapper, primitive);
