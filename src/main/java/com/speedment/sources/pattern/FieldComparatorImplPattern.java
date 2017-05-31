@@ -75,6 +75,10 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
                 SimpleType.create("ENTITY"),
                 SimpleType.create("D")
             ))
+            .setSupertype(SimpleParameterizedType.create(
+                siblingOf(ReferenceFieldComparatorImpl.class, "AbstractFieldComparator"),
+                SimpleType.create("ENTITY")
+            ))
             
             ////////////////////////////////////////////////////////////////////
             //                        Private Fields                          //
@@ -90,7 +94,7 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
                 .add("this(field, false);")
             )
             
-            .add(Constructor.of().public_()
+            .add(Constructor.of()
                 .add(Field.of("field", fieldType))
                 .add(Field.of("reversed", boolean.class))
                 .add(
@@ -123,8 +127,7 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
             
             .add(Method.of("reversed", SimpleParameterizedType.create(
                     FieldComparator.class,
-                    SimpleType.create("ENTITY"),
-                    wrapperType()
+                    SimpleType.create("ENTITY")
                 ))
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .public_()
@@ -162,8 +165,8 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
                     "if (!(obj instanceof FieldComparator)) return false;",
                     "",
                     "@SuppressWarnings(\"unchecked\")",
-                    "final FieldComparator<ENTITY, " + wrapper() + "> casted =",
-                    "    (FieldComparator<ENTITY, " + wrapper() + ">) obj;",
+                    "final FieldComparator<ENTITY> casted =",
+                    "    (FieldComparator<ENTITY>) obj;",
                     "",
                     "return reversed == casted.isReversed()",
                     "    && Objects.equals(",

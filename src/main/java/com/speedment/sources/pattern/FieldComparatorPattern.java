@@ -57,8 +57,7 @@ public final class FieldComparatorPattern extends AbstractSiblingPattern {
             .add(Generic.of("D"))
             .add(SimpleParameterizedType.create(
                 FieldComparator.class, 
-                SimpleType.create("ENTITY"),
-                wrapperType()
+                SimpleType.create("ENTITY")
             ))
 
             ////////////////////////////////////////////////////////////////////
