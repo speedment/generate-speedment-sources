@@ -1,18 +1,16 @@
 package com.speedment.sources.pattern;
 
-import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
-import com.speedment.common.codegen.model.ClassOrInterface;
-import com.speedment.common.codegen.model.File;
-import com.speedment.common.codegen.model.Generic;
-import com.speedment.common.codegen.model.Interface;
-import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Method;
-import com.speedment.runtime.field.ReferenceField;
+import com.speedment.common.codegen.model.*;
 import com.speedment.runtime.field.comparator.FieldComparator;
 import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparator;
+import com.speedment.runtime.field.trait.HasReferenceValue;
+
+import java.lang.Class;
+
+import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
 
 /**
  *
@@ -37,10 +35,10 @@ public final class FieldComparatorPattern extends AbstractSiblingPattern {
     @Override
     public ClassOrInterface<?> make(File file) {
         return Interface.of(getClassName())
-            
-            /******************************************************************/
-            /*                         Documentation                          */
-            /******************************************************************/
+
+            ////////////////////////////////////////////////////////////////////
+            //                         Documentation                          //
+            ////////////////////////////////////////////////////////////////////
             .set(Javadoc.of(formatJavadoc(
                 "A predicate that evaluates if a value is between two %2$ss."
                 ))
@@ -49,10 +47,10 @@ public final class FieldComparatorPattern extends AbstractSiblingPattern {
                 .add(DefaultJavadocTag.AUTHOR.setValue("Emil Forslund"))
                 .add(DefaultJavadocTag.SINCE.setValue("3.0.0"))
             )
-            
-            /******************************************************************/
-            /*                       Class Declaration                        */
-            /******************************************************************/
+
+            ////////////////////////////////////////////////////////////////////
+            //                       Class Declaration                        //
+            ////////////////////////////////////////////////////////////////////
             .public_()
             .add(generatedAnnotation())
             .add(Generic.of("ENTITY"))
@@ -62,12 +60,12 @@ public final class FieldComparatorPattern extends AbstractSiblingPattern {
                 SimpleType.create("ENTITY"),
                 wrapperType()
             ))
-            
-            /******************************************************************/
-            /*                            Methods                             */
-            /******************************************************************/
+
+            ////////////////////////////////////////////////////////////////////
+            //                            Methods                             //
+            ////////////////////////////////////////////////////////////////////
             .add(Method.of("getField", SimpleParameterizedType.create(
-                    siblingOf(ReferenceField.class, "%1$sField"),
+                    siblingOf(HasReferenceValue.class, "Has%1$sValue"),
                     SimpleType.create("ENTITY"),
                     SimpleType.create("D")
                 ))

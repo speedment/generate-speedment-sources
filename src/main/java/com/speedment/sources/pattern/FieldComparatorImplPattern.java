@@ -4,24 +4,20 @@ import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
-import com.speedment.common.codegen.model.ClassOrInterface;
-import com.speedment.common.codegen.model.Constructor;
-import com.speedment.common.codegen.model.Field;
-import com.speedment.common.codegen.model.File;
-import com.speedment.common.codegen.model.Generic;
-import com.speedment.common.codegen.model.Import;
-import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Method;
-import static com.speedment.common.codegen.util.Formatting.block;
-import static com.speedment.common.codegen.util.Formatting.indent;
+import com.speedment.common.codegen.model.*;
 import com.speedment.common.invariant.NullUtil;
-import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.comparator.FieldComparator;
 import com.speedment.runtime.field.comparator.NullOrder;
 import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparator;
 import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparatorImpl;
+import com.speedment.runtime.field.trait.HasReferenceValue;
+
+import java.lang.Class;
 import java.lang.reflect.Type;
 import java.util.Objects;
+
+import static com.speedment.common.codegen.util.Formatting.block;
+import static com.speedment.common.codegen.util.Formatting.indent;
 
 /**
  *
@@ -50,16 +46,16 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
         file.add(Import.of(NullUtil.class).static_().setStaticMember("requireNonNulls"));
         
         final Type fieldType = SimpleParameterizedType.create(
-            siblingOf(ReferenceField.class, "%1$sField"),
+            siblingOf(HasReferenceValue.class, "Has%1$sValue"),
             SimpleType.create("ENTITY"),
             SimpleType.create("D")
         );
         
         return com.speedment.common.codegen.model.Class.of(getClassName())
             
-            /******************************************************************/
-            /*                         Documentation                          */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
+            //                         Documentation                          //
+            ////////////////////////////////////////////////////////////////////
             .set(Javadoc.of()
                 .add(DefaultJavadocTag.PARAM.setValue("<ENTITY>").setText("entity type"))
                 .add(DefaultJavadocTag.PARAM.setValue("<D>").setText("database type"))
@@ -67,9 +63,9 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
                 .add(DefaultJavadocTag.SINCE.setValue("3.0.0"))
             )
             
-            /******************************************************************/
-            /*                       Class Declaration                        */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
+            //                       Class Declaration                        //
+            ////////////////////////////////////////////////////////////////////
             .public_().final_()
             .add(generatedAnnotation())
             .add(Generic.of(SimpleType.create("ENTITY")))
@@ -80,15 +76,15 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
                 SimpleType.create("D")
             ))
             
-            /******************************************************************/
-            /*                        Private Fields                          */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
+            //                        Private Fields                          //
+            ////////////////////////////////////////////////////////////////////
             .add(Field.of("field", fieldType).private_().final_())
             .add(Field.of("reversed", boolean.class).private_().final_())
             
-            /******************************************************************/
-            /*                          Constructor                           */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
+            //                          Constructor                           //
+            ////////////////////////////////////////////////////////////////////
             .add(Constructor.of().public_()
                 .add(Field.of("field", fieldType))
                 .add("this(field, false);")
@@ -103,9 +99,9 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
                 )
             )
             
-            /******************************************************************/
-            /*                            Methods                             */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
+            //                            Methods                             //
+            ////////////////////////////////////////////////////////////////////
             .add(Method.of("getField", fieldType)
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .public_()
@@ -126,7 +122,7 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
             )
             
             .add(Method.of("reversed", SimpleParameterizedType.create(
-                    FieldComparator.class, 
+                    FieldComparator.class,
                     SimpleType.create("ENTITY"),
                     wrapperType()
                 ))
@@ -186,9 +182,9 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
                 )
             )
             
-            /******************************************************************/
-            /*                       Private Methods                          */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
+            //                       Private Methods                          //
+            ////////////////////////////////////////////////////////////////////
             .add(Method.of("applyReversed", int.class)
                 .private_()
                 .add(Field.of("compare", 
