@@ -143,7 +143,7 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
                     "requireNonNulls(first, second);",
                     "final " + primitive() + " a = field.getAs" + ucPrimitive() + "(first);",
                     "final " + primitive() + " b = field.getAs" + ucPrimitive() + "(second);",
-                    "return applyReversed(a - b);"
+                    "return applyReversed(" + wrapper() + ".compare(a, b));"
                 )
             )
             
