@@ -2,17 +2,9 @@ package com.speedment.sources.pattern;
 
 import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
-import com.speedment.common.codegen.constant.DefaultType;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
-import com.speedment.common.codegen.model.ClassOrInterface;
-import com.speedment.common.codegen.model.Constructor;
-import com.speedment.common.codegen.model.Field;
-import com.speedment.common.codegen.model.File;
-import com.speedment.common.codegen.model.Generic;
-import com.speedment.common.codegen.model.Import;
-import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Method;
+import com.speedment.common.codegen.model.*;
 import com.speedment.runtime.config.identifier.ColumnIdentifier;
 import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.internal.ReferenceFieldImpl;
@@ -20,12 +12,16 @@ import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparator;
 import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparatorImpl;
 import com.speedment.runtime.field.internal.method.GetReferenceImpl;
 import com.speedment.runtime.field.internal.predicate.reference.ReferenceEqualPredicate;
+import com.speedment.runtime.field.internal.util.Cast;
 import com.speedment.runtime.field.method.ReferenceGetter;
 import com.speedment.runtime.field.method.ReferenceSetter;
 import com.speedment.runtime.field.predicate.FieldPredicate;
 import com.speedment.runtime.field.predicate.Inclusion;
 import com.speedment.runtime.typemapper.TypeMapper;
+
+import java.lang.Class;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -93,38 +89,38 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
         );
        
         return com.speedment.common.codegen.model.Class.of(getClassName())
-            
-            /******************************************************************/
-            /*                         Documentation                          */
-            /******************************************************************/
+
+            ////////////////////////////////////////////////////////////////////
+            //                            Javadoc                             //
+            ////////////////////////////////////////////////////////////////////
             .set(Javadoc.of()
                 .add(DefaultJavadocTag.PARAM.setValue("<ENTITY>").setText("entity type"))
                 .add(DefaultJavadocTag.PARAM.setValue("<D>").setText("database type"))
                 .add(DefaultJavadocTag.AUTHOR.setValue("Emil Forslund"))
                 .add(DefaultJavadocTag.SINCE.setValue("3.0.0"))
             )
-            
-            /******************************************************************/
-            /*                       Class Declaration                        */
-            /******************************************************************/
+
+            ////////////////////////////////////////////////////////////////////
+            //                        Class Declaration                       //
+            ////////////////////////////////////////////////////////////////////
             .public_().final_()
             .add(generatedAnnotation())
             .add(fieldType)
             .add(Generic.of(SimpleType.create("ENTITY")))
             .add(Generic.of(SimpleType.create("D")))
-            
-            /******************************************************************/
-            /*                        Private Fields                          */
-            /******************************************************************/
+
+            ////////////////////////////////////////////////////////////////////
+            //                             Fields                             //
+            ////////////////////////////////////////////////////////////////////
             .add(Field.of("identifier", identifierType).private_().final_())
             .add(Field.of("getter", getType).private_().final_())
             .add(Field.of("setter", setterType).private_().final_())
             .add(Field.of("typeMapper", typeMapperType).private_().final_())
             .add(Field.of("unique", boolean.class).private_().final_())
-            
-            /******************************************************************/
-            /*                          Constructor                           */
-            /******************************************************************/
+
+            ////////////////////////////////////////////////////////////////////
+            //                          Constructor                           //
+            ////////////////////////////////////////////////////////////////////
             .add(Constructor.of().public_()
                 .add(Field.of("identifier", identifierType))
                 .add(Field.of("getter", getterType))
@@ -139,10 +135,10 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
                     "this.unique     = unique;"
                 )
             )
-            
-            /******************************************************************/
-            /*                            Getters                             */
-            /******************************************************************/
+
+            ////////////////////////////////////////////////////////////////////
+            //                            Getters                             //
+            ////////////////////////////////////////////////////////////////////
             .add(Method.of("identifier", identifierType).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add("return identifier;")
@@ -167,11 +163,12 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add("return unique;")
             )
-            
-            /******************************************************************/
-            /*                           Comparators                          */
-            /******************************************************************/
-            .call(c -> file.add(Import.of(siblingOf(ReferenceFieldComparatorImpl.class, "%1$sFieldComparatorImpl"))))
+
+            ////////////////////////////////////////////////////////////////////
+            //                          Comparators                           //
+            ////////////////////////////////////////////////////////////////////
+            .call(c -> file.add(Import.of(siblingOf(
+                ReferenceFieldComparatorImpl.class, "%1$sFieldComparatorImpl"))))
             
             .add(Method.of("comparator", comparatorType).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
@@ -187,10 +184,10 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add("return comparator();")
             )
-            
-            /******************************************************************/
-            /*                           Operators                            */
-            /******************************************************************/
+
+            ////////////////////////////////////////////////////////////////////
+            //                           Operators                            //
+            ////////////////////////////////////////////////////////////////////
             .add(newUnaryOperator(  file, "equal",          "Equal",          false))
             .add(newUnaryOperator(  file, "greaterThan",    "GreaterThan",    false))
             .add(newUnaryOperator(  file, "greaterOrEqual", "GreaterOrEqual", false))
@@ -221,6 +218,7 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
     
     private Method newInOperator(File file, String methodName, boolean negated) {
         file.add(Import.of(cousinOf(ReferenceEqualPredicate.class, primitive() + "s", "%1$sInPredicate")));
+        file.add(Import.of(siblingOf(Cast.class, "CollectionUtil")).static_().setStaticMember("collectionToSet"));
         
         final Type predicateType = SimpleParameterizedType.create(
             negated ? Predicate.class : FieldPredicate.class,
@@ -230,8 +228,11 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
         return Method.of(methodName, predicateType)
             .public_()
             .add(DefaultAnnotationUsage.OVERRIDE)
-            .add(Field.of("set", DefaultType.set(wrapperType())))
-            .add("return new " + ucPrimitive() + "InPredicate<>(this, set)" + (negated ? ".negate()" : "") + ";");
+            .add(Field.of("values", SimpleParameterizedType.create(
+                Collection.class,
+                wrapperType()
+            )))
+            .add("return new " + ucPrimitive() + "InPredicate<>(this, collectionToSet(values))" + (negated ? ".negate()" : "") + ";");
     }
     
     private Method newBetweenOperator(File file, String methodName, boolean negated) {
