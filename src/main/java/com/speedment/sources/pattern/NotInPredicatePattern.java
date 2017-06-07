@@ -4,28 +4,27 @@ import com.speedment.common.codegen.constant.*;
 import com.speedment.common.codegen.model.*;
 import com.speedment.common.tuple.Tuple1;
 import com.speedment.runtime.field.internal.predicate.AbstractFieldPredicate;
-import com.speedment.runtime.field.internal.predicate.reference.ReferenceBetweenPredicate;
 import com.speedment.runtime.field.internal.predicate.reference.ReferenceInPredicate;
 import com.speedment.runtime.field.predicate.PredicateType;
 import com.speedment.runtime.field.trait.HasReferenceValue;
 
+import java.lang.Class;
 import java.lang.reflect.Type;
 import java.util.Objects;
-import java.lang.Class;
 
 /**
  *
  * @author Emil Forslund
  */
-public final class InPredicatePattern extends AbstractCousinPattern {
+public final class NotInPredicatePattern extends AbstractCousinPattern {
 
-    public InPredicatePattern(Class<?> wrapper, Class<?> primitive) {
+    public NotInPredicatePattern(Class<?> wrapper, Class<?> primitive) {
         super(wrapper, primitive);
     }
 
     @Override
     public String getClassName() {
-        return ucPrimitive() + "InPredicate";
+        return ucPrimitive() + "NotInPredicate";
     }
 
     @Override
@@ -56,13 +55,13 @@ public final class InPredicatePattern extends AbstractCousinPattern {
             //                         Documentation                          //
             ////////////////////////////////////////////////////////////////////
             .set(Javadoc.of(formatJavadoc(
-                    "A predicate that evaluates if a value is included in a " +
-                    "set of %2$ss."
+                    "A predicate that evaluates if a value is not included " +
+                    "in a set of %2$ss."
                 ))
                 .add(DefaultJavadocTag.PARAM.setValue("<ENTITY>").setText("entity type"))
                 .add(DefaultJavadocTag.PARAM.setValue("<D>").setText("database type"))
                 .add(DefaultJavadocTag.AUTHOR.setValue("Emil Forslund"))
-                .add(DefaultJavadocTag.SINCE.setValue("3.0.0"))
+                .add(DefaultJavadocTag.SINCE.setValue("3.0.11"))
             )
 
             ////////////////////////////////////////////////////////////////////
@@ -92,11 +91,11 @@ public final class InPredicatePattern extends AbstractCousinPattern {
             ////////////////////////////////////////////////////////////////////
             //                          Constructors                          //
             ////////////////////////////////////////////////////////////////////
-            .add(Constructor.of().public_()
+            .add(Constructor.of()
                 .add(Field.of("field", hasValueType))
                 .add(Field.of("set", DefaultType.set(wrapperType())))
                 .add(
-                    "super(" + enumConstant + ", field, entity -> set.contains(field.getAs" + ucPrimitive() + "(entity)));",
+                    "super(" + enumConstant + ", field, entity -> !set.contains(field.getAs" + ucPrimitive() + "(entity)));",
                     "this.set = requireNonNull(set);"
                 )
             )
@@ -110,15 +109,15 @@ public final class InPredicatePattern extends AbstractCousinPattern {
             )
             
             .add(Method.of("negate", SimpleParameterizedType.create(
-                cousinOf(ReferenceBetweenPredicate.class,
+                cousinOf(ReferenceInPredicate.class,
                     getPackageName(),
-                    ucPrimitive() + "NotInPredicate"
+                    ucPrimitive() + "InPredicate"
                 ),
                 SimpleType.create("ENTITY"),
                 SimpleType.create("D")
             )).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
-                .add("return new " + ucPrimitive() + "NotInPredicate<>(getField(), set);")
+                .add("return new " + ucPrimitive() + "InPredicate<>(getField(), set);")
             )
         ;
     }

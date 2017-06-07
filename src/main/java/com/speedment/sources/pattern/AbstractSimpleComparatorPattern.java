@@ -4,20 +4,17 @@ import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
-import com.speedment.common.codegen.model.ClassOrInterface;
-import com.speedment.common.codegen.model.Constructor;
-import com.speedment.common.codegen.model.Field;
-import com.speedment.common.codegen.model.File;
-import com.speedment.common.codegen.model.Generic;
-import com.speedment.common.codegen.model.Import;
-import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Method;
+import com.speedment.common.codegen.model.*;
 import com.speedment.common.tuple.Tuple1;
 import com.speedment.runtime.field.internal.predicate.AbstractFieldPredicate;
 import com.speedment.runtime.field.internal.predicate.reference.ReferenceEqualPredicate;
 import com.speedment.runtime.field.predicate.PredicateType;
 import com.speedment.runtime.field.trait.HasReferenceValue;
+
+import java.lang.Class;
 import java.lang.reflect.Type;
+
+import static com.speedment.common.codegen.util.Formatting.shortName;
 
 /**
  *
@@ -60,7 +57,27 @@ abstract class AbstractSimpleComparatorPattern extends AbstractCousinPattern {
             SimpleType.create("ENTITY"),
             SimpleType.create("D")
         );
-        
+
+        final String reverseOperator;
+        switch (getPredicateType()) {
+            case EQUAL            : reverseOperator = "NotEqual";       break;
+            case NOT_EQUAL        : reverseOperator = "Equal";          break;
+            case LESS_THAN        : reverseOperator = "GreaterOrEqual"; break;
+            case LESS_OR_EQUAL    : reverseOperator = "GreaterThan";    break;
+            case GREATER_THAN     : reverseOperator = "LessOrEqual";    break;
+            case GREATER_OR_EQUAL : reverseOperator = "LessThan";       break;
+            default : throw new IllegalArgumentException(
+                getPredicateType() +
+                " is not one of the six supported predicate types."
+            );
+        }
+
+        final Type reverseType = cousinOf(
+            ReferenceEqualPredicate.class,
+            getPackageName(),
+            ucPrimitive() + reverseOperator + "Predicate"
+        );
+
         return com.speedment.common.codegen.model.Class.of(getClassName())
             
             // Documentation
@@ -81,7 +98,6 @@ abstract class AbstractSimpleComparatorPattern extends AbstractCousinPattern {
             .setSupertype(SimpleParameterizedType.create(
                 AbstractFieldPredicate.class,
                 SimpleType.create("ENTITY"),
-                wrapperType(),
                 hasValueType
             ))
             
@@ -98,14 +114,7 @@ abstract class AbstractSimpleComparatorPattern extends AbstractCousinPattern {
             .add(Constructor.of().public_()
                 .add(Field.of("field", hasValueType))
                 .add(Field.of("value", primitiveType()))
-                .add("this(field, value, false);")
-            )
-            
-            .add(Constructor.of()
-                .add(Field.of("field", hasValueType))
-                .add(Field.of("value", primitiveType()))
-                .add(Field.of("negated", boolean.class))
-                .add("super(" + enumConstant + ", field, entity -> field.getAs" + ucPrimitive() + "(entity) " + getOperator() + " value, negated);",
+                .add("super(" + enumConstant + ", field, entity -> field.getAs" + ucPrimitive() + "(entity) " + getOperator() + " value);",
                     "this.value = value;"
                 )
             )
@@ -116,12 +125,13 @@ abstract class AbstractSimpleComparatorPattern extends AbstractCousinPattern {
                 .add("return value;"))
                 
             .add(Method.of("negate", SimpleParameterizedType.create(
-                SimpleType.create(getClassName()),
+                reverseType,
                 SimpleType.create("ENTITY"),
                 SimpleType.create("D")
             )).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
-                .add("return new " + getClassName() + "<>(getField(), value, !isNegated());")
+                .add("return new " + shortName(reverseType.getTypeName()) +
+                    "<>(getField(), value);")
             )
         ;
     }

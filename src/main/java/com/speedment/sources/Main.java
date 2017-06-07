@@ -6,36 +6,10 @@ import com.speedment.common.codegen.internal.java.JavaGenerator;
 import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.util.Formatting;
-import com.speedment.sources.pattern.BetweenPredicatePattern;
-import com.speedment.sources.pattern.BooleanFieldImplPattern;
-import com.speedment.sources.pattern.BooleanFieldPattern;
-import com.speedment.sources.pattern.EqualPredicatePattern;
-import com.speedment.sources.pattern.FieldComparatorImplPattern;
-import com.speedment.sources.pattern.FieldComparatorPattern;
-import com.speedment.sources.pattern.FieldImplPattern;
-import com.speedment.sources.pattern.FieldPattern;
-import com.speedment.sources.pattern.FieldTestPattern;
-import com.speedment.sources.pattern.FindFromPattern;
-import com.speedment.sources.pattern.ForeignKeyFieldImplPattern;
-import com.speedment.sources.pattern.ForeignKeyFieldPattern;
-import com.speedment.sources.pattern.GetImplPattern;
-import com.speedment.sources.pattern.GetPattern;
-import com.speedment.sources.pattern.GetterPattern;
-import com.speedment.sources.pattern.GreaterOrEqualPredicatePattern;
-import com.speedment.sources.pattern.GreaterThanPredicatePattern;
-import com.speedment.sources.pattern.HasValuePattern;
-import com.speedment.sources.pattern.InPredicatePattern;
-import com.speedment.sources.pattern.SetToImplPattern;
-import com.speedment.sources.pattern.SetToPattern;
-import com.speedment.sources.pattern.SetterPattern;
-import com.speedment.sources.pattern.tuple.TupleBuilderPattern;
-import com.speedment.sources.pattern.tuple.TupleImplPattern;
-import com.speedment.sources.pattern.tuple.TupleMapperImplPattern;
-import com.speedment.sources.pattern.tuple.TuplePattern;
-import static com.speedment.sources.pattern.tuple.TupleUtil.MAX_DEGREE;
-import com.speedment.sources.pattern.tuple.TuplesOfNullablesPattern;
-import com.speedment.sources.pattern.tuple.TuplesPattern;
+import com.speedment.sources.pattern.*;
+import com.speedment.sources.pattern.tuple.*;
 import com.speedment.sources.pattern.tuple.test.TupleImplTestPattern;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -48,8 +22,10 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
-import static java.util.stream.Collectors.joining;
 import java.util.stream.IntStream;
+
+import static com.speedment.sources.pattern.tuple.TupleUtil.MAX_DEGREE;
+import static java.util.stream.Collectors.joining;
 
 /**
  * The main entry point of the program.
@@ -137,7 +113,9 @@ public final class Main {
         Formatting.tab("    ");
         final Set<Pattern> patterns = new HashSet<>();
         install(patterns, BetweenPredicatePattern::new);
+        install(patterns, NotBetweenPredicatePattern::new);
         install(patterns, EqualPredicatePattern::new);
+        install(patterns, NotEqualPredicatePattern::new);
         install(patterns, FieldComparatorImplPattern::new);
         install(patterns, FieldComparatorPattern::new);
         install(patterns, GetPattern::new);
@@ -151,8 +129,11 @@ public final class Main {
         install(patterns, GetterPattern::new);
         install(patterns, GreaterOrEqualPredicatePattern::new);
         install(patterns, GreaterThanPredicatePattern::new);
+        install(patterns, LessOrEqualPredicatePattern::new);
+        install(patterns, LessThanPredicatePattern::new);
         install(patterns, HasValuePattern::new);
         install(patterns, InPredicatePattern::new);
+        install(patterns, NotInPredicatePattern::new);
         install(patterns, SetToPattern::new);
         install(patterns, SetToImplPattern::new);
         install(patterns, SetterPattern::new);
