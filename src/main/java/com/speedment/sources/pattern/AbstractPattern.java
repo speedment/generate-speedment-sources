@@ -13,7 +13,7 @@ import static java.util.Objects.requireNonNull;
  *
  * @author Emil Forslund
  */
-abstract class AbstractPattern implements Pattern {
+public abstract class AbstractPattern implements Pattern {
     
     private final Class<?> wrapper, primitive;
 
@@ -114,11 +114,13 @@ abstract class AbstractPattern implements Pattern {
     protected final Type primitiveType() {
         return primitive;
     }
-    
-    
-    
+
     protected final AnnotationUsage generatedAnnotation() {
         return AnnotationUsage.of(GeneratedCode.class).put("value", Value.ofText("Speedment"));
+    }
+
+    protected final AnnotationUsage functionalInterface() {
+        return AnnotationUsage.of(FunctionalInterface.class);
     }
     
     protected final Type siblingOf(Class<?> packageOf, String name) {

@@ -7,6 +7,8 @@ import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.util.Formatting;
 import com.speedment.sources.pattern.*;
+import com.speedment.sources.pattern.function.FunctionPattern;
+import com.speedment.sources.pattern.function.ToFunctionPattern;
 import com.speedment.sources.pattern.tuple.*;
 import com.speedment.sources.pattern.tuple.test.TupleImplTestPattern;
 
@@ -75,11 +77,24 @@ public final class Main {
             .resolve("tuple")
             .resolve("src");
 
+        final Path srcPathFunction = basePath
+            .resolve("common-parent")
+            .resolve("function")
+            .resolve("src");
+
         final Path tupleMainJava = srcPathTuple
             .resolve("main")
             .resolve("java");
 
         final Path tupleTestJava = srcPathTuple
+            .resolve("test")
+            .resolve("java");
+
+        final Path functionMainJava = srcPathFunction
+            .resolve("main")
+            .resolve("java");
+
+        final Path functionTestJava = srcPathFunction
             .resolve("test")
             .resolve("java");
 
@@ -90,6 +105,11 @@ public final class Main {
 
         if (!Files.exists(tupleMainJava)) {
             System.err.println("Could not find java sources folder '" + tupleMainJava.toString() + "'.");
+            System.exit(-3);
+        }
+
+        if (!Files.exists(functionMainJava)) {
+            System.err.println("Could not find java sources folder '" + functionMainJava.toString() + "'.");
             System.exit(-3);
         }
 
@@ -154,6 +174,12 @@ public final class Main {
         tuplePatterns.add(new TuplesOfNullablesPattern());
         tuplePatterns.add(new TupleBuilderPattern());
 
+        final Set<Pattern> functionPatterns = new HashSet<>();
+        install(functionPatterns, FunctionPattern::new);
+        install(functionPatterns, ToFunctionPattern::new);
+        functionPatterns.add(new FunctionPattern(Boolean.class, boolean.class));
+        functionPatterns.add(new ToFunctionPattern(Boolean.class, boolean.class));
+
         IntStream.range(0, MAX_DEGREE)
             .mapToObj(i -> new TupleImplPattern(i, false))
             .forEachOrdered(tuplePatterns::add);
@@ -187,8 +213,8 @@ public final class Main {
         System.out.println("Generating Sources...");
 
         generate(patterns, mainJava, testJava, licenseHeader, counter);
-
         generate(tuplePatterns, tupleMainJava, tupleTestJava, licenseHeader, counter);
+        generate(functionPatterns, functionMainJava, functionTestJava, licenseHeader, counter);
 
         System.out.println("All " + counter.get() + " files was created successfully.");
     }
