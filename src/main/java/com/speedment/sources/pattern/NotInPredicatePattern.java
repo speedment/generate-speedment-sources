@@ -42,7 +42,7 @@ public final class NotInPredicatePattern extends AbstractCousinPattern {
         file.add(Import.of(Objects.class).static_().setStaticMember("requireNonNull"));
         file.add(Import.of(PredicateType.class));
         
-        final String enumConstant = PredicateType.class.getSimpleName() + "." + PredicateType.IN.name();
+        final String enumConstant = PredicateType.class.getSimpleName() + "." + PredicateType.NOT_IN.name();
         final Type hasValueType = SimpleParameterizedType.create(
             siblingOf(HasReferenceValue.class, "Has%1$sValue"),
             SimpleType.create("ENTITY"),
