@@ -7,10 +7,7 @@ import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.util.Formatting;
 import com.speedment.sources.pattern.*;
-import com.speedment.sources.pattern.function.FunctionPattern;
-import com.speedment.sources.pattern.function.ObjConsumer;
-import com.speedment.sources.pattern.function.ToFunctionPattern;
-import com.speedment.sources.pattern.function.ToLongCollectorPattern;
+import com.speedment.sources.pattern.function.*;
 import com.speedment.sources.pattern.tuple.*;
 import com.speedment.sources.pattern.tuple.test.TupleImplTestPattern;
 
@@ -181,10 +178,12 @@ public final class Main {
         install(functionPatterns, ToFunctionPattern::new);
         install(functionPatterns, ObjConsumer::new);
         install(functionPatterns, ToLongCollectorPattern::new);
+        install(functionPatterns, ToDoubleCollectorPattern::new);
         functionPatterns.add(new FunctionPattern(Boolean.class, boolean.class));
         functionPatterns.add(new ToFunctionPattern(Boolean.class, boolean.class));
         functionPatterns.add(new ObjConsumer(Boolean.class, boolean.class));
         functionPatterns.add(new ToLongCollectorPattern(Boolean.class, boolean.class));
+        functionPatterns.add(new ToDoubleCollectorPattern(Boolean.class, boolean.class));
 
         IntStream.range(0, MAX_DEGREE)
             .mapToObj(i -> new TupleImplPattern(i, false))
