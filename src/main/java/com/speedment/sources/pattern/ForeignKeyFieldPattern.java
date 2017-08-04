@@ -3,23 +3,19 @@ package com.speedment.sources.pattern;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
-import static com.speedment.common.codegen.util.Formatting.indent;
-import com.speedment.common.codegen.model.ClassOrInterface;
-import com.speedment.common.codegen.model.Field;
-import com.speedment.common.codegen.model.File;
-import com.speedment.common.codegen.model.Generic;
-import com.speedment.common.codegen.model.Import;
-import com.speedment.common.codegen.model.Interface;
-import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Method;
+import com.speedment.common.codegen.model.*;
 import com.speedment.runtime.config.identifier.ColumnIdentifier;
 import com.speedment.runtime.field.ComparableForeignKeyField;
 import com.speedment.runtime.field.ReferenceField;
+import com.speedment.runtime.field.internal.ComparableForeignKeyFieldImpl;
 import com.speedment.runtime.field.method.ReferenceGetter;
 import com.speedment.runtime.field.method.ReferenceSetter;
 import com.speedment.runtime.field.trait.HasFinder;
-import com.speedment.runtime.field.internal.ComparableForeignKeyFieldImpl;
 import com.speedment.runtime.typemapper.TypeMapper;
+
+import java.lang.Class;
+
+import static com.speedment.common.codegen.util.Formatting.indent;
 
 /**
  *
@@ -45,9 +41,9 @@ public final class ForeignKeyFieldPattern extends AbstractSiblingPattern {
     public ClassOrInterface<?> make(File file) {
         return Interface.of(getClassName())
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                         Documentation                          */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .set(Javadoc.of(formatJavadoc(
                     "A field that represents a primitive {@code %2$s} value " + 
                     "that references another column using a foreign key."
@@ -61,9 +57,9 @@ public final class ForeignKeyFieldPattern extends AbstractSiblingPattern {
                 .add(DefaultJavadocTag.SEE.setValue(ComparableForeignKeyField.class.getSimpleName()))
             )
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                       Class Declaration                        */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(generatedAnnotation())
             .public_()
             .add(Generic.of("ENTITY"))
@@ -80,9 +76,9 @@ public final class ForeignKeyFieldPattern extends AbstractSiblingPattern {
                 SimpleType.create("FK_ENTITY")
             ))
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                   Static Construction Method                   */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(Method.of("create", SimpleParameterizedType.create(
                 getFullClassName(),
                 SimpleType.create("ENTITY"),

@@ -1,35 +1,30 @@
 package com.speedment.sources.pattern;
 
-import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.DefaultType;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
-import com.speedment.common.codegen.model.AnnotationUsage;
+import com.speedment.common.codegen.model.*;
 import com.speedment.common.codegen.model.Class;
-import com.speedment.common.codegen.model.ClassOrInterface;
-import com.speedment.common.codegen.model.Field;
-import com.speedment.common.codegen.model.File;
-import com.speedment.common.codegen.model.Import;
-import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Method;
-import com.speedment.common.codegen.model.Value;
 import com.speedment.common.codegen.model.trait.HasFields;
 import com.speedment.common.codegen.model.trait.HasMethods;
 import com.speedment.common.codegen.util.Formatting;
-import static com.speedment.common.codegen.util.Formatting.indent;
-import static com.speedment.common.codegen.util.Formatting.ucfirst;
 import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.predicate.Inclusion;
 import com.speedment.runtime.typemapper.TypeMapper;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import static java.util.stream.Collectors.joining;
 import java.util.stream.Stream;
-import org.junit.Before;
-import org.junit.Test;
+
+import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
+import static com.speedment.common.codegen.util.Formatting.indent;
+import static com.speedment.common.codegen.util.Formatting.ucfirst;
+import static java.util.stream.Collectors.joining;
 
 /**
  *
@@ -106,9 +101,9 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
             
             clazz
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                            Variables                           */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(Field.of("FORMATTER", DefaultType.function(basicEntity, String.class))
                 .private_().final_().static_()
                 .set(Value.ofReference("entity -> \"\" + entity.getVar" + ucPrimitive() + "()"))
@@ -128,9 +123,9 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
             .add(Field.of("k", basicEntity).private_())
             .add(Field.of("l", basicEntity).private_())
 
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                             Methods                            */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .call(() -> file.add(Import.of(TypeMapper.class)))
             .add(Method.of("setUp", void.class).public_()
                 .add(AnnotationUsage.of(Before.class))

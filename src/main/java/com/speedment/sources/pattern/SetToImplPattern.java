@@ -50,9 +50,9 @@ public final class SetToImplPattern extends AbstractSiblingPattern {
         
         return com.speedment.common.codegen.model.Class.of(getClassName())
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                         Documentation                          */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .set(Javadoc.of(formatJavadoc(
                 "A {@code set} operation that will apply a value {@link #getValue()} " +
                 "to the field {@link #getField()} of any instance passed to it." +
@@ -65,9 +65,9 @@ public final class SetToImplPattern extends AbstractSiblingPattern {
                 .add(DefaultJavadocTag.SINCE.setValue("3.0.0"))
             )
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                       Class Declaration                        */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .public_().final_()
             .add(generatedAnnotation())
             .add(Generic.of("ENTITY"))
@@ -78,15 +78,15 @@ public final class SetToImplPattern extends AbstractSiblingPattern {
                 SimpleType.create("D")
             ))
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                      Private Member Fields                     */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(Field.of("field", fieldType).private_().final_())
             .add(Field.of("newValue", primitiveType()).private_().final_())
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                          Constructor                           */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(Constructor.of().public_()
                 .add(Field.of("field", fieldType))
                 .add(Field.of("newValue", primitiveType()))
@@ -94,9 +94,9 @@ public final class SetToImplPattern extends AbstractSiblingPattern {
                 .add("this.newValue = requireNonNull(newValue);")
             )
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                            Methods                             */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(Method.of("getField", fieldType).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add("return field;")

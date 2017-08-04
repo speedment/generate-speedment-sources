@@ -1,24 +1,20 @@
 package com.speedment.sources.pattern;
 
-import static com.speedment.common.codegen.constant.DefaultType.function;
-import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
-import com.speedment.common.codegen.model.AnnotationUsage;
-import com.speedment.common.codegen.model.ClassOrInterface;
-import com.speedment.common.codegen.model.Field;
-import com.speedment.common.codegen.model.File;
-import com.speedment.common.codegen.model.Generic;
-import com.speedment.common.codegen.model.Interface;
-import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Method;
+import com.speedment.common.codegen.model.*;
 import com.speedment.common.function.ToBooleanFunction;
 import com.speedment.runtime.field.method.Getter;
 import com.speedment.runtime.field.method.ReferenceGetter;
+
+import java.lang.Class;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
+
+import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
+import static com.speedment.common.codegen.constant.DefaultType.function;
 
 /**
  *
@@ -45,9 +41,9 @@ public final class GetterPattern extends AbstractSiblingPattern {
         final Method getter;
         final Interface intf = Interface.of(getClassName())
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                         Documentation                          */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .set(Javadoc.of(
                 formatJavadoc(
                     "A short-cut functional reference to the {@code getXXX(value)} method for a " +
@@ -65,9 +61,9 @@ public final class GetterPattern extends AbstractSiblingPattern {
                 .add(DefaultJavadocTag.SINCE.setValue("3.0.0"))
             )
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                       Class Declaration                        */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(generatedAnnotation())
             .add(AnnotationUsage.of(FunctionalInterface.class))
             .public_()
@@ -76,9 +72,9 @@ public final class GetterPattern extends AbstractSiblingPattern {
                 Getter.class, SimpleType.create("ENTITY")
             ))
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                            Methods                             */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(getter = Method.of("applyAs" + ucPrimitive(), primitiveType())
                 .set(Javadoc.of(
                         "Returns the member represented by this getter in the specified " +

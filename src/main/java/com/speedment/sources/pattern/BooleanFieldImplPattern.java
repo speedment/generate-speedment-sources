@@ -81,9 +81,9 @@ public final class BooleanFieldImplPattern extends AbstractSiblingPattern {
        
         return com.speedment.common.codegen.model.Class.of(getClassName())
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                         Documentation                          */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .set(Javadoc.of()
                 .add(DefaultJavadocTag.PARAM.setValue("<ENTITY>").setText("entity type"))
                 .add(DefaultJavadocTag.PARAM.setValue("<D>").setText("database type"))
@@ -91,27 +91,27 @@ public final class BooleanFieldImplPattern extends AbstractSiblingPattern {
                 .add(DefaultJavadocTag.SINCE.setValue("3.0.0"))
             )
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                       Class Declaration                        */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .public_().final_()
             .add(generatedAnnotation())
             .add(fieldType)
             .add(Generic.of(SimpleType.create("ENTITY")))
             .add(Generic.of(SimpleType.create("D")))
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                        Private Fields                          */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(Field.of("identifier", identifierType).private_().final_())
             .add(Field.of("getter", getType).private_().final_())
             .add(Field.of("setter", setterType).private_().final_())
             .add(Field.of("typeMapper", typeMapperType).private_().final_())
             .add(Field.of("unique", boolean.class).private_().final_())
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                          Constructor                           */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(Constructor.of().public_()
                 .add(Field.of("identifier", identifierType))
                 .add(Field.of("getter", getterType))
@@ -127,9 +127,9 @@ public final class BooleanFieldImplPattern extends AbstractSiblingPattern {
                 )
             )
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                            Getters                             */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(Method.of("identifier", identifierType).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add("return identifier;")

@@ -1,21 +1,16 @@
 package com.speedment.sources.pattern;
 
-import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
-import com.speedment.common.codegen.model.AnnotationUsage;
-import com.speedment.common.codegen.model.ClassOrInterface;
-import com.speedment.common.codegen.model.Field;
-import com.speedment.common.codegen.model.File;
-import com.speedment.common.codegen.model.Generic;
-import com.speedment.common.codegen.model.Import;
-import com.speedment.common.codegen.model.Interface;
-import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Method;
+import com.speedment.common.codegen.model.*;
 import com.speedment.runtime.field.method.ReferenceSetter;
 import com.speedment.runtime.field.method.Setter;
+
+import java.lang.Class;
 import java.util.Objects;
+
+import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
 
 /**
  *
@@ -41,9 +36,9 @@ public final class SetterPattern extends AbstractSiblingPattern {
     public ClassOrInterface<?> make(File file) {
         final Interface intf = Interface.of(getClassName())
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                         Documentation                          */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .set(Javadoc.of(
                 formatJavadoc(
                     "A short-cut functional reference to the {@code setXXX(value)} method for a " +
@@ -62,9 +57,9 @@ public final class SetterPattern extends AbstractSiblingPattern {
                 .add(DefaultJavadocTag.SINCE.setValue("3.0.0"))
             )
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                       Class Declaration                        */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(generatedAnnotation())
             .add(AnnotationUsage.of(FunctionalInterface.class))
             .public_()
@@ -74,9 +69,9 @@ public final class SetterPattern extends AbstractSiblingPattern {
                 SimpleType.create("ENTITY")
             ))
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                            Methods                             */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(Method.of("setAs" + ucPrimitive(), SimpleType.create("ENTITY"))
                 .set(Javadoc.of(
                         "Sets the member represented by this setter in the specified " +

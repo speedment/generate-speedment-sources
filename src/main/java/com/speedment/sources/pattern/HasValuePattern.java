@@ -45,9 +45,9 @@ public final class HasValuePattern extends AbstractSiblingPattern {
         
         return Interface.of(getClassName())
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                         Documentation                          */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .set(Javadoc.of(formatJavadoc(
                 "A representation of an Entity field that is a primitive {@code %2$s} type."
                 ))
@@ -57,9 +57,9 @@ public final class HasValuePattern extends AbstractSiblingPattern {
                 .add(DefaultJavadocTag.SINCE.setValue("3.0.0"))
             )
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                       Class Declaration                        */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(generatedAnnotation())
             .public_()
             .add(Generic.of("ENTITY"))
@@ -68,9 +68,9 @@ public final class HasValuePattern extends AbstractSiblingPattern {
                 SimpleType.create("ENTITY")
             ))
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                            Methods                             */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(Method.of("setter", SimpleParameterizedType.create(
                     siblingOf(ReferenceSetter.class, "%1$sSetter"), 
                     SimpleType.create("ENTITY")

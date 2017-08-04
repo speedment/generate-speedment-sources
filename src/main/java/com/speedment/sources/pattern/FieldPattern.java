@@ -1,21 +1,8 @@
 package com.speedment.sources.pattern;
 
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.AUTHOR;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.PARAM;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.RETURN;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.SEE;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.SINCE;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
-import com.speedment.common.codegen.model.ClassOrInterface;
-import com.speedment.common.codegen.model.Field;
-import com.speedment.common.codegen.model.File;
-import com.speedment.common.codegen.model.Generic;
-import com.speedment.common.codegen.model.Import;
-import com.speedment.common.codegen.model.Interface;
-import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Method;
-import static com.speedment.common.codegen.util.Formatting.indent;
+import com.speedment.common.codegen.model.*;
 import com.speedment.runtime.config.identifier.ColumnIdentifier;
 import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.internal.ReferenceFieldImpl;
@@ -24,6 +11,11 @@ import com.speedment.runtime.field.method.ReferenceSetter;
 import com.speedment.runtime.field.trait.HasComparableOperators;
 import com.speedment.runtime.field.trait.HasReferenceValue;
 import com.speedment.runtime.typemapper.TypeMapper;
+
+import java.lang.Class;
+
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.*;
+import static com.speedment.common.codegen.util.Formatting.indent;
 
 /**
  *
@@ -53,9 +45,9 @@ public final class FieldPattern extends AbstractSiblingPattern {
         
         return Interface.of(getClassName())
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                         Documentation                          */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .set(Javadoc.of(formatJavadoc(
                 "A field that represents a primitive {@code %2$s} value."
                 ))
@@ -66,9 +58,9 @@ public final class FieldPattern extends AbstractSiblingPattern {
                 .add(SEE.setValue(ReferenceField.class.getSimpleName()))
             )
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                       Class Declaration                        */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .public_()
             .add(generatedAnnotation())
             .add(Generic.of("ENTITY"))
@@ -88,9 +80,9 @@ public final class FieldPattern extends AbstractSiblingPattern {
                 wrapperType()
             ))
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                   Static Construction Method                   */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(Method.of("create", SimpleParameterizedType.create(
                 getFullClassName(),
                 SimpleType.create("ENTITY"),

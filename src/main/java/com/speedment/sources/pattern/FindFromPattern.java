@@ -1,26 +1,18 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
-import com.speedment.common.codegen.constant.DefaultJavadocTag;
-import com.speedment.common.codegen.constant.DefaultType;
-import com.speedment.common.codegen.constant.SimpleParameterizedType;
-import com.speedment.common.codegen.constant.SimpleType;
-import static com.speedment.common.codegen.util.Formatting.indent;
-import com.speedment.common.codegen.model.ClassOrInterface;
-import com.speedment.common.codegen.model.Constructor;
-import com.speedment.common.codegen.model.Field;
-import com.speedment.common.codegen.model.File;
-import com.speedment.common.codegen.model.Generic;
-import com.speedment.common.codegen.model.Import;
-import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Method;
+import com.speedment.common.codegen.constant.*;
+import com.speedment.common.codegen.model.*;
 import com.speedment.runtime.config.identifier.TableIdentifier;
 import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.exception.SpeedmentFieldException;
 import com.speedment.runtime.field.internal.method.FindFromReference;
+
+import java.lang.Class;
 import java.lang.reflect.Type;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+
+import static com.speedment.common.codegen.util.Formatting.indent;
 
 /**
  *
@@ -71,9 +63,9 @@ public final class FindFromPattern extends AbstractSiblingPattern {
         
         return com.speedment.common.codegen.model.Class.of(getClassName())
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                         Documentation                          */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .set(Javadoc.of()
                 .add(DefaultJavadocTag.PARAM.setValue("<ENTITY>").setText("entity type"))
                 .add(DefaultJavadocTag.PARAM.setValue("<FK_ENTITY>").setText("foreign entity type"))
@@ -81,18 +73,18 @@ public final class FindFromPattern extends AbstractSiblingPattern {
                 .add(DefaultJavadocTag.SINCE.setValue("3.0.0"))
             )
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                       Class Declaration                        */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .public_().final_()
             .add(generatedAnnotation())
             .add(Generic.of(SimpleType.create("ENTITY")))
             .add(Generic.of(SimpleType.create("FK_ENTITY")))
             .setSupertype(superType)
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                          Constructor                           */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(Constructor.of().public_()
                 .add(Field.of("source", fieldType))
                 .add(Field.of("target", fkFieldType))
@@ -108,9 +100,9 @@ public final class FindFromPattern extends AbstractSiblingPattern {
                 .add("super(source, target, identifier, streamSupplier);")
             )
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                            Methods                             */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(Method.of("apply", SimpleType.create("FK_ENTITY")).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add(Field.of("entity", SimpleType.create("ENTITY")))

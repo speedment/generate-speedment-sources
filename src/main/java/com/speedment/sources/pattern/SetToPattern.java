@@ -37,9 +37,9 @@ public final class SetToPattern extends AbstractSiblingPattern {
     public ClassOrInterface<?> make(File file) {
         return Interface.of(getClassName())
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                         Documentation                          */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .set(Javadoc.of(formatJavadoc(
                 "Represents a set-operation with all the metadata contained."
                 ))
@@ -49,9 +49,9 @@ public final class SetToPattern extends AbstractSiblingPattern {
                 .add(DefaultJavadocTag.SINCE.setValue("3.0.0"))
             )
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                       Class Declaration                        */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(generatedAnnotation())
             .public_()
             .add(Generic.of("ENTITY"))
@@ -61,9 +61,9 @@ public final class SetToPattern extends AbstractSiblingPattern {
                 SimpleType.create("ENTITY")
             ))
             
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             /*                            Methods                             */
-            /******************************************************************/
+            ////////////////////////////////////////////////////////////////////
             .add(Method.of("getField", SimpleParameterizedType.create(
                     siblingOf(HasReferenceValue.class, "Has%1$sValue"),
                     SimpleType.create("ENTITY"),
