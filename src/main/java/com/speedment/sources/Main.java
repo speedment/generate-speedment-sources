@@ -10,6 +10,7 @@ import com.speedment.sources.pattern.*;
 import com.speedment.sources.pattern.function.FunctionPattern;
 import com.speedment.sources.pattern.function.ObjConsumer;
 import com.speedment.sources.pattern.function.ToFunctionPattern;
+import com.speedment.sources.pattern.function.ToLongCollectorPattern;
 import com.speedment.sources.pattern.tuple.*;
 import com.speedment.sources.pattern.tuple.test.TupleImplTestPattern;
 
@@ -179,9 +180,11 @@ public final class Main {
         install(functionPatterns, FunctionPattern::new);
         install(functionPatterns, ToFunctionPattern::new);
         install(functionPatterns, ObjConsumer::new);
+        install(functionPatterns, ToLongCollectorPattern::new);
         functionPatterns.add(new FunctionPattern(Boolean.class, boolean.class));
         functionPatterns.add(new ToFunctionPattern(Boolean.class, boolean.class));
         functionPatterns.add(new ObjConsumer(Boolean.class, boolean.class));
+        functionPatterns.add(new ToLongCollectorPattern(Boolean.class, boolean.class));
 
         IntStream.range(0, MAX_DEGREE)
             .mapToObj(i -> new TupleImplPattern(i, false))
