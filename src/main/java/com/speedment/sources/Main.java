@@ -179,11 +179,13 @@ public final class Main {
         install(functionPatterns, ObjConsumer::new);
         install(functionPatterns, ToLongCollectorPattern::new);
         install(functionPatterns, ToDoubleCollectorPattern::new);
+        install(functionPatterns, LongToFunctionPattern::new);
         functionPatterns.add(new FunctionPattern(Boolean.class, boolean.class));
         functionPatterns.add(new ToFunctionPattern(Boolean.class, boolean.class));
         functionPatterns.add(new ObjConsumer(Boolean.class, boolean.class));
         functionPatterns.add(new ToLongCollectorPattern(Boolean.class, boolean.class));
         functionPatterns.add(new ToDoubleCollectorPattern(Boolean.class, boolean.class));
+        functionPatterns.add(new LongToFunctionPattern(Boolean.class, boolean.class));
 
         IntStream.range(0, MAX_DEGREE)
             .mapToObj(i -> new TupleImplPattern(i, false))
