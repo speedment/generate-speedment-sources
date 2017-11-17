@@ -80,7 +80,7 @@ public class TuplesPattern extends AbstractSiblingPattern {
 
         file.add(Import.of(SimpleType.create(BASE_PACKAGE + ".internal.TupleInfiniteDegreeImpl")));
         clazz.add(
-            Method.of("of", Tuple.class)
+            Method.of("ofArray", Tuple.class)
                 .public_().static_()
                 .set(
                     Javadoc.of("Creates and returns a {@link Tuple} with the given parameters")

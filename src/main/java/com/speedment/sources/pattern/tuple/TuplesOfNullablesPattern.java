@@ -75,7 +75,7 @@ public class TuplesOfNullablesPattern extends AbstractSiblingPattern {
 
         file.add(Import.of(SimpleType.create(BASE_PACKAGE + ".internal.TupleInfiniteDegreeOfNullablesImpl")));
         clazz.add(
-            Method.of("ofNullables", TupleOfNullables.class)
+            Method.of("ofNullablesArray", TupleOfNullables.class)
                 .public_().static_()
                 .set(
                     Javadoc.of("Creates and returns a {@link TupleOfNullables} with the given parameters")
