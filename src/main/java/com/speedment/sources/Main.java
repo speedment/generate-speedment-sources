@@ -167,6 +167,8 @@ public final class Main {
         patterns.add(new HasValuePattern(Boolean.class, boolean.class));
         patterns.add(new BooleanFieldPattern(Boolean.class, boolean.class));
         patterns.add(new BooleanFieldImplPattern(Boolean.class, boolean.class));
+        patterns.add(new EqualPredicatePattern(Boolean.class, boolean.class));
+        patterns.add(new NotEqualPredicatePattern(Boolean.class, boolean.class));
 
         final Set<Pattern> tuplePatterns = new HashSet<>();
         tuplePatterns.add(new TuplesPattern());

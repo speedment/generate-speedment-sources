@@ -1,34 +1,25 @@
 package com.speedment.sources.pattern.tuple;
 
+import com.speedment.common.codegen.constant.SimpleParameterizedType;
+import com.speedment.common.codegen.constant.SimpleType;
+import com.speedment.common.codegen.model.*;
+import com.speedment.common.tuple.Tuple;
+import com.speedment.common.tuple.TupleOfNullables;
+import com.speedment.sources.Pattern;
+
+import java.lang.reflect.Type;
+import java.util.Optional;
+import java.util.stream.IntStream;
+
 import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
 import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.SUPPRESS_WARNINGS_UNCHECKED;
 import static com.speedment.common.codegen.constant.DefaultJavadocTag.AUTHOR;
 import static com.speedment.common.codegen.constant.DefaultJavadocTag.PARAM;
-import com.speedment.common.codegen.constant.SimpleParameterizedType;
-import com.speedment.common.codegen.constant.SimpleType;
-import com.speedment.common.codegen.model.ClassOrInterface;
-import com.speedment.common.codegen.model.Field;
-import com.speedment.common.codegen.model.File;
-import com.speedment.common.codegen.model.Generic;
-import com.speedment.common.codegen.model.Import;
-import com.speedment.common.codegen.model.Interface;
-import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Method;
 import static com.speedment.common.codegen.util.Formatting.block;
 import static com.speedment.common.codegen.util.Formatting.nl;
-import static com.speedment.common.invariant.IntRangeUtil1.requireNonNegative;
-import com.speedment.common.tuple.Tuple;
-import com.speedment.common.tuple.TupleOfNullables;
-import com.speedment.sources.Pattern;
-import static com.speedment.sources.pattern.tuple.TupleUtil.genericTypeName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleOfNullablesName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleOfNullablesSimpleName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleSimpleName;
-import java.lang.reflect.Type;
-import java.util.Optional;
+import static com.speedment.common.invariant.IntRangeUtil.requireNonNegative;
+import static com.speedment.sources.pattern.tuple.TupleUtil.*;
 import static java.util.stream.Collectors.joining;
-import java.util.stream.IntStream;
 
 /**
  *

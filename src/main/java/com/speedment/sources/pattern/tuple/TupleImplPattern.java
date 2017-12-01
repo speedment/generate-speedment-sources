@@ -1,43 +1,28 @@
 package com.speedment.sources.pattern.tuple;
 
-import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
-import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.SUPPRESS_WARNINGS_UNCHECKED;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.AUTHOR;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.PARAM;
-import static com.speedment.common.codegen.constant.DefaultType.optional;
 import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.internal.model.value.ReferenceValueImpl;
 import com.speedment.common.codegen.model.Class;
-import com.speedment.common.codegen.model.ClassOrInterface;
-import com.speedment.common.codegen.model.Constructor;
-import com.speedment.common.codegen.model.Field;
-import com.speedment.common.codegen.model.File;
-import com.speedment.common.codegen.model.Generic;
-import com.speedment.common.codegen.model.Import;
-import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Method;
-import static com.speedment.common.invariant.IntRangeUtil1.requireNonNegative;
+import com.speedment.common.codegen.model.*;
 import com.speedment.common.tuple.Tuple;
 import com.speedment.common.tuple.TupleOfNullables;
 import com.speedment.common.tuple.internal.AbstractTuple;
 import com.speedment.common.tuple.internal.AbstractTupleOfNullables;
 import com.speedment.sources.Pattern;
-import static com.speedment.sources.pattern.tuple.TupleUtil.elementName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.genericTypeName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleGenericType;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleImplementationName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleImplementationSimpleName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleOfNullablesGenericType;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleOfNullablesImplementationName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleOfNullablesImplementationSimpleName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleOfNullablesSimpleName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleSimpleName;
+
 import java.lang.reflect.Type;
 import java.util.Optional;
-import static java.util.stream.Collectors.joining;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
+import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.SUPPRESS_WARNINGS_UNCHECKED;
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.AUTHOR;
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.PARAM;
+import static com.speedment.common.codegen.constant.DefaultType.optional;
+import static com.speedment.common.invariant.IntRangeUtil.requireNonNegative;
+import static com.speedment.sources.pattern.tuple.TupleUtil.*;
+import static java.util.stream.Collectors.joining;
 
 /**
  *

@@ -81,7 +81,9 @@ abstract class AbstractSimpleComparatorPattern extends AbstractCousinPattern {
         return com.speedment.common.codegen.model.Class.of(getClassName())
             
             // Documentation
-            .set(Javadoc.of()
+            .set(Javadoc.of(formatJavadoc(
+                    "A predicate that evaluates if a value is {@code " + getOperator() + "} a specified {@code %2$s}."
+                ))
                 .add(DefaultJavadocTag.PARAM.setValue("<ENTITY>").setText("entity type"))
                 .add(DefaultJavadocTag.PARAM.setValue("<D>").setText("database type"))
                 .add(DefaultJavadocTag.AUTHOR.setValue("Emil Forslund"))

@@ -93,7 +93,7 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
             ////////////////////////////////////////////////////////////////////
             //                            Javadoc                             //
             ////////////////////////////////////////////////////////////////////
-            .set(Javadoc.of()
+            .set(Javadoc.of(formatJavadoc("Default implementation of the {@link " + ucPrimitive() + "Field}-interface."))
                 .add(DefaultJavadocTag.PARAM.setValue("<ENTITY>").setText("entity type"))
                 .add(DefaultJavadocTag.PARAM.setValue("<D>").setText("database type"))
                 .add(DefaultJavadocTag.AUTHOR.setValue("Emil Forslund"))
@@ -193,11 +193,11 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
             .add(newUnaryOperator(  file, "greaterOrEqual", "GreaterOrEqual", false))
             .add(newBetweenOperator(file, "between",                          false))
             .add(newInOperator(     file, "in",                               false))
-            .add(newUnaryOperator(  file, "notEqual",       "Equal",           true))
-            .add(newUnaryOperator(  file, "lessOrEqual",    "GreaterThan",     true))
-            .add(newUnaryOperator(  file, "lessThan",       "GreaterOrEqual",  true))
-            .add(newBetweenOperator(file, "notBetween",                        true))
-            .add(newInOperator(     file, "notIn",                             true))
+            .add(newUnaryOperator(  file, "notEqual",       "NotEqual",       true))
+            .add(newUnaryOperator(  file, "lessOrEqual",    "LessOrEqual",    true))
+            .add(newUnaryOperator(  file, "lessThan",       "LessThan",       true))
+            .add(newBetweenOperator(file, "notBetween",                       true))
+            .add(newInOperator(     file, "notIn",                            true))
         ;
     }
     
@@ -213,11 +213,11 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
             .public_()
             .add(DefaultAnnotationUsage.OVERRIDE)
             .add(Field.of("value", wrapperType()))
-            .add("return new " + ucPrimitive() + predicateName + "Predicate<>(this, value)" + (negated ? ".negate()" : "") + ";");
+            .add("return new " + ucPrimitive() + predicateName + "Predicate<>(this, value);");
     }
     
     private Method newInOperator(File file, String methodName, boolean negated) {
-        file.add(Import.of(cousinOf(ReferenceEqualPredicate.class, primitive() + "s", "%1$sInPredicate")));
+        file.add(Import.of(cousinOf(ReferenceEqualPredicate.class, primitive() + "s", "%1$s" + (negated ? "Not" : "") + "InPredicate")));
         file.add(Import.of(siblingOf(Cast.class, "CollectionUtil")).static_().setStaticMember("collectionToSet"));
         
         final Type predicateType = SimpleParameterizedType.create(
@@ -232,11 +232,11 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
                 Collection.class,
                 wrapperType()
             )))
-            .add("return new " + ucPrimitive() + "InPredicate<>(this, collectionToSet(values))" + (negated ? ".negate()" : "") + ";");
+            .add("return new " + ucPrimitive() + (negated ? "Not" : "") + "InPredicate<>(this, collectionToSet(values));");
     }
     
     private Method newBetweenOperator(File file, String methodName, boolean negated) {
-        file.add(Import.of(cousinOf(ReferenceEqualPredicate.class, primitive() + "s", "%1$sBetweenPredicate")));
+        file.add(Import.of(cousinOf(ReferenceEqualPredicate.class, primitive() + "s", "%1$s" + (negated ? "Not" : "") + "BetweenPredicate")));
         
         final Type predicateType = SimpleParameterizedType.create(
             negated ? Predicate.class : FieldPredicate.class,
@@ -249,6 +249,6 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
             .add(Field.of("start", wrapperType()))
             .add(Field.of("end", wrapperType()))
             .add(Field.of("inclusion", Inclusion.class))
-            .add("return new " + ucPrimitive() + "BetweenPredicate<>(this, start, end, inclusion)" + (negated ? ".negate()" : "") + ";");
+            .add("return new " + ucPrimitive() + (negated ? "Not" : "") + "BetweenPredicate<>(this, start, end, inclusion);");
     }
 }

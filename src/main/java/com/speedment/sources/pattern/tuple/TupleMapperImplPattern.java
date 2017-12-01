@@ -1,46 +1,27 @@
 package com.speedment.sources.pattern.tuple;
 
-import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.AUTHOR;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.PARAM;
 import com.speedment.common.codegen.constant.DefaultType;
-import static com.speedment.common.codegen.constant.DefaultType.WILDCARD;
-import static com.speedment.common.codegen.constant.DefaultType.function;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.internal.model.value.ReferenceValueImpl;
 import com.speedment.common.codegen.model.Class;
-import com.speedment.common.codegen.model.ClassOrInterface;
-import com.speedment.common.codegen.model.Constructor;
-import com.speedment.common.codegen.model.Field;
-import com.speedment.common.codegen.model.File;
-import com.speedment.common.codegen.model.Generic;
-import com.speedment.common.codegen.model.Import;
-import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Method;
-import static com.speedment.common.codegen.util.Formatting.block;
-import static com.speedment.common.codegen.util.Formatting.indent;
-import static com.speedment.common.codegen.util.Formatting.nl;
-import static com.speedment.common.invariant.IntRangeUtil1.requireNonNegative;
+import com.speedment.common.codegen.model.*;
 import com.speedment.common.tuple.Tuples;
 import com.speedment.sources.Pattern;
-import static com.speedment.sources.pattern.tuple.TupleUtil.BASE_PACKAGE;
-import static com.speedment.sources.pattern.tuple.TupleUtil.genericTypeName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.mapperName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleGenericType;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleMapperGenericType;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleMapperImplementationName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleSimpleName;
+
 import java.lang.reflect.Type;
 import java.util.Objects;
-import static java.util.stream.Collectors.joining;
 import java.util.stream.IntStream;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleMapperImplementationSimpleName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleOfNullablesGenericType;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleOfNullablesMapperGenericType;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleOfNullablesMapperImplementationName;
-import static com.speedment.sources.pattern.tuple.TupleUtil.tupleOfNullablesMapperImplementationSimpleName;
+
+import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.AUTHOR;
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.PARAM;
+import static com.speedment.common.codegen.constant.DefaultType.WILDCARD;
+import static com.speedment.common.codegen.constant.DefaultType.function;
+import static com.speedment.common.codegen.util.Formatting.*;
+import static com.speedment.common.invariant.IntRangeUtil.requireNonNegative;
+import static com.speedment.sources.pattern.tuple.TupleUtil.*;
+import static java.util.stream.Collectors.joining;
 
 /**
  *

@@ -1,8 +1,11 @@
 package com.speedment.sources.pattern;
 
+import com.speedment.common.codegen.constant.SimpleParameterizedType;
+import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.ClassOrInterface;
 import com.speedment.common.codegen.model.File;
 import com.speedment.runtime.field.ReferenceField;
+import com.speedment.runtime.field.trait.HasBooleanOperators;
 import com.speedment.runtime.field.trait.HasComparableOperators;
 
 /**
@@ -36,6 +39,7 @@ public final class BooleanFieldPattern extends AbstractSiblingPattern {
                 intrf.getInterfaces().removeIf(t -> 
                     t.getTypeName().equals(HasComparableOperators.class.getName())
                 );
-            });
+            })
+            .add(SimpleParameterizedType.create(HasBooleanOperators.class, SimpleType.create("ENTITY")));
     }
 }

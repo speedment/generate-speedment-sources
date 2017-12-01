@@ -4,23 +4,21 @@ import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
-import com.speedment.common.codegen.model.ClassOrInterface;
-import com.speedment.common.codegen.model.Constructor;
-import com.speedment.common.codegen.model.Field;
-import com.speedment.common.codegen.model.File;
-import com.speedment.common.codegen.model.Generic;
-import com.speedment.common.codegen.model.Import;
-import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Method;
+import com.speedment.common.codegen.model.*;
 import com.speedment.runtime.config.identifier.ColumnIdentifier;
 import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.internal.ReferenceFieldImpl;
 import com.speedment.runtime.field.internal.method.GetReferenceImpl;
+import com.speedment.runtime.field.internal.predicate.reference.ReferenceEqualPredicate;
 import com.speedment.runtime.field.method.ReferenceGetter;
 import com.speedment.runtime.field.method.ReferenceSetter;
+import com.speedment.runtime.field.predicate.FieldPredicate;
 import com.speedment.runtime.typemapper.TypeMapper;
+
+import java.lang.Class;
 import java.lang.reflect.Type;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  *
@@ -46,36 +44,39 @@ public final class BooleanFieldImplPattern extends AbstractSiblingPattern {
     public ClassOrInterface<?> make(File file) {
         file.add(Import.of(Objects.class).static_().setStaticMember("requireNonNull"));
         file.add(Import.of(siblingOf(GetReferenceImpl.class, "Get%1$sImpl")));
-        
+
+        final Type entityType = SimpleType.create("ENTITY");
+        final Type dType      = SimpleType.create("D");
+
         final Type fieldType = SimpleParameterizedType.create(
             siblingOf(ReferenceField.class, "%1$sField"),
-            SimpleType.create("ENTITY"),
-            SimpleType.create("D")
+            entityType,
+            dType
         );
         
         final Type identifierType = SimpleParameterizedType.create(ColumnIdentifier.class,
-            SimpleType.create("ENTITY")
+            entityType
         );
         
         final Type getterType = SimpleParameterizedType.create(
             siblingOf(ReferenceGetter.class, "%1$sGetter"),
-            SimpleType.create("ENTITY")
+            entityType
         );
         
         final Type getType = SimpleParameterizedType.create(
             siblingOf(ReferenceGetter.class, "Get%1$s"),
-            SimpleType.create("ENTITY"),
-            SimpleType.create("D")
+            entityType,
+            dType
         );
         
         final Type setterType = SimpleParameterizedType.create(
             siblingOf(ReferenceSetter.class, "%1$sSetter"),
-            SimpleType.create("ENTITY")
+            entityType
         );
         
         final Type typeMapperType = SimpleParameterizedType.create(
             TypeMapper.class,
-            SimpleType.create("D"),
+            dType,
             wrapperType()
         );
        
@@ -84,7 +85,7 @@ public final class BooleanFieldImplPattern extends AbstractSiblingPattern {
             ////////////////////////////////////////////////////////////////////
             /*                         Documentation                          */
             ////////////////////////////////////////////////////////////////////
-            .set(Javadoc.of()
+            .set(Javadoc.of(formatJavadoc("Default implementation of the {@link " + ucPrimitive() + "Field}-interface."))
                 .add(DefaultJavadocTag.PARAM.setValue("<ENTITY>").setText("entity type"))
                 .add(DefaultJavadocTag.PARAM.setValue("<D>").setText("database type"))
                 .add(DefaultJavadocTag.AUTHOR.setValue("Emil Forslund"))
@@ -154,6 +155,27 @@ public final class BooleanFieldImplPattern extends AbstractSiblingPattern {
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add("return unique;")
             )
+
+            ////////////////////////////////////////////////////////////////////
+            //                        Operators                               //
+            ////////////////////////////////////////////////////////////////////
+            .add(newUnaryOperator(file, false))
+            .add(newUnaryOperator(file, true))
         ;
+    }
+
+    private Method newUnaryOperator(File file, boolean negated) {
+        file.add(Import.of(cousinOf(ReferenceEqualPredicate.class, primitive() + "s", "%1$s" + (negated ? "Not" : "") + "EqualPredicate")));
+
+        final Type predicateType = SimpleParameterizedType.create(
+            negated ? Predicate.class : FieldPredicate.class,
+            SimpleType.create("ENTITY")
+        );
+
+        return Method.of(negated ? "notEqual" : "equal", predicateType)
+            .public_()
+            .add(DefaultAnnotationUsage.OVERRIDE)
+            .add(Field.of("value", primitiveType()))
+            .add("return new " + ucPrimitive() + (negated ? "Not" : "") + "Equal" + "Predicate<>(this, value)" + ";");
     }
 }

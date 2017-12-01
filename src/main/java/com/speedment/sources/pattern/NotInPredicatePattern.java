@@ -91,7 +91,7 @@ public final class NotInPredicatePattern extends AbstractCousinPattern {
             ////////////////////////////////////////////////////////////////////
             //                          Constructors                          //
             ////////////////////////////////////////////////////////////////////
-            .add(Constructor.of()
+            .add(Constructor.of().public_()
                 .add(Field.of("field", hasValueType))
                 .add(Field.of("set", DefaultType.set(wrapperType())))
                 .add(
