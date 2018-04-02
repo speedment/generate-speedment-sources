@@ -180,10 +180,10 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
                 .add("return comparator();")
             )
             
-            .add(Method.of("comparatorNullFieldsLast", comparatorType).public_()
-                .add(DefaultAnnotationUsage.OVERRIDE)
-                .add("return comparator();")
-            )
+//            .add(Method.of("comparatorNullFieldsLast", comparatorType).public_()
+//                .add(DefaultAnnotationUsage.OVERRIDE)
+//                .add("return comparator();")
+//            )
 
             ////////////////////////////////////////////////////////////////////
             //                           Operators                            //
