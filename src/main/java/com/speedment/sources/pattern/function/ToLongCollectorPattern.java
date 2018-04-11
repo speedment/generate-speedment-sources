@@ -1,16 +1,15 @@
 package com.speedment.sources.pattern.function;
 
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.*;
+import static com.speedment.common.codegen.constant.DefaultType.set;
+import static com.speedment.common.codegen.constant.DefaultType.supplier;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.*;
 import com.speedment.sources.pattern.AbstractPattern;
-
 import java.util.function.BinaryOperator;
+import java.util.function.ToLongFunction;
 import java.util.stream.Collector;
-
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.*;
-import static com.speedment.common.codegen.constant.DefaultType.set;
-import static com.speedment.common.codegen.constant.DefaultType.supplier;
 
 /**
  * @author Emil Forslund
@@ -73,7 +72,7 @@ public final class ToLongCollectorPattern extends AbstractPattern {
             )
 
             .add(Method.of("accumulator", SimpleParameterizedType.create(
-                    SimpleType.create("com.speedment.common.function.Obj" + ucPrimitive() + "Consumer"),
+                    FunctionUtil.objXConsumer(ucPrimitive()),
                     SimpleType.create("A")
                 ))
                 .set(Javadoc.of(formatJavadoc(
@@ -103,7 +102,7 @@ public final class ToLongCollectorPattern extends AbstractPattern {
             )
 
             .add(Method.of("finisher", SimpleParameterizedType.create(
-                    SimpleType.create("com.speedment.common.function.ToLongFunction"),
+                    ToLongFunction.class,
                     SimpleType.create("A")
                 ))
                 .set(Javadoc.of(formatJavadoc(

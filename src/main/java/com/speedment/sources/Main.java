@@ -8,6 +8,7 @@ import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.util.Formatting;
 import com.speedment.sources.pattern.*;
 import com.speedment.sources.pattern.function.*;
+import com.speedment.sources.pattern.function_n.FunctionOfNthOrderPattern;
 import com.speedment.sources.pattern.tuple.*;
 import com.speedment.sources.pattern.tuple.test.TupleImplTestPattern;
 
@@ -26,7 +27,10 @@ import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
 
 import static com.speedment.sources.pattern.tuple.TupleUtil.MAX_DEGREE;
+import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toSet;
+import java.util.stream.Stream;
 
 /**
  * The main entry point of the program.
@@ -176,18 +180,22 @@ public final class Main {
         tuplePatterns.add(new TupleBuilderPattern());
 
         final Set<Pattern> functionPatterns = new HashSet<>();
-        install(functionPatterns, FunctionPattern::new);
-        install(functionPatterns, ToFunctionPattern::new);
-        install(functionPatterns, ObjConsumer::new);
+        installUnusual(functionPatterns, FunctionPattern::new);
+        installUnusual(functionPatterns, ToFunctionPattern::new);
+        installUnusual(functionPatterns, ObjConsumer::new);
         install(functionPatterns, ToLongCollectorPattern::new);
         install(functionPatterns, ToDoubleCollectorPattern::new);
-        install(functionPatterns, LongToFunctionPattern::new);
+        installUnusual(functionPatterns, LongToFunctionPattern::new);
         functionPatterns.add(new FunctionPattern(Boolean.class, boolean.class));
         functionPatterns.add(new ToFunctionPattern(Boolean.class, boolean.class));
         functionPatterns.add(new ObjConsumer(Boolean.class, boolean.class));
         functionPatterns.add(new ToLongCollectorPattern(Boolean.class, boolean.class));
         functionPatterns.add(new ToDoubleCollectorPattern(Boolean.class, boolean.class));
         functionPatterns.add(new LongToFunctionPattern(Boolean.class, boolean.class));
+
+        IntStream.range(5, MAX_DEGREE)
+            .mapToObj(FunctionOfNthOrderPattern::new)
+            .forEachOrdered(functionPatterns::add);
 
         IntStream.range(0, MAX_DEGREE)
             .mapToObj(i -> new TupleImplPattern(i, false))
@@ -285,5 +293,34 @@ public final class Main {
         patterns.add(patternFactory.apply(Float.class, float.class));
         patterns.add(patternFactory.apply(Double.class, double.class));
         patterns.add(patternFactory.apply(Character.class, char.class));
+    }
+
+    private static void installUnusual(Set<Pattern> patterns, BiFunction<Class<?>, Class<?>, ? extends Pattern> patternFactory) {
+        install(patterns, patternFactory, byte.class, short.class, float.class, char.class);
+    }
+
+    private static void install(Set<Pattern> patterns, BiFunction<Class<?>, Class<?>, ? extends Pattern> patternFactory, Class<?>... types) {
+        final Set<String> typeSet = Stream.of(types).map(Class::getSimpleName).map(String::toLowerCase).collect(toSet());
+        if (typeSet.contains("byte")) {
+            patterns.add(patternFactory.apply(Byte.class, byte.class));
+        }
+        if (typeSet.contains("short")) {
+            patterns.add(patternFactory.apply(Short.class, short.class));
+        }
+        if (typeSet.contains("int") || typeSet.contains("integer")) {
+            patterns.add(patternFactory.apply(Integer.class, int.class));
+        }
+        if (typeSet.contains("long")) {
+            patterns.add(patternFactory.apply(Long.class, long.class));
+        }
+        if (typeSet.contains("float")) {
+            patterns.add(patternFactory.apply(Float.class, float.class));
+        }
+        if (typeSet.contains("double")) {
+            patterns.add(patternFactory.apply(Double.class, double.class));
+        }
+        if (typeSet.contains("char") || typeSet.contains("character")) {
+            patterns.add(patternFactory.apply(Character.class, char.class));
+        }
     }
 }

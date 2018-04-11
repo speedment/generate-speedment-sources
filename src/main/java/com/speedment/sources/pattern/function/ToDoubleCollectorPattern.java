@@ -11,6 +11,7 @@ import java.util.stream.Collector;
 import static com.speedment.common.codegen.constant.DefaultJavadocTag.*;
 import static com.speedment.common.codegen.constant.DefaultType.set;
 import static com.speedment.common.codegen.constant.DefaultType.supplier;
+import java.util.function.ToDoubleFunction;
 
 /**
  * @author Emil Forslund
@@ -73,7 +74,7 @@ public final class ToDoubleCollectorPattern extends AbstractPattern {
             )
 
             .add(Method.of("accumulator", SimpleParameterizedType.create(
-                    SimpleType.create("com.speedment.common.function.Obj" + ucPrimitive() + "Consumer"),
+                    FunctionUtil.objXConsumer(ucPrimitive()),
                     SimpleType.create("A")
                 ))
                 .set(Javadoc.of(formatJavadoc(
@@ -103,7 +104,7 @@ public final class ToDoubleCollectorPattern extends AbstractPattern {
             )
 
             .add(Method.of("finisher", SimpleParameterizedType.create(
-                    SimpleType.create("com.speedment.common.function.ToDoubleFunction"),
+                    ToDoubleFunction.class,
                     SimpleType.create("A")
                 ))
                 .set(Javadoc.of(formatJavadoc(

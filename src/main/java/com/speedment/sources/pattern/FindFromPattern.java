@@ -114,7 +114,7 @@ public final class FindFromPattern extends AbstractSiblingPattern {
                     indent(".orElseThrow(() -> new SpeedmentFieldException("),
                     indent("\"Error! Could not find any entities in table '\" + ", 2),
                     indent("getTableIdentifier() + ", 2),
-                    indent("\"' with '\" + getTargetField().identifier().getColumnName() + ", 2),
+                    indent("\"' with '\" + getTargetField().identifier().getColumnId() + ", 2),
                     indent("\"' = '\" + value + \"'.\"", 2),
                     indent("));")
                 )
