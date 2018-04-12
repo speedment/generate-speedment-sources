@@ -3,6 +3,7 @@ package com.speedment.sources.pattern;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.*;
+import com.speedment.runtime.compute.ToBoolean;
 import com.speedment.runtime.config.identifier.ColumnIdentifier;
 import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.internal.ReferenceFieldImpl;
@@ -14,6 +15,7 @@ import com.speedment.runtime.typemapper.TypeMapper;
 
 import java.lang.Class;
 
+import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
 import static com.speedment.common.codegen.constant.DefaultJavadocTag.*;
 import static com.speedment.common.codegen.util.Formatting.indent;
 
@@ -79,6 +81,10 @@ public final class FieldPattern extends AbstractSiblingPattern {
                 SimpleType.create("ENTITY"),
                 wrapperType()
             ))
+            .add(SimpleParameterizedType.create(
+                siblingOf(ToBoolean.class, "To%1$s"),
+                SimpleType.create("ENTITY")
+            ))
             
             ////////////////////////////////////////////////////////////////////
             /*                   Static Construction Method                   */
@@ -128,6 +134,12 @@ public final class FieldPattern extends AbstractSiblingPattern {
                 .add("return new " + ucPrimitive() + "FieldImpl<>(")
                 .add(indent("identifier, getter, setter, typeMapper, unique"))
                 .add(");")
+            )
+
+            .add(Method.of("applyAs" + ucPrimitive(), primitiveType())
+                .add(OVERRIDE).default_()
+                .add(Field.of("entity", SimpleType.create("ENTITY")))
+                .add("return getAs" + ucPrimitive() + "(entity);")
             )
         ;
     }

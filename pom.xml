@@ -22,8 +22,8 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <main.class>com.speedment.sources.Main</main.class>
         
-        <speedment.version>3.0.18</speedment.version>
-        <codegen.version>2.4.8</codegen.version>
+        <speedment.version>3.1.0-SNAPSHOT</speedment.version>
+        <codegen.version>2.4.9</codegen.version>
     </properties>
     
     <dependencies>
@@ -35,6 +35,11 @@
         <dependency>
             <groupId>com.speedment.runtime</groupId>
             <artifactId>runtime-typemapper</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.speedment.runtime</groupId>
+            <artifactId>runtime-compute</artifactId>
         </dependency>
         
         <dependency>
