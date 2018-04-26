@@ -214,6 +214,10 @@ public final class Main {
             .forEachOrdered(tuplePatterns::add);
 
         IntStream.range(0, MAX_DEGREE)
+            .mapToObj(TupleGetterPattern::new)
+            .forEachOrdered(tuplePatterns::add);
+
+        IntStream.range(0, MAX_DEGREE)
             .mapToObj(i -> new TupleMapperImplPattern(i, false))
             .forEachOrdered(tuplePatterns::add);
 

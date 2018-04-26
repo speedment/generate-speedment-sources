@@ -206,6 +206,16 @@ public final class TupleUtil {
         return method;
     }
 
+    static String pluralize(int degree) {
+        switch (degree % 10) {
+            case 0 : return degree + "th";
+            case 1 : return degree + "st";
+            case 2 : return degree + "nd";
+            case 3 : return degree + "rd";
+            default: return degree + "th";
+        }
+    }
+
     private TupleUtil() {
     }
 }

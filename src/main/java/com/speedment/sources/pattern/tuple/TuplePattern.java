@@ -5,8 +5,10 @@ import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.*;
 import com.speedment.common.tuple.Tuple;
 import com.speedment.common.tuple.TupleOfNullables;
+import com.speedment.common.tuple.getter.TupleGetter;
 import com.speedment.sources.Pattern;
 
+import java.lang.Class;
 import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -15,6 +17,7 @@ import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERR
 import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.SUPPRESS_WARNINGS_UNCHECKED;
 import static com.speedment.common.codegen.constant.DefaultJavadocTag.AUTHOR;
 import static com.speedment.common.codegen.constant.DefaultJavadocTag.PARAM;
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.RETURN;
 import static com.speedment.common.codegen.util.Formatting.block;
 import static com.speedment.common.codegen.util.Formatting.nl;
 import static com.speedment.common.invariant.IntRangeUtil.requireNonNegative;
@@ -97,7 +100,45 @@ public class TuplePattern implements Pattern {
                 .add("return " + degree + ";")
         );
 
-        iface.add(getrMethod());
+        iface.add(getterMethod());
+
+        file.add(Import.of(TupleGetter.class));
+        for (int i = 0; i < degree; i++) {
+            final Type getterType = SimpleParameterizedType.create(
+                siblingOf(TupleGetter.class, "TupleGetter" + i),
+                SimpleParameterizedType.create(
+                    siblingOf(Tuple.class, "Tuple" + degree),
+                    IntStream.range(0, degree)
+                        .mapToObj(TupleUtil::genericTypeName)
+                        .map(SimpleType::create)
+                        .toArray(Type[]::new)
+                ),
+                SimpleType.create(genericTypeName(i))
+            );
+
+            final Javadoc doc = Javadoc.of(
+                "Returns a {@link TupleGetter getter} for the " +
+                pluralize(i) + " element in the {@code Tuple}."
+            ).add(RETURN.setValue("the element at the " + pluralize(i) + " position"));
+
+            IntStream.range(0, degree)
+                .mapToObj(j -> PARAM.setValue(genericTypeName(j)).setText("the " + pluralize(j) + " element type"))
+                .forEachOrdered(doc::add);
+
+            final Method getterMethod = Method.of("getter" + i, getterType)
+                .set(Javadoc.of("Returns a {@link TupleGetter getter} for the " + pluralize(i) + " element in the {@code Tuple}.")
+
+                )
+                .static_()
+                .add("return Tuple" + degree + "::get" + i + ";");
+
+            IntStream.range(0, degree)
+                .mapToObj(TupleUtil::genericTypeName)
+                .map(Generic::of)
+                .forEachOrdered(getterMethod::add);
+
+            iface.add(getterMethod);
+        }
 
         return iface;
     }
@@ -111,7 +152,7 @@ public class TuplePattern implements Pattern {
         );
     }
 
-    private Method getrMethod() {
+    private Method getterMethod() {
         Method method = Method.of("get", nullable ? SimpleParameterizedType.create(Optional.class, Object.class) : Object.class)
             .default_()
             .add(Field.of("index", int.class))
@@ -131,4 +172,7 @@ public class TuplePattern implements Pattern {
         return method;
     }
 
+    private Type siblingOf(Class<?> packageOf, String name) {
+        return SimpleType.create(packageOf.getPackage().getName() + "." + name);
+    }
 }
