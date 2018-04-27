@@ -48,7 +48,7 @@ public final class SetterPattern extends AbstractSiblingPattern {
                     "A {@code %1$sSetter<ENTITY>} has the following signature:\n" +
                     "{@code\n" +
                     "    interface ENTITY {\n" +
-                    "        ENTITY setXXX(%2$s value);\n" +
+                    "        void setXXX(%2$s value);\n" +
                     "    }\n" +
                     "}"
                 ))
@@ -72,7 +72,7 @@ public final class SetterPattern extends AbstractSiblingPattern {
             ////////////////////////////////////////////////////////////////////
             /*                            Methods                             */
             ////////////////////////////////////////////////////////////////////
-            .add(Method.of("setAs" + ucPrimitive(), SimpleType.create("ENTITY"))
+            .add(Method.of("setAs" + ucPrimitive(), void.class)
                 .set(Javadoc.of(
                         "Sets the member represented by this setter in the specified " +
                         "instance to the specified value, returning a reference to " +
@@ -80,14 +80,13 @@ public final class SetterPattern extends AbstractSiblingPattern {
                     )
                     .add(DefaultJavadocTag.PARAM.setValue("instance").setText("the instance to set it in"))
                     .add(DefaultJavadocTag.PARAM.setValue("value").setText("the new value"))
-                    .add(DefaultJavadocTag.RETURN.setValue("a reference to that instance"))
                 )
                 .add(Field.of("instance", SimpleType.create("ENTITY")))
                 .add(Field.of("value", primitiveType()))
             )
         
             .call(() -> file.add(Import.of(Objects.class).static_().setStaticMember("requireNonNull")))
-            .add(Method.of("set", SimpleType.create("ENTITY")).default_()
+            .add(Method.of("set", void.class).default_()
                 .add(OVERRIDE)
                 .add(Field.of("instance", SimpleType.create("ENTITY")))
                 .add(Field.of("value", Object.class))
@@ -95,7 +94,7 @@ public final class SetterPattern extends AbstractSiblingPattern {
                     "requireNonNull(value, \"Attempting to set primitive " + primitive() + " field to null.\");",
                     "@SuppressWarnings(\"unchecked\")",
                     "final " + wrapper() + " casted = (" + wrapper() + ") value;",
-                    "return setAs" + ucPrimitive() + "(instance, casted);"
+                    "setAs" + ucPrimitive() + "(instance, casted);"
                 )
             );
         

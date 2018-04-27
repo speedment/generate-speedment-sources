@@ -110,7 +110,8 @@ public final class SetToImplPattern extends AbstractSiblingPattern {
             .add(Method.of("apply", SimpleType.create("ENTITY")).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add(Field.of("entity", SimpleType.create("ENTITY")))
-                .add("return field.setter().setAs" + ucPrimitive() + "(entity, newValue);")
+                .add("field.setter().setAs" + ucPrimitive() + "(entity, newValue);",
+                    "return entity;")
             )
         ;
     }

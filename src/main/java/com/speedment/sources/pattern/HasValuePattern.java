@@ -117,7 +117,8 @@ public final class HasValuePattern extends AbstractSiblingPattern {
                 )
                 .add(Field.of("entity", SimpleType.create("ENTITY")))
                 .add(Field.of("value", primitiveType()))
-                .add("return setter().setAs" + ucPrimitive() + "(entity, value);")
+                .add("setter().setAs" + ucPrimitive() + "(entity, value);",
+                    "return entity;")
             )
             
             .add(Method.of("setTo", SimpleParameterizedType.create(
