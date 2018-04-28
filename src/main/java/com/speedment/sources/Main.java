@@ -177,6 +177,7 @@ public final class Main {
         final Set<Pattern> tuplePatterns = new HashSet<>();
         tuplePatterns.add(new TuplesPattern());
         tuplePatterns.add(new TuplesOfNullablesPattern());
+        tuplePatterns.add(new MutableTuplesPattern());
         tuplePatterns.add(new TupleBuilderPattern());
 
         final Set<Pattern> functionPatterns = new HashSet<>();
@@ -198,20 +199,22 @@ public final class Main {
             .forEachOrdered(functionPatterns::add);
 
         IntStream.range(0, MAX_DEGREE)
-            .mapToObj(i -> new TupleImplPattern(i, false))
+            .mapToObj(i -> new TupleImplPattern(i, TupleType.IMMUTABLE))
             .forEachOrdered(tuplePatterns::add);
 
         IntStream.range(0, MAX_DEGREE)
-            .mapToObj(i -> new TupleImplPattern(i, true))
+            .mapToObj(i -> new TupleImplPattern(i, TupleType.IMMUTABLE))
             .forEachOrdered(tuplePatterns::add);
 
-        IntStream.range(0, MAX_DEGREE)
-            .mapToObj(i -> new TuplePattern(i, false))
-            .forEachOrdered(tuplePatterns::add);
-
-        IntStream.range(0, MAX_DEGREE)
-            .mapToObj(i -> new TuplePattern(i, true))
-            .forEachOrdered(tuplePatterns::add);
+        Stream.of(TupleType.values())
+            .forEachOrdered(type -> {
+                IntStream.range(0, MAX_DEGREE)
+                    .mapToObj(i -> new TuplePattern(i, type))
+                    .forEachOrdered(tuplePatterns::add);
+                IntStream.range(0, MAX_DEGREE)
+                    .mapToObj(i -> new TupleImplPattern(i, type))
+                    .forEachOrdered(tuplePatterns::add);
+            });
 
         IntStream.range(0, MAX_DEGREE)
             .mapToObj(TupleGetterPattern::new)

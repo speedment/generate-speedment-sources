@@ -14,6 +14,7 @@ import com.speedment.common.codegen.model.Method;
 import com.speedment.common.tuple.Tuple;
 import java.lang.reflect.Type;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import static java.util.stream.Collectors.joining;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -28,6 +29,7 @@ public final class TupleUtil {
 
     public static final String BASE_PACKAGE = Tuple.class.getPackage().getName();
     public static final String OF_NULLABLES = "OfNullables";
+    public static final String MUTABLE = "Mutable";
 
     public static Stream<String> tupleGenericNames(int degree) {
         return IntStream.range(0, degree)
@@ -39,7 +41,6 @@ public final class TupleUtil {
             .map(SimpleType::create)
             .toArray(SimpleType[]::new);
         return SimpleParameterizedType.create(tupleName(degree), generics);
-
     }
 
     public static Type tupleOfNullablesGenericType(int degree) {
@@ -47,7 +48,13 @@ public final class TupleUtil {
             .map(SimpleType::create)
             .toArray(SimpleType[]::new);
         return SimpleParameterizedType.create(tupleOfNullablesName(degree), generics);
+    }
 
+    public static Type mutableTupleGenericType(int degree) {
+        final SimpleType[] generics = tupleGenericNames(degree)
+            .map(SimpleType::create)
+            .toArray(SimpleType[]::new);
+        return SimpleParameterizedType.create(mutableTupleName(degree), generics);
     }
 
     public static Type tupleMapperGenericType(int degree) {
@@ -66,12 +73,20 @@ public final class TupleUtil {
         return BASE_PACKAGE + ".nullable." + tupleOfNullablesSimpleName(degree);
     }
 
+    public static String mutableTupleName(int degree) {
+        return BASE_PACKAGE + ".mutable." + mutableTupleSimpleName(degree);
+    }
+
     public static String tupleSimpleName(int degree) {
         return "Tuple" + degree;
     }
 
     public static String tupleOfNullablesSimpleName(int degree) {
         return "Tuple" + degree + OF_NULLABLES;
+    }
+
+    public static String mutableTupleSimpleName(int degree) {
+        return MUTABLE + "Tuple" + degree;
     }
 
     public static String tupleImplementationName(int degree) {
@@ -88,6 +103,14 @@ public final class TupleUtil {
 
     public static String tupleOfNullablesImplementationSimpleName(int degree) {
         return "Tuple" + degree + OF_NULLABLES + "Impl";
+    }
+
+    public static String mutableTupleImplementationName(int degree) {
+        return BASE_PACKAGE + ".internal.mutable." + mutableTupleImplementationSimpleName(degree);
+    }
+
+    public static String mutableTupleImplementationSimpleName(int degree) {
+        return MUTABLE + "Tuple" + degree + "Impl";
     }
 
     public static String tupleMapperImplementationName(int degree) {
@@ -118,50 +141,91 @@ public final class TupleUtil {
         return "m" + degree;
     }
 
-    public static Method ofMethod(int degree, boolean nullable) {
+    public static Method ofMethod(int degree, TupleType tupleType) {
+        return ofMethod(degree, tupleType, false);
+    }
+
+    public static Method ofMethod(int degree, TupleType tupleType, boolean emptyConstructor) {
         final Type type;
         final Method method;
 
-        if (nullable) {
-            type = tupleOfNullablesGenericType(degree);
-            method = Method.of("ofNullables", type);
-        } else {
-            type = tupleGenericType(degree);
-            method = Method.of("of", type);
+        final boolean isSupplier = TupleType.MUTABLE.equals(tupleType) && !emptyConstructor;
+
+        switch (tupleType) {
+            case IMMUTABLE: {
+                type = tupleGenericType(degree);
+                method = Method.of("of", type);
+                break;
+            }
+            case IMMUTABLE_NULLABLE: {
+                type = tupleOfNullablesGenericType(degree);
+                method = Method.of("ofNullables", type);
+                break;
+            }
+            case MUTABLE: {
+                if (emptyConstructor) {
+                    type = mutableTupleGenericType(degree);
+                    method = Method.of("create" + degree, type);
+                } else {
+                    type = SimpleParameterizedType.create(Supplier.class, mutableTupleGenericType(degree));
+                    method = Method.of("constructor", type);
+                }
+                break;
+            }
+            default:
+                throw new UnsupportedOperationException();
         }
+
         method.public_().static_();
 
-        final Javadoc javadoc = Javadoc.of("Creates and returns a {@link "
-            + (nullable ? tupleOfNullablesSimpleName(degree) : tupleSimpleName(degree))
-            + "} with the given parameters.");
-
+        final String name = tupleType.eval(tupleSimpleName(degree), tupleOfNullablesSimpleName(degree), mutableTupleSimpleName(degree));
+        final String returns = "a new {@link " + name + "} " + (isSupplier ? "constructor that creates an object " : " ") + tupleType.eval("with the given parameters.", "with the given parameters.", "that is empty.");
+        final Javadoc javadoc = Javadoc.of("Creates and returns " + returns);
         IntStream.range(0, degree).forEachOrdered(parameter -> {
             javadoc.add(PARAM.setValue("<" + genericTypeName(parameter) + ">").setText("type of element " + parameter));
         });
-        IntStream.range(0, degree).forEachOrdered(parameter -> {
-            javadoc.add(PARAM.setValue(elementName(parameter)).setText("element " + parameter));
-        });
-        javadoc.add(RETURN.setValue("a {@link " + (nullable ? tupleOfNullablesSimpleName(degree) : tupleSimpleName(degree)) + "} with the given parameters."));
+        if (!emptyConstructor) {
+            IntStream.range(0, degree).forEachOrdered(parameter -> {
+                javadoc.add(PARAM.setValue(elementName(parameter)).setText("element " + parameter));
+            });
+        }
+        javadoc.add(RETURN.setValue(returns));
         javadoc.add(SEE.setValue(tupleSimpleName(degree)));
         javadoc.add(SEE.setValue("Tuple"));
         method.set(javadoc);
 
         if (degree == 0) {
-            if (nullable) {
-                method.add("return Tuple0OfNullablesImpl.EMPTY_TUPLE;");
-            } else {
-                method.add("return Tuple0Impl.EMPTY_TUPLE;");
-            }
+            tupleType.eval(
+                () -> method.add("return Tuple0Impl.EMPTY_TUPLE;"),
+                () -> method.add("return Tuple0OfNullablesImpl.EMPTY_TUPLE;"),
+                isSupplier
+                    ? () -> method.add("return () -> MutableTuple0Impl.EMPTY_TUPLE;")
+                    : () -> method.add("return MutableTuple0Impl.EMPTY_TUPLE;")
+            );
         } else {
-            for (int parameter = 0; parameter < degree; parameter++) {
+            IntStream.range(0, degree).forEachOrdered(parameter -> {
+
                 final Type parameterType = SimpleType.create(genericTypeName(parameter));
                 method.add(Generic.of(parameterType));
-                method.add(Field.of(elementName(parameter), parameterType));
-            }
-            method.add("return new "
-                + (nullable ? tupleOfNullablesImplementationSimpleName(degree) : tupleImplementationSimpleName(degree))
+                tupleType.eval(
+                    () -> method.add(Field.of(elementName(parameter), parameterType)),
+                    () -> method.add(Field.of(elementName(parameter), parameterType)),
+                    () -> emptyConstructor ? "" : method.add(Field.of(elementName(parameter), SimpleParameterizedType.create(Class.class, parameterType)))
+                );
+                //method.add(Field.of(elementName(parameter), parameterType));
+            });
+
+            method.add("return " + (isSupplier ? "() -> " : "") + " new "
+                + tupleType.eval(
+                    tupleImplementationSimpleName(degree),
+                    tupleOfNullablesImplementationSimpleName(degree),
+                    mutableTupleImplementationSimpleName(degree)
+                )
                 + "<>("
-                + IntStream.range(0, degree).mapToObj(TupleUtil::elementName).collect(joining(", "))
+                + tupleType.eval(
+                    IntStream.range(0, degree).mapToObj(TupleUtil::elementName).collect(joining(", ")),
+                    IntStream.range(0, degree).mapToObj(TupleUtil::elementName).collect(joining(", ")),
+                    "")
                 + ");"
             );
         }
@@ -208,11 +272,16 @@ public final class TupleUtil {
 
     static String pluralize(int degree) {
         switch (degree % 10) {
-            case 0 : return degree + "th";
-            case 1 : return degree + "st";
-            case 2 : return degree + "nd";
-            case 3 : return degree + "rd";
-            default: return degree + "th";
+            case 0:
+                return degree + "th";
+            case 1:
+                return degree + "st";
+            case 2:
+                return degree + "nd";
+            case 3:
+                return degree + "rd";
+            default:
+                return degree + "th";
         }
     }
 
