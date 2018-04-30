@@ -44,18 +44,12 @@ public class TuplesPattern extends AbstractSiblingPattern {
 
     @Override
     public ClassOrInterface<?> make(File file) {
-        // file.add(Import.of(SimpleType.create(getSiblingClass().getName() + ".internal")).setStaticMember("*"));
         IntStream.range(0, MAX_DEGREE)
             .mapToObj(TupleUtil::tupleImplementationName)
             .map(SimpleType::create)
             .map(Import::of)
             .forEach(file::add);
 
-//        IntStream.range(0, MAX_DEGREE)
-//            .mapToObj(TupleUtil::tupleOfNullablesImplementationName)
-//            .map(SimpleType::create)
-//            .map(Import::of)
-//            .forEach(file::add);
         file.add(Import.of(Tuple.class));
 
         final Class clazz = Class.of(getClassName())
@@ -70,7 +64,6 @@ public class TuplesPattern extends AbstractSiblingPattern {
 
         for (int degree = 0; degree < MAX_DEGREE; degree++) {
             clazz.add(ofMethod(degree, TupleType.IMMUTABLE));
-//            clazz.add(ofMethod(degree, true));
             clazz.add(toTupleMethod(degree, false));
             file.add(Import.of(SimpleType.create(tupleMapperImplementationName(degree))));
         }

@@ -141,16 +141,20 @@ public class TuplePattern implements Pattern {
         file.add(Import.of(TupleGetter.class));
         for (int i = 0; i < degree; i++) {
             {
+                final Type genericType = SimpleType.create(genericTypeName(i));
                 final Type getterType = SimpleParameterizedType.create(
                     siblingOf(TupleGetter.class, "TupleGetter" + i),
                     SimpleParameterizedType.create(
-                        siblingOf(Tuple.class, "Tuple" + degree),
+                        SimpleType.create(getFullClassName()),
                         IntStream.range(0, degree)
                             .mapToObj(TupleUtil::genericTypeName)
                             .map(SimpleType::create)
                             .toArray(Type[]::new)
                     ),
-                    SimpleType.create(genericTypeName(i))
+                    type.eval(
+                        genericType,
+                        SimpleParameterizedType.create(Optional.class, genericType),
+                        SimpleParameterizedType.create(Optional.class, genericType))
                 );
 
                 final Javadoc doc = Javadoc.of(
@@ -165,7 +169,7 @@ public class TuplePattern implements Pattern {
                 final Method getterMethod = Method.of("getter" + i, getterType)
                     .set(doc)
                     .static_()
-                    .add("return Tuple" + degree + "::get" + i + ";");
+                    .add("return "+getClassName()+ "::get" + i + ";");
 
                 IntStream.range(0, degree)
                     .mapToObj(TupleUtil::genericTypeName)
@@ -179,7 +183,7 @@ public class TuplePattern implements Pattern {
                 final Type setterType = SimpleParameterizedType.create(
                     BiConsumer.class,
                     SimpleParameterizedType.create(
-                        "MutableTuple" + degree,
+                        getClassName(),
                         IntStream.range(0, degree)
                             .mapToObj(TupleUtil::genericTypeName)
                             .map(SimpleType::create)
