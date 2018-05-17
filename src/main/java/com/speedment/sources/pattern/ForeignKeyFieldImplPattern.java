@@ -59,7 +59,15 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
             SimpleType.create("FK_ENTITY"),
             SimpleType.create("D")
         );
-        
+
+        final Type type = SimpleParameterizedType.create(
+            siblingOf(ComparableForeignKeyField.class, "%1$sForeignKeyField"),
+            SimpleType.create("ENTITY"),
+            SimpleType.create("D"),
+            SimpleType.create("FK_ENTITY")
+        );
+
+
         return ((com.speedment.common.codegen.model.Class) delegator.make(file))
             
             // Change the name of the class
@@ -74,12 +82,7 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
             .add(Generic.of(SimpleType.create("FK_ENTITY")))
             
             // Change which interfaces are implemented
-            .add(SimpleParameterizedType.create(
-                siblingOf(ComparableForeignKeyField.class, "%1$sForeignKeyField"),
-                SimpleType.create("ENTITY"),
-                SimpleType.create("D"),
-                SimpleType.create("FK_ENTITY")
-            ))
+            .add(type)
             
             // Insert two new private fields just before the 'typeMapper'-field
             .call(c -> {
@@ -143,6 +146,20 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
                         .call(() -> file.add(Import.of(BackwardFinderImpl.class)))
                         .add("return new " + BackwardFinderImpl.class.getSimpleName() + "<>(this, identifier, streamSupplier);")
                 );
+
+                // Replace the
+                c.getMethods().removeIf(m -> "as".equals(m.getName()));
+                c.getMethods().add(
+                    Method.of("as", type).public_()
+                        .add(Field.of("label", String.class))
+                        .add(DefaultAnnotationUsage.OVERRIDE)
+                        .add(
+                            "requireNonNull(label);",
+                            "return new "+getClassName()+"<>(identifier, getter, setter, referenced, typeMapper, unique, label);"
+                        )
+
+                );
+
             })
         ;
     }
@@ -155,7 +172,7 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
         }
         
         throw new RuntimeException(
-            "Expected to find atleast one match in " + list
+            "Expected to find at least one match in " + list
         );
     }
 }
