@@ -120,7 +120,7 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
             .add(Field.of("setter", setterType).private_().final_())
             .add(Field.of("typeMapper", typeMapperType).private_().final_())
             .add(Field.of("unique", boolean.class).private_().final_())
-            .add(Field.of("label", String.class).private_().final_())
+            .add(Field.of("tableAlias", String.class).private_().final_())
 
             ////////////////////////////////////////////////////////////////////
             //                          Constructor                           //
@@ -137,7 +137,7 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
                     "this.setter     = requireNonNull(setter);",
                     "this.typeMapper = requireNonNull(typeMapper);",
                     "this.unique     = unique;",
-                    "this.label      = identifier.getColumnId();"
+                    "this.tableAlias = identifier.getTableId();"
                 )
             )
             .add(Constructor.of().private_()
@@ -146,14 +146,14 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
                 .add(Field.of("setter", setterType))
                 .add(Field.of("typeMapper", typeMapperType))
                 .add(Field.of("unique", boolean.class))
-                .add(Field.of("label", String.class))
+                .add(Field.of("tableAlias", String.class))
                 .add(
                     "this.identifier = requireNonNull(identifier);",
                     "this.getter     = new Get" + ucPrimitive() + "Impl<>(this, getter);",
                     "this.setter     = requireNonNull(setter);",
                     "this.typeMapper = requireNonNull(typeMapper);",
                     "this.unique     = unique;",
-                    "this.label      = requireNonNull(label);"
+                    "this.tableAlias = requireNonNull(tableAlias);"
                 )
             )
 
@@ -185,20 +185,20 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
                 .add("return unique;")
             )
 
-            .add(Method.of("label", String.class).public_()
+            .add(Method.of("tableAlias", String.class).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
-                .add("return label;")
+                .add("return tableAlias;")
             )
 
             ////////////////////////////////////////////////////////////////////
             //                            Creators                            //
             ////////////////////////////////////////////////////////////////////
-            .add(Method.of("as", fieldType).public_()
-                .add(Field.of("label", String.class))
+            .add(Method.of("tableAlias", fieldType).public_()
+                .add(Field.of("tableAlias", String.class))
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add(
-                    "requireNonNull(label);",
-                    "return new "+getClassName()+"<>(identifier, getter, setter, typeMapper, unique, label);"
+                    "requireNonNull(tableAlias);",
+                    "return new "+getClassName()+"<>(identifier, getter, setter, typeMapper, unique, tableAlias);"
                 )
             )
 

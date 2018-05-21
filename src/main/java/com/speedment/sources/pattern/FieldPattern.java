@@ -144,9 +144,9 @@ public final class FieldPattern extends AbstractSiblingPattern {
                 .add(");")
             )
 
-            .add(Method.of("as", fieldType)
+            .add(Method.of("tableAlias", fieldType)
                 .add(OVERRIDE)
-                .add(Field.of("label", String.class))
+                .add(Field.of("tableAlias", String.class))
             )
 
             .add(Method.of("applyAs" + ucPrimitive(), primitiveType())

@@ -148,14 +148,14 @@ public final class ForeignKeyFieldImplPattern extends AbstractSiblingPattern {
                 );
 
                 // Replace the
-                c.getMethods().removeIf(m -> "as".equals(m.getName()));
+                c.getMethods().removeIf(m -> "tableAlias".equals(m.getName()) && !m.getFields().isEmpty());
                 c.getMethods().add(
-                    Method.of("as", type).public_()
-                        .add(Field.of("label", String.class))
+                    Method.of("tableAlias", type).public_()
+                        .add(Field.of("tableAlias", String.class))
                         .add(DefaultAnnotationUsage.OVERRIDE)
                         .add(
-                            "requireNonNull(label);",
-                            "return new "+getClassName()+"<>(identifier, getter, setter, referenced, typeMapper, unique, label);"
+                            "requireNonNull(tableAlias);",
+                            "return new "+getClassName()+"<>(identifier, getter, setter, referenced, typeMapper, unique, tableAlias);"
                         )
 
                 );
