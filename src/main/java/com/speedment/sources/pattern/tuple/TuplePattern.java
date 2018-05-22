@@ -177,6 +177,39 @@ public class TuplePattern implements Pattern {
                     .forEachOrdered(getterMethod::add);
 
                 iface.add(getterMethod);
+
+                if (type != TupleType.IMMUTABLE) {
+                    // getOrNull
+                    iface.add(getterOrNullMethod(i));
+
+                    // getterOrNull
+                    final Type getterOrNullType = SimpleParameterizedType.create(
+                        siblingOf(TupleGetter.class, "TupleGetter" + i),
+                        SimpleParameterizedType.create(
+                            SimpleType.create(getFullClassName()),
+                            IntStream.range(0, degree)
+                                .mapToObj(TupleUtil::genericTypeName)
+                                .map(SimpleType::create)
+                                .toArray(Type[]::new)
+                        ),
+                            genericType
+
+                    );
+
+                    final Method getterOrNullMethod = Method.of("getterOrNull" + i, getterOrNullType)
+                        .set(doc)
+                        .static_()
+                        .add("return "+getClassName()+ "::getOrNull" + i + ";");
+
+                    IntStream.range(0, degree)
+                        .mapToObj(TupleUtil::genericTypeName)
+                        .map(Generic::of)
+                        .forEachOrdered(getterOrNullMethod::add);
+
+                    iface.add(getterOrNullMethod);
+
+                }
+
             }
             
             if (isMutable()) {
@@ -231,6 +264,19 @@ public class TuplePattern implements Pattern {
                 SimpleParameterizedType.create(Optional.class, SimpleType.create(genericTypeName(index)))
             )
         ).set(doc);
+    }
+
+    private Method getterOrNullMethod(int index) {
+        final String returnText = "the " + pluralize(index) + " element from this tuple or {@code null} if no such element is present.";
+        final Javadoc doc = Javadoc.of("Returns " + returnText)
+            .add(RETURN.setValue(returnText));
+
+        return Method.of(
+            "getOrNull" + index,
+            SimpleType.create(genericTypeName(index))
+        ).set(doc)
+            .default_()
+            .add("return get"+index+"().orElse(null);");
     }
 
     private Method setterMethod(int index) {
