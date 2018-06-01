@@ -4,7 +4,14 @@ import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
-import com.speedment.common.codegen.model.*;
+import com.speedment.common.codegen.model.ClassOrInterface;
+import com.speedment.common.codegen.model.Constructor;
+import com.speedment.common.codegen.model.Field;
+import com.speedment.common.codegen.model.File;
+import com.speedment.common.codegen.model.Generic;
+import com.speedment.common.codegen.model.Import;
+import com.speedment.common.codegen.model.Javadoc;
+import com.speedment.common.codegen.model.Method;
 import com.speedment.runtime.config.identifier.ColumnIdentifier;
 import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.internal.ReferenceFieldImpl;
@@ -13,12 +20,11 @@ import com.speedment.runtime.field.internal.predicate.reference.ReferenceEqualPr
 import com.speedment.runtime.field.method.ReferenceGetter;
 import com.speedment.runtime.field.method.ReferenceSetter;
 import com.speedment.runtime.field.predicate.FieldPredicate;
+import com.speedment.runtime.field.predicate.SpeedmentPredicate;
 import com.speedment.runtime.typemapper.TypeMapper;
 
-import java.lang.Class;
 import java.lang.reflect.Type;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 /**
  *
@@ -208,7 +214,7 @@ public final class BooleanFieldImplPattern extends AbstractSiblingPattern {
         file.add(Import.of(cousinOf(ReferenceEqualPredicate.class, primitive() + "s", "%1$s" + (negated ? "Not" : "") + "EqualPredicate")));
 
         final Type predicateType = SimpleParameterizedType.create(
-            negated ? Predicate.class : FieldPredicate.class,
+            negated ? SpeedmentPredicate.class : FieldPredicate.class,
             SimpleType.create("ENTITY")
         );
 
