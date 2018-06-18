@@ -197,6 +197,7 @@ public final class BooleanFieldImplPattern extends AbstractSiblingPattern {
             .add(Method.of("reversed", genericType(BooleanFieldComparator.class, "ENTITY", "D")).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add("return new BooleanFieldComparatorImpl<>(this).reversed();")
+                .imports(siblingOf(ReferenceFieldComparatorImpl.class, "%1$sFieldComparatorImpl"))
             )
 
             .add(Method.of("getNullOrder", NullOrder.class).public_()
@@ -207,13 +208,6 @@ public final class BooleanFieldImplPattern extends AbstractSiblingPattern {
             .add(Method.of("isReversed", boolean.class).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add("return false;")
-            )
-
-            .imports(siblingOf(ReferenceFieldComparatorImpl.class, "%1$sFieldComparatorImpl"))
-            .add(Method.of("getField", genericType(siblingOf(ReferenceField.class, "%1$sField"), "ENTITY", "D"))
-                .public_()
-                .add(DefaultAnnotationUsage.OVERRIDE)
-                .add("return this;")
             )
 
             ////////////////////////////////////////////////////////////////////

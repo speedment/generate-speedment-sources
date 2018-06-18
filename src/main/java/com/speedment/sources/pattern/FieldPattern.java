@@ -166,6 +166,11 @@ public final class FieldPattern extends AbstractSiblingPattern {
                 .override().default_()
                 .add("return comparator().reversed();")
             )
+
+            .add(Method.of("getField", siblingOf(getSiblingClass(), getClassName()))
+                .override().default_()
+                .add("return this;")
+            )
         ;
     }
 }

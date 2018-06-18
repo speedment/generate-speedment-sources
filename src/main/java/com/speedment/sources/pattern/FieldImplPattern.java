@@ -32,8 +32,6 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Objects;
 
-import static com.speedment.common.codegen.constant.DefaultType.genericType;
-
 /**
  *
  * @author Emil Forslund
@@ -197,12 +195,6 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
             .add(Method.of("tableAlias", String.class).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add("return tableAlias;")
-            )
-
-            .add(Method.of("getField", genericType(siblingOf(ReferenceField.class, "%1$sField"), "ENTITY", "D"))
-                .public_()
-                .add(DefaultAnnotationUsage.OVERRIDE)
-                .add("return this;")
             )
 
             ////////////////////////////////////////////////////////////////////
