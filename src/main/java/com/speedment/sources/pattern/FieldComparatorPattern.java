@@ -1,16 +1,15 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.constant.DefaultJavadocTag;
-import com.speedment.common.codegen.constant.SimpleParameterizedType;
-import com.speedment.common.codegen.constant.SimpleType;
-import com.speedment.common.codegen.model.*;
+import com.speedment.common.codegen.model.ClassOrInterface;
+import com.speedment.common.codegen.model.File;
+import com.speedment.common.codegen.model.Interface;
+import com.speedment.common.codegen.model.Javadoc;
+import com.speedment.common.codegen.model.Method;
 import com.speedment.runtime.field.comparator.FieldComparator;
-import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparator;
+import com.speedment.runtime.field.comparator.ReferenceFieldComparator;
 import com.speedment.runtime.field.trait.HasReferenceValue;
 
-import java.lang.Class;
-
-import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
+import static com.speedment.common.codegen.constant.DefaultType.genericType;
 
 /**
  *
@@ -39,13 +38,14 @@ public final class FieldComparatorPattern extends AbstractSiblingPattern {
             ////////////////////////////////////////////////////////////////////
             //                         Documentation                          //
             ////////////////////////////////////////////////////////////////////
-            .set(Javadoc.of(formatJavadoc(
-                "A predicate that evaluates if a value is between two %2$ss."
+            .javadoc(Javadoc.of(formatJavadoc(
+                "A {@link FieldComparator} that compares values of a {@link " +
+                    ucPrimitive() + "Field}."
                 ))
-                .add(DefaultJavadocTag.PARAM.setValue("<ENTITY>").setText("entity type"))
-                .add(DefaultJavadocTag.PARAM.setValue("<D>").setText("database type"))
-                .add(DefaultJavadocTag.AUTHOR.setValue("Emil Forslund"))
-                .add(DefaultJavadocTag.SINCE.setValue("3.0.0"))
+                .param("<ENTITY>", "entity type")
+                .param("<D>", "database type")
+                .author("Emil Forslund")
+                .since("3.0.0")
             )
 
             ////////////////////////////////////////////////////////////////////
@@ -53,25 +53,24 @@ public final class FieldComparatorPattern extends AbstractSiblingPattern {
             ////////////////////////////////////////////////////////////////////
             .public_()
             .add(generatedAnnotation())
-            .add(Generic.of("ENTITY"))
-            .add(Generic.of("D"))
-            .add(SimpleParameterizedType.create(
-                FieldComparator.class, 
-                SimpleType.create("ENTITY")
-            ))
+            .generic("ENTITY")
+            .generic("D")
+            .implement(FieldComparator.class, "ENTITY")
 
             ////////////////////////////////////////////////////////////////////
             //                            Methods                             //
             ////////////////////////////////////////////////////////////////////
-            .add(Method.of("getField", SimpleParameterizedType.create(
+            .add(Method.of("getField", genericType(
                     siblingOf(HasReferenceValue.class, "Has%1$sValue"),
-                    SimpleType.create("ENTITY"),
-                    SimpleType.create("D")
-                ))
-                .set(Javadoc.of("Gets the field that is being compared.")
-                    .add(DefaultJavadocTag.RETURN.setValue("the compared field"))
+                    "ENTITY", "D"
+                )).override()
+                .javadoc(Javadoc.of("Gets the field that is being compared.")
+                    .returns("the compared field")
                 )
-                .add(OVERRIDE)
+            )
+
+            .add(Method.of("reversed", genericType(siblingOf(getSiblingClass(), getClassName()), "ENTITY", "D"))
+                .override()
             )
         ;
     }

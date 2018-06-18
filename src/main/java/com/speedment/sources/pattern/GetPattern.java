@@ -1,9 +1,5 @@
 package com.speedment.sources.pattern;
 
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.AUTHOR;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.PARAM;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.RETURN;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.SINCE;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.File;
@@ -14,6 +10,11 @@ import com.speedment.common.codegen.model.Method;
 import com.speedment.runtime.field.method.GetReference;
 import com.speedment.runtime.field.method.ReferenceGetter;
 import com.speedment.runtime.field.trait.HasReferenceValue;
+
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.AUTHOR;
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.PARAM;
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.RETURN;
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.SINCE;
 
 /**
  *
@@ -55,7 +56,7 @@ public final class GetPattern extends AbstractSiblingPattern {
                 SimpleType.create("ENTITY")
             ))
             .add(Method.of("getField", SimpleParameterizedType.create(
-                    siblingOf(HasReferenceValue.class, "Has%1$sValue"), 
+                    siblingOf(HasReferenceValue.class, "Has%1$sValue"),
                     SimpleType.create("ENTITY"),
                     SimpleType.create("D")
                 ))

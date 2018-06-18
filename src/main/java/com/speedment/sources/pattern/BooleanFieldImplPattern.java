@@ -14,7 +14,10 @@ import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
 import com.speedment.runtime.config.identifier.ColumnIdentifier;
 import com.speedment.runtime.field.ReferenceField;
+import com.speedment.runtime.field.comparator.BooleanFieldComparator;
+import com.speedment.runtime.field.comparator.NullOrder;
 import com.speedment.runtime.field.internal.ReferenceFieldImpl;
+import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparatorImpl;
 import com.speedment.runtime.field.internal.method.GetReferenceImpl;
 import com.speedment.runtime.field.internal.predicate.reference.ReferenceEqualPredicate;
 import com.speedment.runtime.field.method.ReferenceGetter;
@@ -25,6 +28,8 @@ import com.speedment.runtime.typemapper.TypeMapper;
 
 import java.lang.reflect.Type;
 import java.util.Objects;
+
+import static com.speedment.common.codegen.constant.DefaultType.genericType;
 
 /**
  *
@@ -187,6 +192,28 @@ public final class BooleanFieldImplPattern extends AbstractSiblingPattern {
             .add(Method.of("tableAlias", String.class).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add("return tableAlias;")
+            )
+
+            .add(Method.of("reversed", genericType(BooleanFieldComparator.class, "ENTITY", "D")).public_()
+                .add(DefaultAnnotationUsage.OVERRIDE)
+                .add("return new BooleanFieldComparatorImpl<>(this).reversed();")
+            )
+
+            .add(Method.of("getNullOrder", NullOrder.class).public_()
+                .add(DefaultAnnotationUsage.OVERRIDE)
+                .add("return NullOrder.LAST;")
+            )
+
+            .add(Method.of("isReversed", boolean.class).public_()
+                .add(DefaultAnnotationUsage.OVERRIDE)
+                .add("return false;")
+            )
+
+            .imports(siblingOf(ReferenceFieldComparatorImpl.class, "%1$sFieldComparatorImpl"))
+            .add(Method.of("getField", genericType(siblingOf(ReferenceField.class, "%1$sField"), "ENTITY", "D"))
+                .public_()
+                .add(DefaultAnnotationUsage.OVERRIDE)
+                .add("return this;")
             )
 
             ////////////////////////////////////////////////////////////////////

@@ -14,8 +14,9 @@ import com.speedment.common.codegen.model.Javadoc;
 import com.speedment.common.codegen.model.Method;
 import com.speedment.runtime.config.identifier.ColumnIdentifier;
 import com.speedment.runtime.field.ReferenceField;
+import com.speedment.runtime.field.comparator.NullOrder;
+import com.speedment.runtime.field.comparator.ReferenceFieldComparator;
 import com.speedment.runtime.field.internal.ReferenceFieldImpl;
-import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparator;
 import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparatorImpl;
 import com.speedment.runtime.field.internal.method.GetReferenceImpl;
 import com.speedment.runtime.field.internal.predicate.reference.ReferenceEqualPredicate;
@@ -30,6 +31,8 @@ import com.speedment.runtime.typemapper.TypeMapper;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Objects;
+
+import static com.speedment.common.codegen.constant.DefaultType.genericType;
 
 /**
  *
@@ -196,6 +199,12 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
                 .add("return tableAlias;")
             )
 
+            .add(Method.of("getField", genericType(siblingOf(ReferenceField.class, "%1$sField"), "ENTITY", "D"))
+                .public_()
+                .add(DefaultAnnotationUsage.OVERRIDE)
+                .add("return this;")
+            )
+
             ////////////////////////////////////////////////////////////////////
             //                            Creators                            //
             ////////////////////////////////////////////////////////////////////
@@ -218,10 +227,25 @@ public final class FieldImplPattern extends AbstractSiblingPattern {
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add("return new " + ucPrimitive() + "FieldComparatorImpl<>(this);")
             )
+
+            .add(Method.of("reversed", comparatorType).public_()
+                .add(DefaultAnnotationUsage.OVERRIDE)
+                .add("return comparator().reversed();")
+            )
             
             .add(Method.of("comparatorNullFieldsFirst", comparatorType).public_()
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .add("return comparator();")
+            )
+
+            .add(Method.of("getNullOrder", NullOrder.class).public_()
+                .add(DefaultAnnotationUsage.OVERRIDE)
+                .add("return NullOrder.LAST;")
+            )
+
+            .add(Method.of("isReversed", boolean.class).public_()
+                .add(DefaultAnnotationUsage.OVERRIDE)
+                .add("return false;")
             )
 
             ////////////////////////////////////////////////////////////////////

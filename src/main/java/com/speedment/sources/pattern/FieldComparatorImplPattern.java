@@ -4,18 +4,25 @@ import com.speedment.common.codegen.constant.DefaultAnnotationUsage;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
-import com.speedment.common.codegen.model.*;
+import com.speedment.common.codegen.model.ClassOrInterface;
+import com.speedment.common.codegen.model.Constructor;
+import com.speedment.common.codegen.model.Field;
+import com.speedment.common.codegen.model.File;
+import com.speedment.common.codegen.model.Generic;
+import com.speedment.common.codegen.model.Import;
+import com.speedment.common.codegen.model.Javadoc;
+import com.speedment.common.codegen.model.Method;
 import com.speedment.common.invariant.NullUtil;
 import com.speedment.runtime.field.comparator.FieldComparator;
 import com.speedment.runtime.field.comparator.NullOrder;
-import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparator;
+import com.speedment.runtime.field.comparator.ReferenceFieldComparator;
 import com.speedment.runtime.field.internal.comparator.ReferenceFieldComparatorImpl;
 import com.speedment.runtime.field.trait.HasReferenceValue;
 
-import java.lang.Class;
 import java.lang.reflect.Type;
 import java.util.Objects;
 
+import static com.speedment.common.codegen.constant.DefaultType.genericType;
 import static com.speedment.common.codegen.util.Formatting.block;
 import static com.speedment.common.codegen.util.Formatting.indent;
 
@@ -125,10 +132,7 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
                 .add("return reversed;")
             )
             
-            .add(Method.of("reversed", SimpleParameterizedType.create(
-                    FieldComparator.class,
-                    SimpleType.create("ENTITY")
-                ))
+            .add(Method.of("reversed", genericType(siblingOf(getSiblingClass(), getClassName()), "ENTITY", "D"))
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .public_()
                 .add("return new " + getClassName() + "<>(field, !reversed);")
@@ -155,7 +159,8 @@ public final class FieldComparatorImplPattern extends AbstractSiblingPattern {
                     indent("+ Boolean.hashCode(reversed);")
                 )
             )
-            
+
+            .imports(FieldComparator.class)
             .add(Method.of("equals", boolean.class)
                 .add(DefaultAnnotationUsage.OVERRIDE)
                 .public_()

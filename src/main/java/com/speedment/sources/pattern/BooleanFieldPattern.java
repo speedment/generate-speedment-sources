@@ -40,6 +40,15 @@ public final class BooleanFieldPattern extends AbstractSiblingPattern {
                     t.getTypeName().equals(HasComparableOperators.class.getName())
                 );
             })
+
+            // Remove the .comparator()- and .reversed()-methods
+            .call(intrf -> {
+                intrf.getMethods().removeIf(t ->
+                    t.getName().equals("comparator") ||
+                    t.getName().equals("reversed")
+                );
+            })
+
             .add(SimpleParameterizedType.create(HasBooleanOperators.class, SimpleType.create("ENTITY")));
     }
 }
