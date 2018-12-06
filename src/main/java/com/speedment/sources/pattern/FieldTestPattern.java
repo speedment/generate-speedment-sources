@@ -3,6 +3,7 @@ package com.speedment.sources.pattern;
 import com.speedment.common.codegen.constant.DefaultJavadocTag;
 import com.speedment.common.codegen.constant.DefaultType;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
+import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.*;
 import com.speedment.common.codegen.model.Class;
 import com.speedment.common.codegen.model.trait.HasFields;
@@ -11,8 +12,6 @@ import com.speedment.common.codegen.util.Formatting;
 import com.speedment.runtime.field.ReferenceField;
 import com.speedment.runtime.field.predicate.Inclusion;
 import com.speedment.runtime.typemapper.TypeMapper;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -32,6 +31,9 @@ import static java.util.stream.Collectors.joining;
  * @since  3.0.3
  */
 public final class FieldTestPattern extends AbstractSiblingPattern {
+
+    private static final Type BEFORE_EACH = SimpleType.create("org.junit.jupiter.api.BeforeEach");
+    private static final Type TEST = SimpleType.create("org.junit.jupiter.api.Test");
 
     public FieldTestPattern(
             java.lang.Class<?> wrapper, 
@@ -128,7 +130,7 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
             ////////////////////////////////////////////////////////////////////
             .call(() -> file.add(Import.of(TypeMapper.class)))
             .add(Method.of("setUp", void.class).public_()
-                .add(AnnotationUsage.of(Before.class))
+                .add(AnnotationUsage.of(BEFORE_EACH))
                 .add(
                     "field = " + ucPrimitive() + "Field.create(",
                     "    BasicEntity.Identifier.VAR_" + ucPrimitive().toUpperCase() + ",",
@@ -299,7 +301,7 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
     
     private Method testBetweenMethod(String name, String[] e0, String[] e1, String[] e2, String[] e3, String[] e4, String[] e5) {
         return Method.of("test" + ucfirst(name), void.class).public_()
-            .add(AnnotationUsage.of(Test.class))
+            .add(AnnotationUsage.of(TEST))
             .add(
                 "// Create a number of predicates",
                 "final Predicate<BasicEntity> t0 = field." + name + "(" + value("0") + ", " + value("2") + ");",
@@ -338,7 +340,7 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
     
     private Method testComparisonMethod(String name, String[] e0, String[] e1, String[] e2, String[] e3, String[] e4, String[] e5, String[] e6, String[] e7, String[] e8) {
         return Method.of("test" + ucfirst(name), void.class).public_()
-            .add(AnnotationUsage.of(Test.class))
+            .add(AnnotationUsage.of(TEST))
             .add(
                 "// Create a number of predicates",
                 "final Predicate<BasicEntity> t0 = field." + name + "(" + value("-1") + ");",
@@ -390,7 +392,7 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
     private Method testInMethod(String name, boolean set, String[] e0, String[] e1, String[] e2, String[] e3, String[] e4, String[] e5, String[] e6, String[] e7, String[] e8) {
         final String setName =  name + (set ? "Set" : "");
         return Method.of("test" + ucfirst(setName), void.class).public_()
-            .add(AnnotationUsage.of(Test.class))
+            .add(AnnotationUsage.of(TEST))
             .add(
                 "// Create a number of predicates",
                 "final Predicate<BasicEntity> t0 = field." + name + "(" + asSet(set) + ");",
