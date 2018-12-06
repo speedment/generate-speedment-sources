@@ -20,6 +20,7 @@ import static java.util.stream.Collectors.joining;
  */
 public class TupleImplTestPattern implements Pattern {
 
+    private static final Type TEST = SimpleType.create("org.junit.jupiter.api.Test");
     private final int degree;
     private final boolean nullable;
 
@@ -49,7 +50,8 @@ public class TupleImplTestPattern implements Pattern {
 
     @Override
     public ClassOrInterface<?> make(File file) {
-        file.add(Import.of(SimpleType.create("org.junit.Assert")).static_().setStaticMember("*"));
+        file.add(Import.of(TEST));
+        file.add(Import.of(SimpleType.create("org.junit.jupiter.api.Assertions")).static_().setStaticMember("*"));
 
         final Type[] intTypes = IntStream.range(0, degree)
             .mapToObj($ -> Integer.class)
@@ -64,7 +66,7 @@ public class TupleImplTestPattern implements Pattern {
         );
 
         final Class clazz = Class.of(getClassName())
-            .public_().final_()
+            .final_()
             .setSupertype(superType);
 
         IntStream.range(0, degree).forEachOrdered(parameter -> {
@@ -72,7 +74,6 @@ public class TupleImplTestPattern implements Pattern {
         });
 
         final Constructor constructor = Constructor.of()
-            .public_()
             .add(
                 degree == 0
                     ? "super(() -> (Tuple0Impl) Tuple0Impl.EMPTY_TUPLE, 0);"
@@ -93,8 +94,7 @@ public class TupleImplTestPattern implements Pattern {
 
     private Method getterTestMethod(int index) {
         return Method.of("get" + index + "Test", void.class)
-            .public_()
-            .add(AnnotationUsage.of(Test.class))
+            .add(AnnotationUsage.of(TEST))
             .add("assertEquals(" + index + ", (int) instance.get" + index + "());");
     }
 

@@ -47,18 +47,18 @@ public final class Main {
      * <em>Example:</em>
      * {@code java -jar generate-speedment-sources.jar C:/Users/Emil/Documents/GitHub/speedment}
      *
-     * @param param
+     * @param params command line parameters
      */
-    public final static void main(String... param) {
+    public static void main(String... params) {
 
-        if (param.length < 1) {
+        if (params.length < 1) {
             System.err.println("Expected command line parameter 'Speedment base directory'.");
             System.exit(-1);
         }
 
-        final Path basePath = Paths.get(param[0]);
+        final Path basePath = Paths.get(params[0]);
         if (!Files.exists(basePath)) {
-            System.err.println("Could not find specified base directory '" + param[0] + "'.");
+            System.err.println("Could not find specified base directory '" + params[0] + "'.");
             System.exit(-2);
         }
 
