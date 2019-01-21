@@ -1,13 +1,13 @@
 package com.speedment.sources.pattern;
 
-import com.speedment.common.codegen.model.ClassOrInterface;
-import com.speedment.common.codegen.model.File;
-import com.speedment.common.codegen.model.Interface;
-import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Method;
+import com.speedment.common.codegen.constant.SimpleType;
+import com.speedment.common.codegen.model.*;
+import com.speedment.runtime.field.ByteField;
 import com.speedment.runtime.field.comparator.FieldComparator;
 import com.speedment.runtime.field.comparator.ReferenceFieldComparator;
 import com.speedment.runtime.field.trait.HasReferenceValue;
+
+import java.lang.Class;
 
 import static com.speedment.common.codegen.constant.DefaultType.genericType;
 
@@ -33,6 +33,12 @@ public final class FieldComparatorPattern extends AbstractSiblingPattern {
 
     @Override
     public ClassOrInterface<?> make(File file) {
+        file.add(
+            Import.of(
+                SimpleType.create(ByteField.class.getPackage().getName() + "." + ucPrimitive() + "Field")
+            )
+        );
+
         return Interface.of(getClassName())
 
             ////////////////////////////////////////////////////////////////////
