@@ -16,6 +16,7 @@ import com.speedment.runtime.typemapper.TypeMapper;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,11 +36,33 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
     private static final Type BEFORE_EACH = SimpleType.create("org.junit.jupiter.api.BeforeEach");
     private static final Type TEST = SimpleType.create("org.junit.jupiter.api.Test");
 
+    private final String minusOne;
+    private final String minusTwo;
+    private final String minusFive;
+    private final String hundred;
+    private final List<String> inStrings;
+    private final String notInString;
+
     public FieldTestPattern(
-            java.lang.Class<?> wrapper, 
-            java.lang.Class<?> primitive) {
-        
+        final java.lang.Class<?> wrapper,
+        final java.lang.Class<?> primitive
+    ) {
         super(wrapper, primitive);
+        if (primitiveType() == char.class) {
+            minusOne = "/"; // ASCii '0' -1 = '/'
+            minusTwo = "."; // ASCii '0' -2 = '.'
+            minusFive = "+";// ASCii '0' -5 = '+'
+            hundred = "m"; // Just some high value
+            inStrings = Stream.of(hundred, "n", "o", "p", "q").collect(Collectors.toList());
+            notInString = "k";
+        } else {
+            minusOne = "-1";
+            minusTwo = "-2";
+            minusFive = "-5";
+            hundred = "100";
+            inStrings = Stream.of(hundred, "101", "102", "103", "104").collect(Collectors.toList());
+            notInString = "-100";
+        }
     }
 
     @Override
@@ -62,8 +85,6 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
     public ClassOrInterface<?> make(File file) {
         file.add(Import.of(StringBuilder.class));
         file.getClasses().stream()
-            .filter(HasFields.class::isInstance)
-            .filter(HasMethods.class::isInstance)
             .map(c -> (HasFields<?> & HasMethods<?>) c)
             .forEach(clazz -> 
                 clazz.add(Method.of("toString", void.class)
@@ -80,8 +101,8 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
             );
         
         final Class clazz = Class.of(getClassName())
-            .public_().final_()
-            .add(generatedAnnotation())
+            .final_()
+            .add(generatedAnnotation(FieldTestPattern.class))
             .set(Javadoc.of(formatJavadoc(
                 "JUnit tests for the primitive {@code %2$s} field class."
                 ))
@@ -89,9 +110,10 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 .add(DefaultJavadocTag.SINCE.setValue("3.0.3"))
                 .add(DefaultJavadocTag.SEE.setValue(ucPrimitive() + "Field"))
             );
-        
-        if (primitiveType() != char.class) {
-            
+
+        //if (primitiveType() != char.class) {
+        if (true) {
+
             final Type basicEntity = siblingOf(ReferenceField.class, "BasicEntity");
             
             file.add(Import.of(Inclusion.class));
@@ -129,7 +151,7 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
             /*                             Methods                            */
             ////////////////////////////////////////////////////////////////////
             .call(() -> file.add(Import.of(TypeMapper.class)))
-            .add(Method.of("setUp", void.class).public_()
+            .add(Method.of("setUp", void.class)
                 .add(AnnotationUsage.of(BEFORE_EACH))
                 .add(
                     "field = " + ucPrimitive() + "Field.create(",
@@ -141,16 +163,16 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                     ");",
                     "",
                     "a = new BasicEntity().setVar" + ucPrimitive() + "(" + value("0") + ");",
-                    "b = new BasicEntity().setVar" + ucPrimitive() + "(" + value("-1") + ");",
+                    "b = new BasicEntity().setVar" + ucPrimitive() + "(" + value(minusOne) + ");",
                     "c = new BasicEntity().setVar" + ucPrimitive() + "(" + value("1") + ");",
                     "d = new BasicEntity().setVar" + ucPrimitive() + "(" + value("1") + ");",
                     "e = new BasicEntity().setVar" + ucPrimitive() + "(" + value("2") + ");",
                     "f = new BasicEntity().setVar" + ucPrimitive() + "(" + value("2") + ");",
                     "g = new BasicEntity().setVar" + ucPrimitive() + "(" + value("3") + ");",
-                    "h = new BasicEntity().setVar" + ucPrimitive() + "(" + value("-5") + ");",
+                    "h = new BasicEntity().setVar" + ucPrimitive() + "(" + value(minusFive) + ");",
                     "i = new BasicEntity().setVar" + ucPrimitive() + "(" + value("1") + ");",
-                    "j = new BasicEntity().setVar" + ucPrimitive() + "(" + veryLow() + ");",
-                    "k = new BasicEntity().setVar" + ucPrimitive() + "(" + veryHigh() + ");",
+                    "j = new BasicEntity().setVar" + ucPrimitive() + "(" + value(veryLow()) + ");",
+                    "k = new BasicEntity().setVar" + ucPrimitive() + "(" + value(veryHigh()) + ");",
                     "l = new BasicEntity().setVar" + ucPrimitive() + "(" + value("0") + ");",
                     "",
                     "entities = asList(a, b, c, d, e, f, g, h, i, j, k, l);"
@@ -300,12 +322,12 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
     }
     
     private Method testBetweenMethod(String name, String[] e0, String[] e1, String[] e2, String[] e3, String[] e4, String[] e5) {
-        return Method.of("test" + ucfirst(name), void.class).public_()
+        return Method.of("test" + ucfirst(name), void.class)
             .add(AnnotationUsage.of(TEST))
             .add(
                 "// Create a number of predicates",
                 "final Predicate<BasicEntity> t0 = field." + name + "(" + value("0") + ", " + value("2") + ");",
-                "final Predicate<BasicEntity> t1 = field." + name + "(" + value("-2") + ", " + value("2") + ");",
+                "final Predicate<BasicEntity> t1 = field." + name + "(" + value(minusTwo) + ", " + value("2") + ");",
                 "final Predicate<BasicEntity> t2 = field." + name + "(" + value("0") + ", " + value("2") + ", Inclusion.START_EXCLUSIVE_END_EXCLUSIVE);",
                 "final Predicate<BasicEntity> t3 = field." + name + "(" + value("0") + ", " + value("2") + ", Inclusion.START_INCLUSIVE_END_EXCLUSIVE);",
                 "final Predicate<BasicEntity> t4 = field." + name + "(" + value("0") + ", " + value("2") + ", Inclusion.START_EXCLUSIVE_END_INCLUSIVE);",
@@ -329,7 +351,7 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 "",
                 "// Test the results",
                 "TestUtil.assertListEqual(\"Test 0: " + name + "(0, 2):\",                                a0, e0, FORMATTER);",
-                "TestUtil.assertListEqual(\"Test 1: " + name + "(-2, 2):\",                               a1, e1, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 1: " + name + "(" + minusTwo + ", 2):\",                               a1, e1, FORMATTER);",
                 "TestUtil.assertListEqual(\"Test 2: " + name + "(0, 2, START_EXCLUSIVE_END_EXCLUSIVE):\", a2, e2, FORMATTER);",
                 "TestUtil.assertListEqual(\"Test 3: " + name + "(0, 2, START_INCLUSIVE_END_EXCLUSIVE):\", a3, e3, FORMATTER);",
                 "TestUtil.assertListEqual(\"Test 4: " + name + "(0, 2, START_EXCLUSIVE_END_INCLUSIVE):\", a4, e4, FORMATTER);",
@@ -339,19 +361,19 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
     }
     
     private Method testComparisonMethod(String name, String[] e0, String[] e1, String[] e2, String[] e3, String[] e4, String[] e5, String[] e6, String[] e7, String[] e8) {
-        return Method.of("test" + ucfirst(name), void.class).public_()
+        return Method.of("test" + ucfirst(name), void.class)
             .add(AnnotationUsage.of(TEST))
             .add(
                 "// Create a number of predicates",
-                "final Predicate<BasicEntity> t0 = field." + name + "(" + value("-1") + ");",
+                "final Predicate<BasicEntity> t0 = field." + name + "(" + value(minusOne) + ");",
                 "final Predicate<BasicEntity> t1 = field." + name + "(" + value("0") + ");",
                 "final Predicate<BasicEntity> t2 = field." + name + "(" + value("1") + ");",
                 "final Predicate<BasicEntity> t3 = field." + name + "(" + value("2") + ");",
                 "final Predicate<BasicEntity> t4 = field." + name + "(" + value("3") + ");",
-                "final Predicate<BasicEntity> t5 = field." + name + "(" + value("-5") + ");",
-                "final Predicate<BasicEntity> t6 = field." + name + "(" + veryLow() + ");",
-                "final Predicate<BasicEntity> t7 = field." + name + "(" + veryHigh() + ");",
-                "final Predicate<BasicEntity> t8 = field." + name + "(" + value("100") + ");",
+                "final Predicate<BasicEntity> t5 = field." + name + "(" + value(minusFive) + ");",
+                "final Predicate<BasicEntity> t6 = field." + name + "(" + value(veryLow()) + ");",
+                "final Predicate<BasicEntity> t7 = field." + name + "(" + value(veryHigh()) + ");",
+                "final Predicate<BasicEntity> t8 = field." + name + "(" + value(hundred) + ");",
                 "",
                 "// Create a number of expected results",
                 "final List<BasicEntity> e0 = asList(" + Stream.of(e0).collect(joining(", ")) + ");",
@@ -376,22 +398,22 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 "final List<BasicEntity> a8 = entities.stream().filter(t8).collect(Collectors.toList());",
                 "",
                 "// Test the results",
-                "TestUtil.assertListEqual(\"Test 0: " + name + "(-1):\",        a0, e0, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 0: " + name + "(" + minusOne + "):\",        a0, e0, FORMATTER);",
                 "TestUtil.assertListEqual(\"Test 1: " + name + "(0):\",         a1, e1, FORMATTER);",
                 "TestUtil.assertListEqual(\"Test 2: " + name + "(1):\",         a2, e2, FORMATTER);",
                 "TestUtil.assertListEqual(\"Test 3: " + name + "(2):\",         a3, e3, FORMATTER);",
                 "TestUtil.assertListEqual(\"Test 4: " + name + "(3):\",         a4, e4, FORMATTER);",
-                "TestUtil.assertListEqual(\"Test 5: " + name + "(-5):\",        a5, e5, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 5: " + name + "(" + minusFive + "):\",        a5, e5, FORMATTER);",
                 "TestUtil.assertListEqual(\"Test 6: " + name + "(MIN_VALUE):\", a6, e6, FORMATTER);",
                 "TestUtil.assertListEqual(\"Test 7: " + name + "(MAX_VALUE):\", a7, e7, FORMATTER);",
-                "TestUtil.assertListEqual(\"Test 8: " + name + "(100):\",       a8, e8, FORMATTER);"
+                "TestUtil.assertListEqual(\"Test 8: " + name + "(" + hundred + "):\",       a8, e8, FORMATTER);"
             )
         ;
     }
     
     private Method testInMethod(String name, boolean set, String[] e0, String[] e1, String[] e2, String[] e3, String[] e4, String[] e5, String[] e6, String[] e7, String[] e8) {
         final String setName =  name + (set ? "Set" : "");
-        return Method.of("test" + ucfirst(setName), void.class).public_()
+        return Method.of("test" + ucfirst(setName), void.class)
             .add(AnnotationUsage.of(TEST))
             .add(
                 "// Create a number of predicates",
@@ -399,11 +421,11 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 "final Predicate<BasicEntity> t1 = field." + name + "(" + asSet(set, "0") + ");",
                 "final Predicate<BasicEntity> t2 = field." + name + "(" + asSet(set, "0", "1") + ");",
                 "final Predicate<BasicEntity> t3 = field." + name + "(" + asSet(set, "0", "1", "1") + ");",
-                "final Predicate<BasicEntity> t4 = field." + name + "(" + asSet(set, "-1", "1", "2", "3") + ");",
+                "final Predicate<BasicEntity> t4 = field." + name + "(" + asSet(set, minusOne, "1", "2", "3") + ");",
                 "final Predicate<BasicEntity> t5 = field." + name + "(" + asSet(set, veryLow(), veryHigh()) + ");",
                 "final Predicate<BasicEntity> t6 = field." + name + "(" + asSet(set, "1", "2", "3", "4", "5") + ");",
-                "final Predicate<BasicEntity> t7 = field." + name + "(" + asSet(set, "100", "101", "102", "103", "104") + ");",
-                "final Predicate<BasicEntity> t8 = field." + name + "(" + asSet(set, "-100") + ");",
+                "final Predicate<BasicEntity> t7 = field." + name + "(" + asSet(set, inStrings.stream()/*.map(this::value)*/.toArray(String[]::new)) + ");",
+                "final Predicate<BasicEntity> t8 = field." + name + "(" + asSet(set, notInString) + ");",
                 "",
                 "// Create a number of expected results",
                 "final List<BasicEntity> e0 = asList(" + Stream.of(e0).collect(joining(", ")) + ");",
@@ -432,7 +454,7 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 "TestUtil.assertListEqual(\"Test 1: " + setName + "(0):\",                       a1, e1, FORMATTER);",
                 "TestUtil.assertListEqual(\"Test 2: " + setName + "(0, 1):\",                    a2, e2, FORMATTER);",
                 "TestUtil.assertListEqual(\"Test 3: " + setName + "(0, 1, 1):\",                 a3, e3, FORMATTER);",
-                "TestUtil.assertListEqual(\"Test 4: " + setName + "(-1, 1, 2, 3):\",             a4, e4, FORMATTER);",
+                "TestUtil.assertListEqual(\"Test 4: " + setName + "(" + minusOne + ", 1, 2, 3):\",             a4, e4, FORMATTER);",
                 "TestUtil.assertListEqual(\"Test 5: " + setName + "(MIN_VALUE, MAX_VALUE):\",    a5, e5, FORMATTER);",
                 "TestUtil.assertListEqual(\"Test 6: " + setName + "(1, 2, 3, 4, 5):\",           a6, e6, FORMATTER);",
                 "TestUtil.assertListEqual(\"Test 7: " + setName + "(100, 101, 102, 103, 104):\", a7, e7, FORMATTER);",
@@ -460,7 +482,7 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
         return Stream.of(values)
             .map(s -> {
                 try {
-                    final Number num = Double.parseDouble(s);
+                    // final Number num = Double.parseDouble(s);
                     return value(s);
                 } catch (final NumberFormatException ex) {
                     return s;

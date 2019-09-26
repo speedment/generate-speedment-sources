@@ -5,7 +5,6 @@ import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.*;
 import com.speedment.common.codegen.model.Class;
 import com.speedment.sources.Pattern;
-import org.junit.Test;
 
 import java.lang.reflect.Type;
 import java.util.stream.IntStream;

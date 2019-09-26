@@ -40,6 +40,9 @@ public abstract class AbstractPattern implements Pattern {
     }
     
     protected final String value(String s) {
+        if (s.contains("MIN_VALUE") || s.contains("MAX_VALUE")) {
+            return s;
+        }
         if (primitive == char.class) {
             return "'" + s + "'";
         } else if (primitive == boolean.class) {
@@ -65,7 +68,7 @@ public abstract class AbstractPattern implements Pattern {
     
     protected final String veryLow() {
         if (primitive == char.class) {
-            return "'0'";
+            return " ";
         } else if (primitive == boolean.class) {
             return "false";
         } else if (primitive == byte.class) {
@@ -87,7 +90,7 @@ public abstract class AbstractPattern implements Pattern {
     
     protected final String veryHigh() {
         if (primitive == char.class) {
-            return "'Z'";
+            return "}";
         } else if (primitive == boolean.class) {
             return "true";
         } else if (primitive == byte.class) {
@@ -117,6 +120,10 @@ public abstract class AbstractPattern implements Pattern {
 
     protected final AnnotationUsage generatedAnnotation() {
         return AnnotationUsage.of(GeneratedCode.class).put("value", Value.ofText("Speedment"));
+    }
+
+    protected final AnnotationUsage generatedAnnotation(Class<?> generatorClass) {
+        return AnnotationUsage.of(GeneratedCode.class).put("value", Value.ofText(generatorClass.getName()));
     }
 
     protected final AnnotationUsage functionalInterface() {
