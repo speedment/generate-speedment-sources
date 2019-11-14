@@ -5,12 +5,14 @@ import com.speedment.common.codegen.controller.AutoImports;
 import com.speedment.common.codegen.internal.java.JavaGenerator;
 import com.speedment.common.codegen.model.File;
 import com.speedment.common.codegen.model.Javadoc;
+import com.speedment.common.codegen.model.LicenseTerm;
 import com.speedment.common.codegen.util.Formatting;
 import com.speedment.sources.pattern.*;
 import com.speedment.sources.pattern.function.*;
 import com.speedment.sources.pattern.function_n.FunctionOfNthOrderPattern;
 import com.speedment.sources.pattern.tuple.*;
 import com.speedment.sources.pattern.tuple.test.TupleImplTestPattern;
+import com.speedment.sources.pattern.tuple.test.TupleMapperImplTestPattern;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -231,6 +233,14 @@ public final class Main {
             .mapToObj(i -> new TupleImplTestPattern(i, false))
             .forEachOrdered(tuplePatterns::add);
 
+        IntStream.range(0, MAX_DEGREE)
+            .mapToObj(i -> new TupleMapperImplTestPattern(i, false))
+            .forEachOrdered(tuplePatterns::add);
+
+        IntStream.range(0, MAX_DEGREE)
+            .mapToObj(i -> new TupleMapperImplTestPattern(i, true))
+            .forEachOrdered(tuplePatterns::add);
+
         final AtomicInteger counter = new AtomicInteger();
 
         System.out.println("Generating Sources...");
@@ -255,7 +265,7 @@ public final class Main {
             final String fileName = pattern.getClassName() + ".java";
             final File file = File.of(packageName + ".java");
 
-            file.set(Javadoc.of(licenseHeader));
+            file.set(LicenseTerm.of(licenseHeader));
             Path currentPath = pattern.isTestClass() ? testJava : mainJava;
 
             final String[] folders = packageName.split("\\.");

@@ -7,10 +7,10 @@ import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.*;
 import com.speedment.common.tuple.Tuple2;
 import com.speedment.runtime.field.internal.predicate.AbstractFieldPredicate;
-import com.speedment.runtime.field.internal.predicate.BetweenPredicate;
 import com.speedment.runtime.field.internal.predicate.reference.ReferenceBetweenPredicate;
 import com.speedment.runtime.field.predicate.Inclusion;
 import com.speedment.runtime.field.predicate.PredicateType;
+import com.speedment.runtime.field.predicate.trait.HasInclusion;
 import com.speedment.runtime.field.trait.HasReferenceValue;
 
 import java.lang.Class;
@@ -87,7 +87,7 @@ public final class BetweenPredicatePattern extends AbstractCousinPattern {
             ////////////////////////////////////////////////////////////////////
             //                     Implemented Interfaces                     //
             ////////////////////////////////////////////////////////////////////
-            .add(BetweenPredicate.class)
+            .add(HasInclusion.class)
             .add(SimpleParameterizedType.create(
                 Tuple2.class,
                 wrapperType(),
