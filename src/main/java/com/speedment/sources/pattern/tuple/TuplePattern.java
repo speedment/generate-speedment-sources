@@ -3,7 +3,7 @@ package com.speedment.sources.pattern.tuple;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.*;
-import com.speedment.common.codegen.util.Formatting;
+import com.speedment.common.tuple.MutableTuple;
 import com.speedment.common.tuple.Tuple;
 import com.speedment.common.tuple.TupleOfNullables;
 import com.speedment.common.tuple.getter.TupleGetter;
@@ -12,21 +12,17 @@ import com.speedment.sources.Pattern;
 import java.lang.Class;
 import java.lang.reflect.Type;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
 
 import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
 import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.SUPPRESS_WARNINGS_UNCHECKED;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.AUTHOR;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.PARAM;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.RETURN;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.SEE;
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.*;
 import static com.speedment.common.codegen.util.Formatting.block;
 import static com.speedment.common.codegen.util.Formatting.nl;
 import static com.speedment.common.invariant.IntRangeUtil.requireNonNegative;
-import com.speedment.common.tuple.MutableTuple;
 import static com.speedment.sources.pattern.tuple.TupleUtil.*;
 import static java.util.Objects.requireNonNull;
-import java.util.function.BiConsumer;
 import static java.util.stream.Collectors.joining;
 
 /**
@@ -138,8 +134,9 @@ public final class TuplePattern implements Pattern {
         );
 
         iface.add(getterMethod());
-
-        file.add(Import.of(TupleGetter.class));
+        if (degree > 0) {
+            file.add(Import.of(TupleGetter.class));
+        }
         for (int i = 0; i < degree; i++) {
             {
                 final Type genericType = SimpleType.create(genericTypeName(i));
