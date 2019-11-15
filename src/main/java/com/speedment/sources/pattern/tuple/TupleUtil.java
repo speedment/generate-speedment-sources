@@ -215,19 +215,21 @@ public final class TupleUtil {
                 //method.add(Field.of(elementName(parameter), parameterType));
             });
 
-            method.add("return " + (isSupplier ? "() -> " : "") + " new "
-                + tupleType.eval(
-                    tupleImplementationSimpleName(degree),
-                    tupleOfNullablesImplementationSimpleName(degree),
-                    mutableTupleImplementationSimpleName(degree)
-                )
-                + "<>("
-                + tupleType.eval(
-                    IntStream.range(0, degree).mapToObj(TupleUtil::elementName).collect(joining(", ")),
-                    IntStream.range(0, degree).mapToObj(TupleUtil::elementName).collect(joining(", ")),
-                    "")
-                + ");"
+            String tupleTypeEval = tupleType.eval(
+                tupleImplementationSimpleName(degree),
+                tupleOfNullablesImplementationSimpleName(degree),
+                mutableTupleImplementationSimpleName(degree)
             );
+
+            if (isSupplier) {
+                method.add("return "+tupleTypeEval+"::new;");
+            } else {
+               method.add("return new " + tupleTypeEval + "<>(" + tupleType.eval(
+                   IntStream.range(0, degree).mapToObj(TupleUtil::elementName).collect(joining(", ")),
+                   IntStream.range(0, degree).mapToObj(TupleUtil::elementName).collect(joining(", ")),
+                   "") + ");"
+                );
+            }
         }
         return method;
     }

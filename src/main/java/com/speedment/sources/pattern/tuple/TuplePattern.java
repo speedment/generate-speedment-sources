@@ -3,6 +3,7 @@ package com.speedment.sources.pattern.tuple;
 import com.speedment.common.codegen.constant.SimpleParameterizedType;
 import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.*;
+import com.speedment.common.codegen.util.Formatting;
 import com.speedment.common.tuple.Tuple;
 import com.speedment.common.tuple.TupleOfNullables;
 import com.speedment.common.tuple.getter.TupleGetter;
@@ -32,7 +33,7 @@ import static java.util.stream.Collectors.joining;
  *
  * @author Per Minborg
  */
-public class TuplePattern implements Pattern {
+public final class TuplePattern implements Pattern {
 
     private final int degree;
     private final TupleType type;
@@ -299,21 +300,34 @@ public class TuplePattern implements Pattern {
             )
         )
             .default_()
-            .add(Field.of("index", int.class))
-            .add("switch (index) "
-                + block(
+            .add(Field.of("index", int.class));
+        if (degree == 0) {
+            method.add(throwNewIllegalArgumentException());
+        } else if (degree == 1) {
+            method.add("if (index == 0) "
+                +block("return "+type.eval("", "(Optional<Object>)", "(Optional<Object>)") + "get" + 0 + "();")
+                + " else "
+                + block(throwNewIllegalArgumentException())
+            );
+        } else {
+            method.add("switch (index) "
+                        + block(
                     IntStream.range(0, degree)
                         .mapToObj(i -> "case " + i + " : return " + type.eval("", "(Optional<Object>)", "(Optional<Object>)") + "get" + i + "();")
                         .collect(joining(nl()))
-                    + nl()
-                    + "default : throw new IllegalArgumentException(String.format(\"Index %d is outside bounds of tuple of degree %s\", index, degree()\n"
-                    + "));"
-                )
-            );
+                        + nl()
+                        + "default : " + throwNewIllegalArgumentException()
+                    )
+                );
+        }
         if (type != TupleType.IMMUTABLE) {
             method.add(SUPPRESS_WARNINGS_UNCHECKED);
         }
         return method;
+    }
+
+    private String throwNewIllegalArgumentException() {
+        return "throw new IllegalArgumentException(String.format(\"Index %d is outside bounds of tuple of degree %s\", index, degree()));";
     }
 
     private Type siblingOf(Class<?> packageOf, String name) {

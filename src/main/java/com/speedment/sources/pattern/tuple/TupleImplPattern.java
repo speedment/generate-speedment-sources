@@ -66,14 +66,31 @@ public class TupleImplPattern implements Pattern {
     @Override
     public ClassOrInterface<?> make(File file) {
         final boolean isMutable = TupleType.MUTABLE.equals(type);
+        final boolean isNullable = TupleType.IMMUTABLE_NULLABLE.equals(type);
 
-        type.eval(
+        switch (type) {
+            case IMMUTABLE: {
+                file.add(Import.of(Tuple.class));
+                break;
+            }
+            case IMMUTABLE_NULLABLE: {
+                file.add(Import.of(TupleOfNullables.class));
+                break;
+            }
+            case MUTABLE: {
+                file.add(Import.of(MutableTuple.class)).add(Import.of(Optional.class));
+                break;
+            }
+        }
+
+/*        type.eval(
             file.add(Import.of(Tuple.class)),
-            file.add(Import.of(TupleOfNullables.class)).add(Import.of(Optional.class)),
+            file.add(Import.of(TupleOfNullables.class)),
             file.add(Import.of(MutableTuple.class)).add(Import.of(Optional.class))
-        );
+        );*/
 
-        file.add(Import.of(SimpleType.create(tupleName(degree))));
+/*        file.add(Import.of(SimpleType.create(tupleName(degree))));*/
+
 
         final Javadoc javadoc = Javadoc.of(
             "An implementation class of a {@link " + type.eval(tupleSimpleName(degree), tupleOfNullablesSimpleName(degree), mutableTupleSimpleName(degree)) + "}.\n"
