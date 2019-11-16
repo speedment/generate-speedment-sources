@@ -11,8 +11,7 @@ import com.speedment.sources.pattern.*;
 import com.speedment.sources.pattern.function.*;
 import com.speedment.sources.pattern.function_n.FunctionOfNthOrderPattern;
 import com.speedment.sources.pattern.tuple.*;
-import com.speedment.sources.pattern.tuple.test.TupleImplTestPattern;
-import com.speedment.sources.pattern.tuple.test.TupleMapperImplTestPattern;
+import com.speedment.sources.pattern.tuple.test.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -240,6 +239,10 @@ public final class Main {
         IntStream.range(0, MAX_DEGREE)
             .mapToObj(i -> new TupleMapperImplTestPattern(i, true))
             .forEachOrdered(tuplePatterns::add);
+
+        tuplePatterns.add(new TuplesTestPattern());
+        tuplePatterns.add(new TuplesOfNullablesTestPattern());
+        tuplePatterns.add(new MutableTuplesTestPattern());
 
         final AtomicInteger counter = new AtomicInteger();
 
