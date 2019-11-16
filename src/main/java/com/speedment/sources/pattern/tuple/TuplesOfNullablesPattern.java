@@ -68,11 +68,7 @@ public class TuplesOfNullablesPattern extends AbstractSiblingPattern {
             file.add(Import.of(SimpleType.create(tupleOfNullablesMapperImplementationName(degree))));
         }
 
-        file.add(Import.of(UnsupportedOperationException.class));
-        clazz.add(
-            Constructor.of().private_()
-                .add("throw new " + UnsupportedOperationException.class.getSimpleName() + "();")
-        );
+        clazz.add(Constructor.of().private_());
 
         file.add(Import.of(SimpleType.create(BASE_PACKAGE + ".internal.TupleInfiniteDegreeOfNullablesImpl")));
         clazz.add(
