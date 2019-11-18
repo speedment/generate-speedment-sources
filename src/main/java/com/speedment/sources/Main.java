@@ -243,6 +243,7 @@ public final class Main {
         tuplePatterns.add(new TuplesTestPattern());
         tuplePatterns.add(new TuplesOfNullablesTestPattern());
         tuplePatterns.add(new MutableTuplesTestPattern());
+        tuplePatterns.add(new TupleTestPattern());
 
         final AtomicInteger counter = new AtomicInteger();
 

@@ -2,22 +2,13 @@ package com.speedment.sources.pattern.tuple;
 
 import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.Class;
-import com.speedment.common.codegen.model.ClassOrInterface;
-import com.speedment.common.codegen.model.Constructor;
-import com.speedment.common.codegen.model.Field;
-import com.speedment.common.codegen.model.File;
-import com.speedment.common.codegen.model.Import;
-import com.speedment.common.codegen.model.Javadoc;
-import com.speedment.common.codegen.model.Method;
+import com.speedment.common.codegen.model.*;
 import com.speedment.common.tuple.Tuple;
 import com.speedment.sources.pattern.AbstractSiblingPattern;
 
 import java.util.stream.IntStream;
 
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.AUTHOR;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.PARAM;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.RETURN;
-import static com.speedment.common.codegen.constant.DefaultJavadocTag.SEE;
+import static com.speedment.common.codegen.constant.DefaultJavadocTag.*;
 import static com.speedment.common.codegen.util.Formatting.block;
 import static com.speedment.sources.pattern.tuple.TupleUtil.*;
 
@@ -80,6 +71,8 @@ public class TuplesPattern extends AbstractSiblingPattern {
                         .add(SEE.setText("Tuple"))
                 )
                 .add(Field.of("el", Object[].class))
+                .add(AnnotationUsage.of(SafeVarargs.class))
+                .add(AnnotationUsage.of(SuppressWarnings.class).put("value", "varargs"))
                 .add("switch (el.length) " + block(
                     "case 0: return of();",
                     "case 1: return of(el[0]);",
