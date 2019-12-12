@@ -5,6 +5,7 @@ import com.speedment.common.codegen.constant.SimpleType;
 import com.speedment.common.codegen.model.Class;
 import com.speedment.common.codegen.model.*;
 import com.speedment.common.tuple.MutableTuple;
+import com.speedment.common.tuple.getter.TupleGetter;
 import com.speedment.sources.Pattern;
 import com.speedment.sources.pattern.tuple.TupleUtil;
 
@@ -52,6 +53,7 @@ public class MutableTuplesTestPattern implements Pattern {
         file.add(Import.of(Supplier.class));
         file.add(Import.of(NoSuchElementException.class));
         file.add(Import.of(Optional.class));
+        file.add(Import.of(TupleGetter.class));
 
         IntStream.range(0, MAX_DEGREE)
             .mapToObj(TupleUtil::mutableTupleName)
@@ -74,8 +76,7 @@ public class MutableTuplesTestPattern implements Pattern {
     }
 
     private Method create(int degree) {
-        final String tupleGenericTypeName = "MutableTuple" + degree +
-        (degree == 0 ? "" : "<" + range(degree, s -> "Integer") + ">");
+        final String tupleGenericTypeName = "MutableTuple" + degree + (degree == 0 ? "" : "<" + range(degree, s -> "Integer") + ">");
 
         return Method.of("create" + degree, void.class)
             .add(AnnotationUsage.of(TEST))
@@ -115,7 +116,10 @@ public class MutableTuplesTestPattern implements Pattern {
     private Method test(int degree) {
         final Type[] generics = IntStream.range(0, degree).mapToObj(unused -> Integer.class)
             .toArray(java.lang.Class[]::new);
-        final Type type = SimpleParameterizedType.create(SimpleType.create("MutableTuple"+degree), generics);
+        final Type type = SimpleParameterizedType.create(SimpleType.create("MutableTuple" + degree), generics);
+
+        final String tupleGenericTypeName = "MutableTuple" + degree + (degree == 0 ? "" : "<" + range(degree, s -> "Integer") + ">");
+        final String tupleTypeName = "MutableTuple" + degree;
 
         final Method m = Method.of("test", void.class)
             .add(Field.of("tuple", type).final_());
@@ -125,6 +129,20 @@ public class MutableTuplesTestPattern implements Pattern {
             .forEach(m::add);
 
         m.add("assertTuple(tuple, " + degree + ");");
+
+        IntStream.range(0, degree).forEach(i -> {
+            m.add("final TupleGetter<" + tupleGenericTypeName + ", Optional<Integer>> getter" + i + " = " + tupleTypeName + ".getter" + i + "();");
+        });
+        IntStream.range(0, degree).forEach(i -> {
+            m.add("final TupleGetter<" + tupleGenericTypeName + ", Integer> getterOrNull" + i + " = " + tupleTypeName + ".getterOrNull" + i + "();");
+        });
+        IntStream.range(0, degree).forEach(i -> {
+            m.add("assertEquals(" + i + ", getter" + i + ".apply(tuple).orElseThrow(NoSuchElementException::new));");
+        });
+        IntStream.range(0, degree).forEach(i -> {
+            m.add("assertEquals(" + i + ", getterOrNull" + i + ".apply(tuple));");
+        });
+
         IntStream.range(0,degree)
             .mapToObj(i -> "assertEquals(" + i + ", tuple.get" + i + "().orElseThrow(NoSuchElementException::new));")
             .forEach(m::add);

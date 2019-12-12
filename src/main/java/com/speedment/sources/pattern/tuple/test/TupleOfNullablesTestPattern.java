@@ -98,10 +98,10 @@ public class TupleOfNullablesTestPattern implements Pattern {
             .add(Field.of("tuple", tupleGenericType).final_());
 
         IntStream.range(0, degree).forEach(i -> {
-            m.add("TupleGetter<" + tupleGenericTypeName + ", Optional<Integer>> getter" + i + " = " + tupleTypeName + ".getter" + i + "();");
+            m.add("final TupleGetter<" + tupleGenericTypeName + ", Optional<Integer>> getter" + i + " = " + tupleTypeName + ".getter" + i + "();");
         });
         IntStream.range(0, degree).forEach(i -> {
-            m.add("TupleGetter<" + tupleGenericTypeName + ", Integer> getterOrNull" + i + " = " + tupleTypeName + ".getterOrNull" + i + "();");
+            m.add("final TupleGetter<" + tupleGenericTypeName + ", Integer> getterOrNull" + i + " = " + tupleTypeName + ".getterOrNull" + i + "();");
         });
         IntStream.range(0, degree).forEach(i -> {
             m.add("assertEquals(" + i + ", getter" + i + ".index());");
@@ -121,6 +121,10 @@ public class TupleOfNullablesTestPattern implements Pattern {
         m.add("assertThrows(IndexOutOfBoundsException.class, () -> tuple.get(-1));");
         m.add("assertThrows(IndexOutOfBoundsException.class, () -> tuple.get(" + degree + "));");
 
+        m.add("final long expectedSum = tuple.stream()", indent(".filter(Optional::isPresent)", ".map(Optional::get)", ".map(Integer.class::cast)", ".mapToInt(i -> i)", ".sum();"));
+        m.add("assertEquals(" + IntStream.range(0, degree).sum() + ", expectedSum);");
+        m.add("final long expectedSum2 = tuple.streamOf(Integer.class)", indent(".mapToInt(i -> i)", ".sum();"));
+        m.add("assertEquals(" + IntStream.range(0, degree).sum() + ", expectedSum2);");
         return m;
     }
 
