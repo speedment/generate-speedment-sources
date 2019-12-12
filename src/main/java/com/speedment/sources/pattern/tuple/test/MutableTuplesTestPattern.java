@@ -10,6 +10,7 @@ import com.speedment.sources.pattern.tuple.TupleUtil;
 
 import java.lang.reflect.Type;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
@@ -50,6 +51,7 @@ public class MutableTuplesTestPattern implements Pattern {
         file.add(Import.of(SimpleType.create("org.junit.jupiter.api.Assertions")).static_().setStaticMember("*"));
         file.add(Import.of(Supplier.class));
         file.add(Import.of(NoSuchElementException.class));
+        file.add(Import.of(Optional.class));
 
         IntStream.range(0, MAX_DEGREE)
             .mapToObj(TupleUtil::mutableTupleName)
@@ -72,12 +74,33 @@ public class MutableTuplesTestPattern implements Pattern {
     }
 
     private Method create(int degree) {
+        final String tupleGenericTypeName = "MutableTuple" + degree +
+        (degree == 0 ? "" : "<" + range(degree, s -> "Integer") + ">");
+
         return Method.of("create" + degree, void.class)
             .add(AnnotationUsage.of(TEST))
-            .add("final MutableTuple" + degree +
-                (degree == 0 ? "" : "<" + range(degree, s -> "Integer") + ">") +
+            .add("final " + tupleGenericTypeName +
                 " tuple = MutableTuples.create" + degree + "();")
-            .add("test"+degree+"(tuple);");
+            .add("test(tuple);")
+
+            .add("final " + tupleGenericTypeName + " defaultTuple = new " + tupleGenericTypeName + "() ")
+            .add()
+            .add(block(
+                IntStream.range(0, degree).mapToObj(i -> "private Integer t" + i + ";").collect(joining(nl())),
+                IntStream.range(0, degree)
+                    .mapToObj(i ->
+                        "@Override" + nl() +
+                            "public Optional<Integer> get" + i + "() " +
+                            block("return Optional.of(" + i + ");") + nl()+
+                        "@Override" + nl() +
+                            "public void set" + i + "(Integer val) " +
+                            block("t" + i + " = val;")
+                    ).collect(joining(nl()))
+
+            ) + ";")
+            .add("test(defaultTuple);");
+
+
     }
 
     private Method constructor(int degree) {
@@ -86,7 +109,7 @@ public class MutableTuplesTestPattern implements Pattern {
             .add("final Supplier<MutableTuple" + degree +
                 (degree == 0 ? "" : "<" + range(degree, unused -> "Integer") + ">") +
                 "> constructor = MutableTuples.constructor(" + range(degree, unused -> "Integer.class") + ");")
-            .add("test"+degree+"(constructor.get());");
+            .add("test(constructor.get());");
     }
 
     private Method test(int degree) {
@@ -94,7 +117,7 @@ public class MutableTuplesTestPattern implements Pattern {
             .toArray(java.lang.Class[]::new);
         final Type type = SimpleParameterizedType.create(SimpleType.create("MutableTuple"+degree), generics);
 
-        final Method m = Method.of("test" + degree, void.class)
+        final Method m = Method.of("test", void.class)
             .add(Field.of("tuple", type).final_());
 
         IntStream.range(0,degree)
