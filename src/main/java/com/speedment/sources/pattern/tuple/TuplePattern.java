@@ -299,12 +299,12 @@ public final class TuplePattern implements Pattern {
             .default_()
             .add(Field.of("index", int.class));
         if (degree == 0) {
-            method.add(throwNewIllegalArgumentException());
+            method.add(throwNewIndexOutOfBoundsException());
         } else if (degree == 1) {
             method.add("if (index == 0) "
                 +block("return "+type.eval("", "(Optional<Object>)", "(Optional<Object>)") + "get" + 0 + "();")
                 + " else "
-                + block(throwNewIllegalArgumentException())
+                + block(throwNewIndexOutOfBoundsException())
             );
         } else {
             method.add("switch (index) "
@@ -313,7 +313,7 @@ public final class TuplePattern implements Pattern {
                         .mapToObj(i -> "case " + i + " : return " + type.eval("", "(Optional<Object>)", "(Optional<Object>)") + "get" + i + "();")
                         .collect(joining(nl()))
                         + nl()
-                        + "default : " + throwNewIllegalArgumentException()
+                        + "default : " + throwNewIndexOutOfBoundsException()
                     )
                 );
         }
@@ -323,8 +323,8 @@ public final class TuplePattern implements Pattern {
         return method;
     }
 
-    private String throwNewIllegalArgumentException() {
-        return "throw new IllegalArgumentException(String.format(\"Index %d is outside bounds of tuple of degree %s\", index, degree()));";
+    private String throwNewIndexOutOfBoundsException() {
+        return "throw new IndexOutOfBoundsException(String.format(\"Index %d is outside bounds of tuple of degree %s\", index, degree()));";
     }
 
     private Type siblingOf(Class<?> packageOf, String name) {

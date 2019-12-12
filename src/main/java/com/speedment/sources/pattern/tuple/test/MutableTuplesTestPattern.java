@@ -15,8 +15,7 @@ import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.speedment.common.codegen.util.Formatting.block;
-import static com.speedment.common.codegen.util.Formatting.shortName;
+import static com.speedment.common.codegen.util.Formatting.*;
 import static com.speedment.sources.pattern.tuple.TupleUtil.BASE_PACKAGE;
 import static com.speedment.sources.pattern.tuple.TupleUtil.MAX_DEGREE;
 import static java.util.stream.Collectors.joining;
@@ -102,7 +101,19 @@ public class MutableTuplesTestPattern implements Pattern {
             .mapToObj(i -> "tuple.set" + i + "(" + i + ");")
             .forEach(m::add);
 
-        return m.add("assertTuple(tuple, " + degree + ");");
+        m.add("assertTuple(tuple, " + degree + ");");
+        IntStream.range(0,degree)
+            .mapToObj(i -> "assertEquals(" + i + ", tuple.get" + i + "().orElseThrow(NoSuchElementException::new));")
+            .forEach(m::add);
+
+        IntStream.range(0,degree)
+            .mapToObj(i -> "assertEquals("+i+", tuple.get(" + i + ").orElseThrow(NoSuchElementException::new));")
+            .forEach(m::add);
+
+        m.add("assertThrows(IndexOutOfBoundsException.class, () -> tuple.get(-1));");
+        m.add("assertThrows(IndexOutOfBoundsException.class, () -> tuple.get(" + degree + "));");
+
+        return m;
     }
 
 

@@ -233,6 +233,10 @@ public final class Main {
             .forEachOrdered(tuplePatterns::add);
 
         IntStream.range(0, MAX_DEGREE)
+            .mapToObj(i -> new TupleImplTestPattern(i, true))
+            .forEachOrdered(tuplePatterns::add);
+
+        IntStream.range(0, MAX_DEGREE)
             .mapToObj(i -> new TupleMapperImplTestPattern(i, false))
             .forEachOrdered(tuplePatterns::add);
 
@@ -244,6 +248,7 @@ public final class Main {
         tuplePatterns.add(new TuplesOfNullablesTestPattern());
         tuplePatterns.add(new MutableTuplesTestPattern());
         tuplePatterns.add(new TupleTestPattern());
+        tuplePatterns.add(new TupleOfNullablesTestPattern());
 
         final AtomicInteger counter = new AtomicInteger();
 
