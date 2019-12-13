@@ -145,7 +145,8 @@ public final class Main {
         install(patterns, GetImplPattern::new);
         install(patterns, FieldImplPattern::new);
         install(patterns, FieldPattern::new);
-        install(patterns, FieldTestPattern::new);
+        install(patterns, (w, p) -> new FieldTestPattern(w, p, false));
+        install(patterns, (w, p) -> new FieldTestPattern(w, p, true));
         install(patterns, FindFromPattern::new);
         install(patterns, ForeignKeyFieldImplPattern::new);
         install(patterns, ForeignKeyFieldPattern::new);

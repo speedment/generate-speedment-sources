@@ -9,21 +9,20 @@ import com.speedment.common.codegen.model.Class;
 import com.speedment.common.codegen.model.trait.HasFields;
 import com.speedment.common.codegen.model.trait.HasMethods;
 import com.speedment.common.codegen.util.Formatting;
+import com.speedment.runtime.config.Column;
 import com.speedment.runtime.field.ReferenceField;
+import com.speedment.runtime.field.comparator.NullOrder;
 import com.speedment.runtime.field.predicate.Inclusion;
 import com.speedment.runtime.typemapper.TypeMapper;
 
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.speedment.common.codegen.constant.DefaultAnnotationUsage.OVERRIDE;
-import static com.speedment.common.codegen.util.Formatting.indent;
-import static com.speedment.common.codegen.util.Formatting.ucfirst;
+import static com.speedment.common.codegen.util.Formatting.*;
 import static java.util.stream.Collectors.joining;
 
 /**
@@ -35,7 +34,11 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
 
     private static final Type BEFORE_EACH = SimpleType.create("org.junit.jupiter.api.BeforeEach");
     private static final Type TEST = SimpleType.create("org.junit.jupiter.api.Test");
+    private static final Type MOCKITO_EXTEND_WITH = SimpleType.create("org.junit.jupiter.api.extension.ExtendWith");
+    private static final Type MOCKITO_EXTENSION = SimpleType.create("org.mockito.junit.jupiter.MockitoExtension");
+    private static final Type MOCK = SimpleType.create("org.mockito.Mock");
 
+    private final boolean isForeignKey;
     private final String minusOne;
     private final String minusTwo;
     private final String minusFive;
@@ -43,11 +46,16 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
     private final List<String> inStrings;
     private final String notInString;
 
+    private final Type basicEntity = siblingOf(ReferenceField.class, "BasicEntity");
+    private final SimpleParameterizedType fieldType = SimpleParameterizedType.create(siblingOf(ReferenceField.class, "%sField"), basicEntity, wrapperType());
+
     public FieldTestPattern(
         final java.lang.Class<?> wrapper,
-        final java.lang.Class<?> primitive
+        final java.lang.Class<?> primitive,
+        final boolean isForeignKey
     ) {
         super(wrapper, primitive);
+        this.isForeignKey = isForeignKey;
         if (primitiveType() == char.class) {
             minusOne = "/"; // ASCii '0' -1 = '/'
             minusTwo = "."; // ASCii '0' -2 = '.'
@@ -72,7 +80,7 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
 
     @Override
     public String getClassName() {
-        return ucPrimitive() + "FieldTest";
+        return ucPrimitive() + (isForeignKey ? "ForeignKey" : "") + "FieldTest";
     }
 
     @Override
@@ -84,6 +92,14 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
     @SuppressWarnings("unchecked")
     public ClassOrInterface<?> make(File file) {
         file.add(Import.of(StringBuilder.class));
+        file.add(Import.of(SimpleType.create("org.junit.jupiter.api.Assertions")).static_().setStaticMember("*"));
+        file.add(Import.of(SimpleType.create("org.mockito.Mockito")).static_().setStaticMember("when"));
+        file.add(Import.of(SimpleType.create("com.speedment.runtime.field.comparator."+shortName(fieldType.getTypeName())+"Comparator")));
+        file.add(Import.of(Collectors.class).static_().setStaticMember("*"));
+        file.add(Import.of(ArrayList.class));
+        file.add(Import.of(Comparator.class));
+        file.add(Import.of(Type.class));
+        file.add(Import.of(NullOrder.class));
         file.getClasses().stream()
             .map(c -> (HasFields<?> & HasMethods<?>) c)
             .forEach(clazz -> 
@@ -103,6 +119,7 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
         final Class clazz = Class.of(getClassName())
             .final_()
             .add(generatedAnnotation(FieldTestPattern.class))
+            .add(AnnotationUsage.of(MOCKITO_EXTEND_WITH).put("value", Value.ofReference(MOCKITO_EXTENSION.getTypeName() + ".class")))
             .set(Javadoc.of(formatJavadoc(
                 "JUnit tests for the primitive {@code %2$s} field class."
                 ))
@@ -111,11 +128,11 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 .add(DefaultJavadocTag.SEE.setValue(ucPrimitive() + "Field"))
             );
 
+
+
         //if (primitiveType() != char.class) {
         if (true) {
 
-            final Type basicEntity = siblingOf(ReferenceField.class, "BasicEntity");
-            
             file.add(Import.of(Inclusion.class));
             file.add(Import.of(Predicate.class));
             file.add(Import.of(Stream.class));
@@ -132,7 +149,9 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 .private_().final_().static_()
                 .set(Value.ofReference("entity -> \"\" + entity.getVar" + ucPrimitive() + "()"))
             )
-            .add(Field.of("field", SimpleParameterizedType.create(siblingOf(ReferenceField.class, "%sField"), basicEntity, wrapperType())).private_())
+            .add(Field.of("field", fieldType).private_())
+            .add(Field.of("fkField", fieldType).private_())
+            .add(Field.of("column", Column.class).private_().add(AnnotationUsage.of(MOCK)))
             .add(Field.of("entities", DefaultType.list(basicEntity)).private_())
             .add(Field.of("a", basicEntity).private_())
             .add(Field.of("b", basicEntity).private_())
@@ -151,33 +170,7 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
             /*                             Methods                            */
             ////////////////////////////////////////////////////////////////////
             .call(() -> file.add(Import.of(TypeMapper.class)))
-            .add(Method.of("setUp", void.class)
-                .add(AnnotationUsage.of(BEFORE_EACH))
-                .add(
-                    "field = " + ucPrimitive() + "Field.create(",
-                    "    BasicEntity.Identifier.VAR_" + ucPrimitive().toUpperCase() + ",",
-                    "    BasicEntity::getVar" + ucPrimitive() + ",",
-                    "    BasicEntity::setVar" + ucPrimitive() + ",",
-                    "    " + TypeMapper.class.getSimpleName() + ".primitive(),",
-                    "    false",
-                    ");",
-                    "",
-                    "a = new BasicEntity().setVar" + ucPrimitive() + "(" + value("0") + ");",
-                    "b = new BasicEntity().setVar" + ucPrimitive() + "(" + value(minusOne) + ");",
-                    "c = new BasicEntity().setVar" + ucPrimitive() + "(" + value("1") + ");",
-                    "d = new BasicEntity().setVar" + ucPrimitive() + "(" + value("1") + ");",
-                    "e = new BasicEntity().setVar" + ucPrimitive() + "(" + value("2") + ");",
-                    "f = new BasicEntity().setVar" + ucPrimitive() + "(" + value("2") + ");",
-                    "g = new BasicEntity().setVar" + ucPrimitive() + "(" + value("3") + ");",
-                    "h = new BasicEntity().setVar" + ucPrimitive() + "(" + value(minusFive) + ");",
-                    "i = new BasicEntity().setVar" + ucPrimitive() + "(" + value("1") + ");",
-                    "j = new BasicEntity().setVar" + ucPrimitive() + "(" + value(veryLow()) + ");",
-                    "k = new BasicEntity().setVar" + ucPrimitive() + "(" + value(veryHigh()) + ");",
-                    "l = new BasicEntity().setVar" + ucPrimitive() + "(" + value("0") + ");",
-                    "",
-                    "entities = asList(a, b, c, d, e, f, g, h, i, j, k, l);"
-                )
-            )
+            .add(setup())
             
             .add(testBetweenMethod("between", 
                 array("a", "c", "d", "i", "l"), 
@@ -315,12 +308,78 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 array("a", "b",                          "h",      "j", "k", "l"),
                 array("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"),
                 array("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l")
-            ));
+            ))
+
+            .add(getField())
+            .add(comparator())
+            .add(comparatorReversed())
+            .add(comparatorTest())
+            .add(typemapper())
+            .add(isUnique())
+            .add(tableAlias())
+            .add(setTableAlias())
+            .add(getNullOrder())
+            .add(isReversed())
+            .add(setter());
+
         }
     
         return clazz;
     }
-    
+
+    private Method setup() {
+        final Method m = Method.of("setUp", void.class)
+            .add(AnnotationUsage.of(BEFORE_EACH));
+        if (isForeignKey) {
+            m.add(
+                "fkField = " + ucPrimitive() + "Field.create(",
+                "    BasicEntity.Identifier.VAR_" + ucPrimitive().toUpperCase() + ",",
+                "    BasicEntity::getVar" + ucPrimitive() + ",",
+                "    BasicEntity::setVar" + ucPrimitive() + ",",
+                "    " + TypeMapper.class.getSimpleName() + ".primitive(),",
+                "    false",
+                ");",
+                "field = " + ucPrimitive() + "ForeignKeyField.create(",
+                "    BasicEntity.Identifier.VAR_" + ucPrimitive().toUpperCase() + ",",
+                "    BasicEntity::getVar" + ucPrimitive() + ",",
+                "    BasicEntity::setVar" + ucPrimitive() + ",",
+                "    fkField,",
+                "    " + TypeMapper.class.getSimpleName() + ".primitive(),",
+                "    false",
+                ");"
+            );
+        } else {
+            m.add(
+            "fkField = null;",
+            "field = " + ucPrimitive() + "Field.create(",
+                "    BasicEntity.Identifier.VAR_" + ucPrimitive().toUpperCase() + ",",
+                "    BasicEntity::getVar" + ucPrimitive() + ",",
+                "    BasicEntity::setVar" + ucPrimitive() + ",",
+                "    " + TypeMapper.class.getSimpleName() + ".primitive(),",
+                "    false",
+                ");"
+            );
+        }
+            m.add(
+                "",
+                "a = new BasicEntity().setVar" + ucPrimitive() + "(" + value("0") + ");",
+                "b = new BasicEntity().setVar" + ucPrimitive() + "(" + value(minusOne) + ");",
+                "c = new BasicEntity().setVar" + ucPrimitive() + "(" + value("1") + ");",
+                "d = new BasicEntity().setVar" + ucPrimitive() + "(" + value("1") + ");",
+                "e = new BasicEntity().setVar" + ucPrimitive() + "(" + value("2") + ");",
+                "f = new BasicEntity().setVar" + ucPrimitive() + "(" + value("2") + ");",
+                "g = new BasicEntity().setVar" + ucPrimitive() + "(" + value("3") + ");",
+                "h = new BasicEntity().setVar" + ucPrimitive() + "(" + value(minusFive) + ");",
+                "i = new BasicEntity().setVar" + ucPrimitive() + "(" + value("1") + ");",
+                "j = new BasicEntity().setVar" + ucPrimitive() + "(" + value(veryLow()) + ");",
+                "k = new BasicEntity().setVar" + ucPrimitive() + "(" + value(veryHigh()) + ");",
+                "l = new BasicEntity().setVar" + ucPrimitive() + "(" + value("0") + ");",
+                "",
+                "entities = asList(a, b, c, d, e, f, g, h, i, j, k, l);"
+            );
+        return m;
+    }
+
     private Method testBetweenMethod(String name, String[] e0, String[] e1, String[] e2, String[] e3, String[] e4, String[] e5) {
         return Method.of("test" + ucfirst(name), void.class)
             .add(AnnotationUsage.of(TEST))
@@ -342,12 +401,12 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 "final List<BasicEntity> e5 = asList(" + Stream.of(e5).collect(joining(", ")) + ");",
                 "",
                 "// Create a number of actual results",
-                "final List<BasicEntity> a0 = entities.stream().filter(t0).collect(Collectors.toList());",
-                "final List<BasicEntity> a1 = entities.stream().filter(t1).collect(Collectors.toList());",
-                "final List<BasicEntity> a2 = entities.stream().filter(t2).collect(Collectors.toList());",
-                "final List<BasicEntity> a3 = entities.stream().filter(t3).collect(Collectors.toList());",
-                "final List<BasicEntity> a4 = entities.stream().filter(t4).collect(Collectors.toList());",
-                "final List<BasicEntity> a5 = entities.stream().filter(t5).collect(Collectors.toList());",
+                "final List<BasicEntity> a0 = entities.stream().filter(t0).collect(toList());",
+                "final List<BasicEntity> a1 = entities.stream().filter(t1).collect(toList());",
+                "final List<BasicEntity> a2 = entities.stream().filter(t2).collect(toList());",
+                "final List<BasicEntity> a3 = entities.stream().filter(t3).collect(toList());",
+                "final List<BasicEntity> a4 = entities.stream().filter(t4).collect(toList());",
+                "final List<BasicEntity> a5 = entities.stream().filter(t5).collect(toList());",
                 "",
                 "// Test the results",
                 "TestUtil.assertListEqual(\"Test 0: " + name + "(0, 2):\",                                a0, e0, FORMATTER);",
@@ -387,15 +446,15 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 "final List<BasicEntity> e8 = asList(" + Stream.of(e8).collect(joining(", ")) + ");",
                 "",
                 "// Create a number of actual results",
-                "final List<BasicEntity> a0 = entities.stream().filter(t0).collect(Collectors.toList());",
-                "final List<BasicEntity> a1 = entities.stream().filter(t1).collect(Collectors.toList());",
-                "final List<BasicEntity> a2 = entities.stream().filter(t2).collect(Collectors.toList());",
-                "final List<BasicEntity> a3 = entities.stream().filter(t3).collect(Collectors.toList());",
-                "final List<BasicEntity> a4 = entities.stream().filter(t4).collect(Collectors.toList());",
-                "final List<BasicEntity> a5 = entities.stream().filter(t5).collect(Collectors.toList());",
-                "final List<BasicEntity> a6 = entities.stream().filter(t6).collect(Collectors.toList());",
-                "final List<BasicEntity> a7 = entities.stream().filter(t7).collect(Collectors.toList());",
-                "final List<BasicEntity> a8 = entities.stream().filter(t8).collect(Collectors.toList());",
+                "final List<BasicEntity> a0 = entities.stream().filter(t0).collect(toList());",
+                "final List<BasicEntity> a1 = entities.stream().filter(t1).collect(toList());",
+                "final List<BasicEntity> a2 = entities.stream().filter(t2).collect(toList());",
+                "final List<BasicEntity> a3 = entities.stream().filter(t3).collect(toList());",
+                "final List<BasicEntity> a4 = entities.stream().filter(t4).collect(toList());",
+                "final List<BasicEntity> a5 = entities.stream().filter(t5).collect(toList());",
+                "final List<BasicEntity> a6 = entities.stream().filter(t6).collect(toList());",
+                "final List<BasicEntity> a7 = entities.stream().filter(t7).collect(toList());",
+                "final List<BasicEntity> a8 = entities.stream().filter(t8).collect(toList());",
                 "",
                 "// Test the results",
                 "TestUtil.assertListEqual(\"Test 0: " + name + "(" + minusOne + "):\",        a0, e0, FORMATTER);",
@@ -439,15 +498,15 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 "final List<BasicEntity> e8 = asList(" + Stream.of(e8).collect(joining(", ")) + ");",
                 "",
                 "// Create a number of actual results",
-                "final List<BasicEntity> a0 = entities.stream().filter(t0).collect(Collectors.toList());",
-                "final List<BasicEntity> a1 = entities.stream().filter(t1).collect(Collectors.toList());",
-                "final List<BasicEntity> a2 = entities.stream().filter(t2).collect(Collectors.toList());",
-                "final List<BasicEntity> a3 = entities.stream().filter(t3).collect(Collectors.toList());",
-                "final List<BasicEntity> a4 = entities.stream().filter(t4).collect(Collectors.toList());",
-                "final List<BasicEntity> a5 = entities.stream().filter(t5).collect(Collectors.toList());",
-                "final List<BasicEntity> a6 = entities.stream().filter(t6).collect(Collectors.toList());",
-                "final List<BasicEntity> a7 = entities.stream().filter(t7).collect(Collectors.toList());",
-                "final List<BasicEntity> a8 = entities.stream().filter(t8).collect(Collectors.toList());",
+                "final List<BasicEntity> a0 = entities.stream().filter(t0).collect(toList());",
+                "final List<BasicEntity> a1 = entities.stream().filter(t1).collect(toList());",
+                "final List<BasicEntity> a2 = entities.stream().filter(t2).collect(toList());",
+                "final List<BasicEntity> a3 = entities.stream().filter(t3).collect(toList());",
+                "final List<BasicEntity> a4 = entities.stream().filter(t4).collect(toList());",
+                "final List<BasicEntity> a5 = entities.stream().filter(t5).collect(toList());",
+                "final List<BasicEntity> a6 = entities.stream().filter(t6).collect(toList());",
+                "final List<BasicEntity> a7 = entities.stream().filter(t7).collect(toList());",
+                "final List<BasicEntity> a8 = entities.stream().filter(t8).collect(toList());",
                 "",
                 "// Test the results",
                 "TestUtil.assertListEqual(\"Test 0: " + setName + "():\",                        a0, e0, FORMATTER);",
@@ -462,7 +521,91 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
             )
         ;
     }
-    
+
+    private Method getField() {
+        return Method.of("getField", void.class)
+            .add(AnnotationUsage.of(TEST))
+            .add("final " + shortName(fieldType.getTypeName()) + "<BasicEntity, " + shortName(wrapperType().getTypeName()) + "> other = field.getField();")
+            .add("assertNotNull(other);");
+    }
+
+    private Method comparator() {
+        return Method.of("comparator", void.class)
+            .add(AnnotationUsage.of(TEST))
+            .add("comparator(false);");
+    }
+
+    private Method comparatorReversed() {
+        return Method.of("comparatorReversed", void.class)
+            .add(AnnotationUsage.of(TEST))
+            .add("comparator(true);");
+    }
+
+    private Method comparatorTest() {
+        return Method.of("comparator", void.class)
+            .add(Field.of("reversed", boolean.class).final_())
+            //.add("final List<" + wrapper() + "> list = Stream.of(100, 101, 102, 103, 104, 17, 1).map(" + wrapper() + ".class::cast).collect(toList());")
+            .add("final " + shortName(fieldType.getTypeName()) + "Comparator<BasicEntity, " + shortName(wrapperType().getTypeName()) + "> comparator = reversed ? field.reversed() : field.comparator();")
+            .add("final List<BasicEntity> actual = new ArrayList<>(entities);")
+            .add("actual.sort(comparator);")
+            .add()
+            .add("final Comparator<BasicEntity> comparatorExpected = Comparator.comparing(BasicEntity::getVar" + ucPrimitive() + ");")
+            .add("final List<BasicEntity> expected = new ArrayList<>(entities);")
+            .add("expected.sort(reversed ? comparatorExpected.reversed() : comparatorExpected);")
+            .add()
+            .add("assertEquals(expected, actual);");
+    }
+
+    private Method typemapper() {
+        return Method.of("typemapper", void.class)
+            .add(AnnotationUsage.of(TEST))
+            .add("when(column.getDatabaseType()).thenReturn(" + wrapper() + ".class.getName());")
+            .add("final Type fieldType = field.typeMapper().getJavaType(column);")
+            .add("assertEquals(" + primitive() + ".class.getSimpleName(), fieldType.getTypeName());");
+    }
+
+    private Method isUnique() {
+        return Method.of("isUnique", void.class)
+            .add(AnnotationUsage.of(TEST))
+            .add("assertFalse(field.isUnique());");
+    }
+
+    private Method tableAlias() {
+        return Method.of("tableAlias", void.class)
+            .add(AnnotationUsage.of(TEST))
+            .add("assertNotNull(field.tableAlias());");
+    }
+
+    private Method setTableAlias() {
+        return Method.of("setTableAlias", void.class)
+            .add(AnnotationUsage.of(TEST))
+            .add("final String name = \"tryggve\";")
+            .add("assertEquals(name, field.tableAlias(name).tableAlias());")
+            .add("assertEquals(field.identifier().getColumnId(), field.tableAlias(name).identifier().getColumnId());");
+    }
+
+    private Method getNullOrder() {
+        return Method.of("getNullOrder", void.class)
+            .add(AnnotationUsage.of(TEST))
+            .add("assertEquals(NullOrder.LAST, field.getNullOrder());");
+    }
+
+    private Method isReversed() {
+        return Method.of("isReversed", void.class)
+            .add(AnnotationUsage.of(TEST))
+            .add("assertFalse(field.isReversed());");
+    }
+
+    private Method setter() {
+        return Method.of("setter", void.class)
+            .add(AnnotationUsage.of(TEST))
+            .add("final " + primitive() + " expected = (" + primitive() + ") 1;")
+            .add("final BasicEntity entity = new BasicEntity();")
+            .add("field.setter().set(entity, expected);")
+            .add("assertEquals(expected, entity.getVar" + ucPrimitive() + "());");
+    }
+
+
     private String asSet(boolean set, String... values) {
         if (set) {
             switch (values.length) {
@@ -471,7 +614,7 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
                 case 1:
                     return "Collections.singleton(" + value(values[0]) + ")";
                 default:
-                    return "Stream.of(" + valueList(values) + ").collect(Collectors.toSet())";
+                    return "Stream.of(" + valueList(values) + ").collect(toSet())";
             }
         } else {
             return valueList(values);
