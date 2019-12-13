@@ -544,14 +544,13 @@ public final class FieldTestPattern extends AbstractSiblingPattern {
     private Method comparatorTest() {
         return Method.of("comparator", void.class)
             .add(Field.of("reversed", boolean.class).final_())
-            //.add("final List<" + wrapper() + "> list = Stream.of(100, 101, 102, 103, 104, 17, 1).map(" + wrapper() + ".class::cast).collect(toList());")
-            .add("final " + shortName(fieldType.getTypeName()) + "Comparator<BasicEntity, " + shortName(wrapperType().getTypeName()) + "> comparator = reversed ? field.reversed() : field.comparator();")
-            .add("final List<BasicEntity> actual = new ArrayList<>(entities);")
-            .add("actual.sort(comparator);")
-            .add()
             .add("final Comparator<BasicEntity> comparatorExpected = Comparator.comparing(BasicEntity::getVar" + ucPrimitive() + ");")
             .add("final List<BasicEntity> expected = new ArrayList<>(entities);")
             .add("expected.sort(reversed ? comparatorExpected.reversed() : comparatorExpected);")
+            .add()
+            .add("final " + shortName(fieldType.getTypeName()) + "Comparator<BasicEntity, " + shortName(wrapperType().getTypeName()) + "> comparator = reversed ? field.reversed() : field.comparator();")
+            .add("final List<BasicEntity> actual = new ArrayList<>(entities);")
+            .add("actual.sort(comparator);")
             .add()
             .add("assertEquals(expected, actual);");
     }
